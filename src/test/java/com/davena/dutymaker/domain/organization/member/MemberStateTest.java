@@ -1,6 +1,8 @@
 package com.davena.dutymaker.domain.member;
 
 import com.davena.dutymaker.domain.ShiftType;
+import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.domain.organization.member.MemberState;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,8 @@
 package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.domain.ShiftType;
-import com.davena.dutymaker.domain.member.MemberState;
+import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.domain.organization.member.MemberState;
 import com.davena.dutymaker.domain.policy.PolicyRules;
 import com.davena.dutymaker.domain.policy.ShiftDateRules;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,10 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class HardPolicyFilter {
 
-    public boolean canAssign(MemberState memberState, LocalDate today, ShiftType expectedShift) {
+    public boolean canAssign(MemberState memberState, LocalDate today, Team team, ShiftType expectedShift) {
+        if(!memberState.getTeamName().equals(team.getName())) {
+            return false;
+        }
         if (!memberState.isPossibleShift(expectedShift)) {
             return false;
         }
