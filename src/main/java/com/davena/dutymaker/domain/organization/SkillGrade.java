@@ -5,9 +5,7 @@ import com.davena.dutymaker.domain.organization.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -26,6 +24,7 @@ public class SkillGrade extends BaseEntity {
         ward.addSkillGrade(this);
     }
 
+    public static final String NOT_MATCH_GRADE_WITH_WARD_MEMBERS_COUNT = "숙련도에 분류되지 않은 근무자가 존재합니다.";
     @Column
     private String name;
 
@@ -35,4 +34,14 @@ public class SkillGrade extends BaseEntity {
 
     @OneToMany(mappedBy = "skillGrade")
     private Set<Member> members = new HashSet<>();
+
+    public void addMember(Member member) {
+        members.add(member);
+    }
+
+    public void removeMember(Member member) {
+        if(!members.contains(member)) {
+            members.remove(member);
+        }
+    }
 }
