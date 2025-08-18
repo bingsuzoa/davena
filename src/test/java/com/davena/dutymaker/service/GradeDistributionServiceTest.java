@@ -3,9 +3,14 @@ package com.davena.dutymaker.service;
 import com.davena.dutymaker.api.dto.skillGrade.GradeDistributionRequest;
 import com.davena.dutymaker.api.dto.skillGrade.SkillGradeBox;
 import com.davena.dutymaker.domain.organization.Hospital;
+import com.davena.dutymaker.domain.organization.SkillGrade;
+import com.davena.dutymaker.domain.organization.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.repository.MemberRepository;
+import com.davena.dutymaker.repository.SkillGradeRepository;
+import com.davena.dutymaker.repository.TeamRepository;
+import com.davena.dutymaker.repository.WardRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -18,20 +23,22 @@ import java.util.List;
 
 @DataJpaTest
 @Import({
-        GradeDistributionService.class,
-        SkillGradeService.class,
-        MemberService.class,
-        WardService.class
+        GradeDistributionService.class
 })
 public class GradeDistributionServiceTest {
 
     @Autowired
     EntityManager em;
-
     @Autowired
-    private GradeDistributionService gradeDistributionService;
+    private SkillGradeRepository skillGradeRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private WardRepository wardRepository;
+    @Autowired
+    private TeamRepository teamRepository;
+    @Autowired
+    private GradeDistributionService gradeDistributionService;
 
     @Test
     @DisplayName("멤버의 숙련도 생성하는 테스트")
@@ -39,25 +46,25 @@ public class GradeDistributionServiceTest {
         Hospital hospital = new Hospital();
         em.persist(hospital);
 
-        Ward ward = new Ward(hospital, "외상 병동");
-        em.persist(ward);
+        Member supervisor = memberRepository.save(new Member("팀장", "팀장", "01011112222", "1234"));
+        Ward ward = wardRepository.save(new Ward(hospital, supervisor, "외상 병동"));
 
-        Member member1 = new Member("김간호");
-        em.persist(member1);
-        member1.updateWard(ward);
-        Member member2 = new Member("박간호");
-        em.persist(member2);
-        member2.updateWard(ward);
-        Member member3 = new Member("최간호");
-        em.persist(member3);
-        member3.updateWard(ward);
+        Team defaultTeam = teamRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+        SkillGrade defaultGrade = skillGradeRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
 
-        SkillGradeBox grade1 = new SkillGradeBox(null, "1등급", List.of(member1.getId()));
+        Member member1 = memberRepository.save(new Member("김간호", "김간호", "01011112223", "1234"));
+        member1.joinWard(ward, defaultTeam, defaultGrade);
+        Member member2 = memberRepository.save(new Member("박간호", "박간호", "01011112224", "1234"));
+        member2.joinWard(ward, defaultTeam, defaultGrade);
+        Member member3 = memberRepository.save(new Member("최간호", "최간호", "01011112225", "1234"));
+        member3.joinWard(ward, defaultTeam, defaultGrade);
+
+        SkillGradeBox grade1 = new SkillGradeBox(defaultGrade.getId(), defaultGrade.getName(), List.of(member1.getId()));
         SkillGradeBox grade2 = new SkillGradeBox(null, "2등급", List.of(member2.getId(), member3.getId()));
         GradeDistributionRequest request = new GradeDistributionRequest(List.of(grade1, grade2));
         gradeDistributionService.createSkillGrades(ward.getId(), request);
 
-        Member member = memberRepository.findById(member2.getId()).orElseThrow();
-        Assertions.assertEquals(member.getSkillGrade().getName(), "2등급");
+        Ward updatedWard = wardRepository.getWardWithSkillGrades(ward.getId()).get();
+        Assertions.assertEquals(updatedWard.getSkillGrades().size(), 2);
     }
 }
