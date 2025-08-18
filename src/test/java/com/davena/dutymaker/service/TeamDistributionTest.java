@@ -2,6 +2,7 @@ package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.api.dto.team.TeamBox;
 import com.davena.dutymaker.api.dto.team.TeamDistributionRequest;
+import com.davena.dutymaker.api.dto.team.TeamUpdateRequest;
 import com.davena.dutymaker.domain.organization.Hospital;
 import com.davena.dutymaker.domain.organization.SkillGrade;
 import com.davena.dutymaker.domain.organization.Team;
@@ -45,6 +46,55 @@ public class TeamDistributionTest {
 
 
     /// /////////해피 테스트
+    @Test
+    @DisplayName("팀 이름 변경하기")
+    void 병동_팀_이름_변경() {
+        Hospital hospital = new Hospital();
+        em.persist(hospital);
+
+        Member supervisor = memberRepository.save(new Member("김간호", "김간호", "01011112222", "1234"));
+        Ward ward = wardRepository.save(new Ward(hospital, supervisor, "외상병동"));
+
+        Team defaultTeam = teamRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+
+        TeamUpdateRequest request = new TeamUpdateRequest("새로운 팀 이름");
+        teamDistributionService.updateTeam(ward.getId(), defaultTeam.getId(), request);
+        Team updatedTeam = teamRepository.findByWardIdAndId(ward.getId(), defaultTeam.getId()).get();
+        Assertions.assertEquals(updatedTeam.getName(), "새로운 팀 이름");
+    }
+    @Test
+    @DisplayName("병동의 팀 정보 삭제하기")
+    void 병동의_팀_삭제() {
+        Hospital hospital = new Hospital();
+        em.persist(hospital);
+        Member supervisor = memberRepository.save(new Member("김간호", "김간호", "01011112222", "1234"));
+        Ward ward = wardRepository.save(new Ward(hospital,supervisor, "외상병동"));
+
+        Team defaultTeam = teamRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+        SkillGrade defaultGrade = gradeRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+
+        Member member1 = new Member("박간호", "박간호", "01011112223", "1234");;
+        memberRepository.save(member1);
+        member1.joinWard(ward, defaultTeam, defaultGrade);
+        Member member2 = new Member("최간호", "최간호", "01011112224", "1234");
+        memberRepository.save(member2);
+        member2.joinWard(ward, defaultTeam, defaultGrade);
+        Member member3 = new Member("유간호", "유간호", "01011112225", "1234");
+        memberRepository.save(member3);
+        member3.joinWard(ward, defaultTeam, defaultGrade);
+
+        TeamBox teamBox1 = new TeamBox(defaultTeam.getId(), defaultTeam.getName(), List.of(member1.getId()));
+        TeamBox teamBox2 = new TeamBox(null, "b팀", List.of(member2.getId(), member3.getId()));
+        teamDistributionService.updateTeamDistribution(ward.getId(), new TeamDistributionRequest(List.of(teamBox1, teamBox2)));
+
+        Team deleteTeam = teamRepository.findByWardIdAndName(ward.getId(), "b팀").get();
+        teamDistributionService.deleteTeam(ward.getId(), deleteTeam.getId());
+        em.flush();
+        em.clear();
+        Ward updatedWard = wardRepository.findById(ward.getId()).get();
+        Assertions.assertEquals(1, updatedWard.getTeams().size());
+    }
+
     @Test
     @DisplayName("병동의 팀 정보 업데이트하기")
     void 병동의_팀_정보_업데이트하기() {
@@ -111,4 +161,35 @@ public class TeamDistributionTest {
         assertTrue(teamRepository.findByWardIdAndName(ward.getId(), "c팀").isEmpty());
     }
 
+    /// ///예외 테스트
+    @Test
+    @DisplayName("병동의 기본 팀 삭제 시도 시 예외 발생")
+    void 병동_기본_팀_삭제_시_예외() {
+        Hospital hospital = new Hospital();
+        em.persist(hospital);
+        Member supervisor = memberRepository.save(new Member("김간호", "김간호", "01011112222", "1234"));
+        Ward ward = wardRepository.save(new Ward(hospital,supervisor, "외상병동"));
+
+        Team defaultTeam = teamRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+        SkillGrade defaultGrade = gradeRepository.findByWardIdAndIsDefaultTrue(ward.getId()).get();
+
+        Member member1 = new Member("박간호", "박간호", "01011112223", "1234");;
+        memberRepository.save(member1);
+        member1.joinWard(ward, defaultTeam, defaultGrade);
+        Member member2 = new Member("최간호", "최간호", "01011112224", "1234");
+        memberRepository.save(member2);
+        member2.joinWard(ward, defaultTeam, defaultGrade);
+        Member member3 = new Member("유간호", "유간호", "01011112225", "1234");
+        memberRepository.save(member3);
+        member3.joinWard(ward, defaultTeam, defaultGrade);
+
+        TeamBox teamBox1 = new TeamBox(defaultTeam.getId(), defaultTeam.getName(), List.of(member1.getId()));
+        TeamBox teamBox2 = new TeamBox(null, "b팀", List.of(member2.getId(), member3.getId()));
+        teamDistributionService.updateTeamDistribution(ward.getId(), new TeamDistributionRequest(List.of(teamBox1, teamBox2)));
+
+        Team deleteTeam = teamRepository.findByWardIdAndName(ward.getId(), defaultTeam.getName()).get();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            teamDistributionService.deleteTeam(ward.getId(), deleteTeam.getId());
+        });
+    }
 }
