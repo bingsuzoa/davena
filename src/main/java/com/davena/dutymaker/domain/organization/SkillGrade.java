@@ -18,15 +18,24 @@ public class SkillGrade extends BaseEntity {
 
     }
 
-    public SkillGrade(Ward ward, String name) {
+    public SkillGrade(
+            Ward ward,
+            String name
+    ) {
         this.ward = ward;
         this.name = name;
         ward.addSkillGrade(this);
     }
 
     public static final String NOT_MATCH_GRADE_WITH_WARD_MEMBERS_COUNT = "숙련도에 분류되지 않은 근무자가 존재합니다.";
+    public static final String NOT_EXIST_GRADE = "존재하지 않는 숙련도 등급입니다.";
+    public static final String DEFAULT_SKILL_GRADE = "1단계";
+
     @Column
     private String name;
+
+    @Column(name = "is_default", nullable = false)
+    private boolean isDefault = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ward_id")
@@ -35,12 +44,22 @@ public class SkillGrade extends BaseEntity {
     @OneToMany(mappedBy = "skillGrade")
     private Set<Member> members = new HashSet<>();
 
+    public static SkillGrade ofDefault(Ward ward) {
+        SkillGrade skillGrade =  new SkillGrade(ward, DEFAULT_SKILL_GRADE);
+        skillGrade.makeDefault(skillGrade);
+        return skillGrade;
+    }
+
+    private void makeDefault(SkillGrade skillGrade) {
+        skillGrade.isDefault = true;
+    }
+
     public void addMember(Member member) {
         members.add(member);
     }
 
     public void removeMember(Member member) {
-        if(!members.contains(member)) {
+        if (!members.contains(member)) {
             members.remove(member);
         }
     }

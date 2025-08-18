@@ -22,38 +22,69 @@ public class Member extends BaseEntity {
 
     }
 
-    public Member(String name) {
+    public Member(
+            String name,
+            String nickName,
+            String phoneNumber,
+            String password) {
         this.name = name;
+        this.nickName = nickName;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
     public static final String NOT_EXIST_MEMBER = "존재하지 않는 근무자입니다.";
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "nick_name", nullable = false)
+    private String nickName;
+
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "member")
-    private List<Assignment> assignments = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @Column(nullable = false)
+    private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Ward ward;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_grade_id")
     private SkillGrade skillGrade;
+
+    @OneToMany(mappedBy = "member")
+    private List<Assignment> assignments = new ArrayList<>();
 
     public void addAssignment(Assignment assignment) {
         assignments.add(assignment);
     }
 
-    public void changeTeam(Team newTeam) {
+    public void joinWard(Ward ward, Team defaultTeam, SkillGrade defaultGrade) {
+        this.ward = ward;
+        this.team = defaultTeam;
+        this.skillGrade = defaultGrade;
+    }
+
+    public void updateSkillGrade(SkillGrade newSkillGrade) {
+        if(newSkillGrade == null) {
+            this.skillGrade = newSkillGrade;
+            newSkillGrade.addMember(this);
+        }
+        if(!Objects.equals(this.skillGrade, newSkillGrade)) {
+            newSkillGrade.removeMember(this);
+            this.skillGrade = newSkillGrade;
+            newSkillGrade.addMember(this);
+        }
+    }
+
+    public void updateTeam(Team newTeam) {
         if(team == null) {
             team = newTeam;
             newTeam.addMember(this);
@@ -64,21 +95,6 @@ public class Member extends BaseEntity {
             team = newTeam;
             newTeam.addMember(this);
         }
-    }
-
-    public void initTeam() {
-        if(team != null) {
-            team.removeMember(this);
-            team = null;
-        }
-    }
-
-    public String updateWard(Ward newWard) {
-        if(ward == null || !Objects.equals(ward, newWard)) {
-            ward = newWard;
-            ward.addMember(this);
-        }
-        return ward.getName();
     }
 
     @Override

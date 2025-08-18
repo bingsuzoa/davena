@@ -1,4 +1,4 @@
-package com.davena.dutymaker.api.dto;
+package com.davena.dutymaker.api.dto.team;
 
 import java.util.List;
 

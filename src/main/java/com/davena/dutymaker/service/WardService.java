@@ -1,6 +1,12 @@
 package com.davena.dutymaker.service;
 
+import com.davena.dutymaker.api.dto.ward.WardRequest;
+import com.davena.dutymaker.domain.organization.Hospital;
+import com.davena.dutymaker.domain.organization.SkillGrade;
+import com.davena.dutymaker.domain.organization.Team;
 import com.davena.dutymaker.domain.organization.Ward;
+import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.repository.MemberRepository;
 import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,12 +16,18 @@ import org.springframework.stereotype.Service;
 public class WardService {
 
     private final WardRepository wardRepository;
+    private final MemberRepository memberRepository;
 
-    public Ward getWard(Long wardId) {
-        return wardRepository.findById(wardId).orElseThrow(() -> new IllegalArgumentException(Ward.NOT_EXIST_WARD));
+    public Ward createWard(Long memberId, WardRequest wardRequest) {
+        Hospital hospital = new Hospital();////////수정 필요!!!
+        Member member = getMember(memberId);
+        Ward ward = new Ward(hospital, member, wardRequest.name());
+        return wardRepository.save(ward);
     }
 
-    public Ward getWardWithMembers(Long wardId) {
-        return wardRepository.getWardWithMembers(wardId).orElseThrow(() -> new IllegalArgumentException(Ward.NOT_EXIST_WARD));
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() ->
+                new IllegalArgumentException(Member.NOT_EXIST_MEMBER));
     }
+
 }

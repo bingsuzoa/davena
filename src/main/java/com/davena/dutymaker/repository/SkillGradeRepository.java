@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SkillGradeRepository extends JpaRepository<SkillGrade, Long> {
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from SkillGrade s where s.ward.id = :wardId")
     void deleteByWardId(Long wardId);
+
+    Optional<SkillGrade> findByWardIdAndIsDefaultTrue(Long wardId);
 }
