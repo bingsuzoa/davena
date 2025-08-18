@@ -2,7 +2,9 @@ package com.davena.dutymaker.api.controller;
 
 import com.davena.dutymaker.api.dto.member.MemberRequest;
 import com.davena.dutymaker.api.dto.skillGrade.GradeDistributionRequest;
+import com.davena.dutymaker.api.dto.skillGrade.GradeUpdateRequest;
 import com.davena.dutymaker.api.dto.team.TeamDistributionRequest;
+import com.davena.dutymaker.api.dto.team.TeamUpdateRequest;
 import com.davena.dutymaker.api.dto.ward.WardRequest;
 import com.davena.dutymaker.service.GradeDistributionService;
 import com.davena.dutymaker.service.MemberService;
@@ -42,6 +44,11 @@ public class OrganizationController {
         teamDistributionService.deleteTeam(wardId, teamId);
     }
 
+    @PutMapping("/{wardId}/{teamId}")
+    public void updateTeam(@PathVariable Long wardId, @PathVariable Long teamId, TeamUpdateRequest request) {
+        teamDistributionService.updateTeam(wardId, teamId, request);
+    }
+
     @PutMapping("/{wardId}/grades/distribution")
     public void distributeSkillGrades(@PathVariable Long wardId, GradeDistributionRequest request) {
         gradeDistributionService.createSkillGrades(wardId, request);
@@ -50,5 +57,10 @@ public class OrganizationController {
     @DeleteMapping("/{wardId}/{gradeId}")
     public void deleteGrade(@PathVariable Long wardId, @PathVariable Long gradeId) {
         gradeDistributionService.deleteGrade(wardId, gradeId);
+    }
+
+    @PutMapping("/{wardId}/{gradId}")
+    public void updateGrade(@PathVariable Long wardId, @PathVariable Long gradeId, GradeUpdateRequest request) {
+        gradeDistributionService.updateGrade(wardId, gradeId, request);
     }
 }

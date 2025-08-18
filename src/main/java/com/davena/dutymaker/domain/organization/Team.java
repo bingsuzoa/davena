@@ -59,6 +59,11 @@ public class Team extends BaseEntity {
         return team;
     }
 
+    public String updateName(String name) {
+        this.name = name;
+        return name;
+    }
+
     private void makeDefault(Team team) {
         team.isDefault = true;
     }

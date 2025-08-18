@@ -1,6 +1,7 @@
 package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.api.dto.skillGrade.GradeDistributionRequest;
+import com.davena.dutymaker.api.dto.skillGrade.GradeUpdateRequest;
 import com.davena.dutymaker.api.dto.skillGrade.SkillGradeBox;
 import com.davena.dutymaker.domain.organization.SkillGrade;
 import com.davena.dutymaker.domain.organization.Ward;
@@ -25,6 +26,16 @@ public class GradeDistributionService {
     private final SkillGradeRepository skillGradeRepository;
     private final MemberRepository memberRepository;
     private final WardRepository wardRepository;
+
+    @Transactional
+    public void updateGrade(Long wardId, Long gradeId, GradeUpdateRequest request) {
+        Optional<SkillGrade> optionalGrade = skillGradeRepository.findByWardIdAndId(wardId, gradeId);
+        if(optionalGrade.isEmpty()) {
+            throw new IllegalArgumentException(SkillGrade.NOT_EXIST_GRADE);
+        }
+        SkillGrade grade = optionalGrade.get();
+        grade.updateName(request.name());
+    }
 
     @Transactional
     public void deleteGrade(Long wardId, Long gradeId) {

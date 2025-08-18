@@ -30,6 +30,7 @@ public class SkillGrade extends BaseEntity {
     public static final String NOT_MATCH_GRADE_WITH_WARD_MEMBERS_COUNT = "숙련도에 분류되지 않은 근무자가 존재합니다.";
     public static final String NOT_EXIST_GRADE = "존재하지 않는 숙련도 등급입니다.";
     public static final String DEFAULT_SKILL_GRADE = "1단계";
+    public static final String CANNOT_DELETE_DEFAULT_SKILL_GRADE = "기본 숙련도는 삭제할 수 없습니다.";
 
     @Column
     private String name;
@@ -48,6 +49,11 @@ public class SkillGrade extends BaseEntity {
         SkillGrade skillGrade =  new SkillGrade(ward, DEFAULT_SKILL_GRADE);
         skillGrade.makeDefault(skillGrade);
         return skillGrade;
+    }
+
+    public String updateName(String name) {
+        this.name = name;
+        return name;
     }
 
     private void makeDefault(SkillGrade skillGrade) {

@@ -2,6 +2,7 @@ package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.api.dto.team.TeamBox;
 import com.davena.dutymaker.api.dto.team.TeamDistributionRequest;
+import com.davena.dutymaker.api.dto.team.TeamUpdateRequest;
 import com.davena.dutymaker.domain.organization.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
@@ -24,6 +25,16 @@ public class TeamDistributionService {
     private final MemberRepository memberRepository;
     private final WardRepository wardRepository;
     private final TeamRepository teamRepository;
+
+    @Transactional
+    public void updateTeam(Long wardId, Long teamId, TeamUpdateRequest request) {
+        Optional<Team> optionalTeam = teamRepository.findByWardIdAndId(wardId, teamId);
+        if(optionalTeam.isEmpty()) {
+            throw new IllegalArgumentException(Team.NOT_EXIST_TEAM);
+        }
+        Team team = optionalTeam.get();
+        team.updateName(request.name());
+    }
 
     @Transactional
     public void deleteTeam(Long wardId, Long teamId) {
