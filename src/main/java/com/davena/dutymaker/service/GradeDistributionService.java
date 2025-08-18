@@ -10,8 +10,10 @@ import com.davena.dutymaker.repository.SkillGradeRepository;
 import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.davena.dutymaker.domain.organization.SkillGrade.NOT_MATCH_GRADE_WITH_WARD_MEMBERS_COUNT;
@@ -23,6 +25,21 @@ public class GradeDistributionService {
     private final SkillGradeRepository skillGradeRepository;
     private final MemberRepository memberRepository;
     private final WardRepository wardRepository;
+
+    @Transactional
+    public void deleteGrade(Long wardId, Long gradeId) {
+        Optional<SkillGrade> optionalGrade = skillGradeRepository.findByWardIdAndId(wardId, gradeId);
+        if(optionalGrade.isEmpty()) {
+            throw new IllegalArgumentException(SkillGrade.NOT_EXIST_GRADE);
+        }
+        if(optionalGrade.get().isDefault()) {
+            throw new IllegalArgumentException(SkillGrade.CANNOT_DELETE_DEFAULT_SKILL_GRADE);
+        }
+        SkillGrade grade = optionalGrade.get();
+        SkillGrade defaultGrade = skillGradeRepository.findByWardIdAndIsDefaultTrue(wardId).get();
+        skillGradeRepository.reassignMembers(grade, defaultGrade);
+        skillGradeRepository.delete(grade);
+    }
 
     public void createSkillGrades(Long wardId, GradeDistributionRequest request) {
         matchesWardMembersCount(wardId, request);

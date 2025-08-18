@@ -10,6 +10,7 @@ import com.davena.dutymaker.repository.TeamRepository;
 import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,15 +25,19 @@ public class TeamDistributionService {
     private final WardRepository wardRepository;
     private final TeamRepository teamRepository;
 
+    @Transactional
     public void deleteTeam(Long wardId, Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findByWardIdAndId(wardId, teamId);
         if(optionalTeam.isEmpty()) {
             throw new IllegalArgumentException(Team.NOT_EXIST_TEAM);
         }
-        Team team = optionalTeam.get();
-        if(team.isDefault()) {
-            throw new
+        if(optionalTeam.get().isDefault()) {
+            throw new IllegalArgumentException(Team.CANNOT_DELETE_DEFAULT_TEAM);
         }
+        Team team = optionalTeam.get();
+        Team defaultTeam = teamRepository.findByWardIdAndIsDefaultTrue(wardId).get();
+        teamRepository.reassignMembers(team, defaultTeam);
+        teamRepository.delete(team);
     }
 
     public void updateTeamDistribution(Long wardId, TeamDistributionRequest request) {

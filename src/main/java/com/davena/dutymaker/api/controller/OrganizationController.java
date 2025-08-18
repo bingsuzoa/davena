@@ -37,13 +37,18 @@ public class OrganizationController {
         teamDistributionService.updateTeamDistribution(wardId, request);
     }
 
+    @DeleteMapping("/{wardId}/{teamId}")
+    public void deleteTeam(@PathVariable Long wardId, @PathVariable Long teamId) {
+        teamDistributionService.deleteTeam(wardId, teamId);
+    }
+
     @PutMapping("/{wardId}/grades/distribution")
     public void distributeSkillGrades(@PathVariable Long wardId, GradeDistributionRequest request) {
         gradeDistributionService.createSkillGrades(wardId, request);
     }
 
-    @DeleteMapping("/{wardId}/{teamId}")
-    public void deleteTeam(@PathVariable Long wardId, @PathVariable Long teamId) {
-
+    @DeleteMapping("/{wardId}/{gradeId}")
+    public void deleteGrade(@PathVariable Long wardId, @PathVariable Long gradeId) {
+        gradeDistributionService.deleteGrade(wardId, gradeId);
     }
 }
