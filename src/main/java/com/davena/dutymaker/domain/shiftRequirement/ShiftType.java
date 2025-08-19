@@ -2,6 +2,7 @@ package com.davena.dutymaker.domain.shiftRequirement;
 
 import com.davena.dutymaker.domain.Assignment;
 import com.davena.dutymaker.domain.BaseEntity;
+import com.davena.dutymaker.domain.Request;
 import com.davena.dutymaker.domain.organization.Ward;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class ShiftType extends BaseEntity {
     }
 
     public static final String NOT_EXIST_SHIFT_TYPE = "존재하지 않는 근무 유형입니다.";
+    public static final String OFF = "OFF";
 
     @Column(nullable = false, length = 10)
     private String name;
@@ -62,6 +64,9 @@ public class ShiftType extends BaseEntity {
 
     @OneToMany(mappedBy = "shiftType")
     private List<RequirementRule> requirementRules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shiftType")
+    private List<Request> requests = new ArrayList<>();
 
     public void addAssignment(Assignment assignment) {
         assignments.add(assignment);
