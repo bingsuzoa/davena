@@ -1,10 +1,12 @@
 package com.davena.dutymaker.service;
 
+import com.davena.dutymaker.api.dto.member.ChargeBox;
+import com.davena.dutymaker.api.dto.member.ChargeRequest;
 import com.davena.dutymaker.api.dto.member.MemberRequest;
 import com.davena.dutymaker.domain.organization.SkillGrade;
-import com.davena.dutymaker.domain.organization.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.repository.MemberRepository;
 import com.davena.dutymaker.repository.SkillGradeRepository;
 import com.davena.dutymaker.repository.TeamRepository;
@@ -12,7 +14,10 @@ import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 import static com.davena.dutymaker.domain.organization.Ward.NOT_EXIST_DEFAULT_GRADE;
+import static com.davena.dutymaker.domain.organization.member.Member.IS_CHARGE_IMPOSSIBLE_NUMBER;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,22 @@ public class MemberService {
     private final WardRepository wardRepository;
     private final TeamRepository teamRepository;
     private final SkillGradeRepository skillGradeRepository;
+
+    public void updateChargeOfMember(ChargeRequest chargeRequest) {
+        Map<Long, ChargeBox> chargeMap = chargeRequest.chargeMap();
+
+        for (Long memberId : chargeMap.keySet()) {
+            Member member = getMember(memberId);
+            ChargeBox box = chargeMap.get(memberId);
+
+            if (box.isCharge() && box.ranking() < 0) {
+                throw new IllegalArgumentException(IS_CHARGE_IMPOSSIBLE_NUMBER);
+            }
+            if (box.isCharge()) {
+                member.isCharge(box.isCharge(), box.ranking());
+            }
+        }
+    }
 
     public Member createMember(MemberRequest memberRequest) {
         return memberRepository.save(

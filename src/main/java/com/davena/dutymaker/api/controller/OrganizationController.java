@@ -1,5 +1,6 @@
 package com.davena.dutymaker.api.controller;
 
+import com.davena.dutymaker.api.dto.member.ChargeRequest;
 import com.davena.dutymaker.api.dto.member.MemberRequest;
 import com.davena.dutymaker.api.dto.skillGrade.GradeDistributionRequest;
 import com.davena.dutymaker.api.dto.skillGrade.GradeUpdateRequest;
@@ -12,6 +13,7 @@ import com.davena.dutymaker.service.TeamDistributionService;
 import com.davena.dutymaker.service.WardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +33,17 @@ public class OrganizationController {
 
     @PostMapping("/{memberId}/ward")
     public void createWard(@PathVariable Long memberId, WardRequest wardRequest) {
-        wardService.createWard(memberId, wardRequest);
+        wardService.createWardAndOffType(memberId, wardRequest);
+    }
+
+    @GetMapping("/{wardId}/charge")
+    public void getMembersForCharge(@PathVariable Long wardId) {
+        wardService.getMembersForCharge(wardId);
+    }
+
+    @PostMapping("/charge")
+    public void updateChargeOfMember(@RequestBody ChargeRequest chargeRequest) {
+        memberService.updateChargeOfMember(chargeRequest);
     }
 
     @PutMapping("/{wardId}/teams/distribution")
@@ -59,7 +71,7 @@ public class OrganizationController {
         gradeDistributionService.deleteGrade(wardId, gradeId);
     }
 
-    @PutMapping("/{wardId}/{gradId}")
+    @PutMapping("/{wardId}/{gradeId}")
     public void updateGrade(@PathVariable Long wardId, @PathVariable Long gradeId, GradeUpdateRequest request) {
         gradeDistributionService.updateGrade(wardId, gradeId, request);
     }
