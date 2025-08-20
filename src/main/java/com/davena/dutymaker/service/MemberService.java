@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 import static com.davena.dutymaker.domain.organization.Ward.NOT_EXIST_DEFAULT_GRADE;
-import static com.davena.dutymaker.domain.organization.member.Member.IS_CHARGE_IMPOSSIBLE_NUMBER;
+import static com.davena.dutymaker.domain.organization.member.Member.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class MemberService {
             Member member = getMember(memberId);
             ChargeBox box = chargeMap.get(memberId);
 
-            if (box.isCharge() && box.ranking() < 0) {
+            if (box.isCharge() && (box.ranking() < MIN_RANKING || box.ranking() > MAX_RANKING)) {
                 throw new IllegalArgumentException(IS_CHARGE_IMPOSSIBLE_NUMBER);
             }
             if (box.isCharge()) {

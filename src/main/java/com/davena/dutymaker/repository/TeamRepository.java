@@ -1,6 +1,6 @@
 package com.davena.dutymaker.repository;
 
-import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.domain.organization.team.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +23,5 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Member m set m.team = :to where m.team = :from")
     void reassignMembers(@Param("from") Team from, @Param("to") Team to);
+
 }

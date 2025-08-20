@@ -44,4 +44,7 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
 
     @Query("select distinct w from Ward w left join fetch w.requirementRules where w.id = :wardId")
     Optional<Ward> getWardWithRequirementRules(@Param("wardId") Long wardId);
+
+    @Query("select s.ward from Schedule s where s.id = :scheduleId")
+    Optional<Ward> findByScheduleId(Long scheduleId);
 }
