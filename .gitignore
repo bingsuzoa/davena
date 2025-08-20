@@ -38,3 +38,7 @@ out/
 
 ### 환경 변수
 .env
+
+### macOS system files
+.DS_Store
+**/.DS_Store
