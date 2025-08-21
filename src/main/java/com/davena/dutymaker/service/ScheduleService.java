@@ -1,15 +1,15 @@
 package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.api.dto.schedule.AssignmentDto;
-import com.davena.dutymaker.api.dto.schedule.RequirementRuleRequest;
 import com.davena.dutymaker.api.dto.schedule.ScheduleView;
 import com.davena.dutymaker.api.dto.schedule.payload.draft.Draft;
 import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
 import com.davena.dutymaker.api.dto.schedule.payload.finalized.FinalizedPayload;
 import com.davena.dutymaker.api.dto.schedule.payload.generated.CandidateAssignmentView;
 import com.davena.dutymaker.api.dto.schedule.payload.generated.GeneratedPayload;
-import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.api.dto.schedule.requirement.RequirementRequest;
 import com.davena.dutymaker.domain.organization.Ward;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.policy.DayType;
 import com.davena.dutymaker.domain.schedule.Candidate;
 import com.davena.dutymaker.domain.schedule.CandidateAssignments;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class ScheduleService {
     private final ShiftTypeRepository shiftRepository;
     private final ScheduleRepository scheduleRepository;
     private final DraftRepository draftRepository;
+    private final DraftService draftService;
 
     public ScheduleView getScheduleView(Long wardId, YearMonth ym) {
         Schedule schedule = getOrCreateSchedule(wardId, ym);
@@ -98,31 +99,37 @@ public class ScheduleService {
         };
     }
 
+
     private Schedule getOrCreateSchedule(Long wardId, YearMonth targetMonth) {
-        Optional<Schedule> optionalSchedule = scheduleRepository.findByWardIdAndYearMonth(wardId, targetMonth.toString());
-        if (optionalSchedule.isEmpty()) {
-            return scheduleRepository.save(new Schedule(getWard(wardId), targetMonth.toString()));
-        }
-        return optionalSchedule.get();
+        String ym = String.format("%d-%02d", targetMonth.getYear(), targetMonth.getMonthValue());
+        return scheduleRepository.findByWardIdAndYearMonth(wardId, ym)
+                .orElseGet(() -> {
+                    Schedule s = scheduleRepository.save(new Schedule(getWard(wardId), ym));
+                    draftService.getDraft(s.getId());
+                    return s;
+                });
     }
 
-    public void updateRequirementRule(Long wardId, RequirementRuleRequest ruleRequest) {
+    public void updateRule(Long wardId, RequirementRequest ruleRequest) {
         Ward ward = getWard(wardId);
-        Optional<Team> team = getTeam(ruleRequest.teamId());
-        ShiftType shiftType = getShiftType(ruleRequest.shiftTypeId());
-        DayType dayType = ruleRequest.dayType();
-        int required = ruleRequest.required();
-        RequirementRule rule;
-        if (team.isEmpty()) {
-            rule = RequirementRule.forWard(ward, dayType, shiftType, required);
-        } else {
-            rule = RequirementRule.forTeam(ward, team.get(), dayType, shiftType, required);
+        Team team = getTeam(ruleRequest.teamId());
+
+        Map<DayType, Map<ShiftType, Integer>> rules = ruleRequest.requirementBox();
+        for (DayType dayType : rules.keySet()) {
+            updateRuleOfTeam(rules.get(dayType), dayType, team);
         }
-        requirementRuleRepository.save(rule);
     }
 
-    private Optional<Team> getTeam(Long teamId) {
-        return teamRepository.findById(teamId);
+    private void updateRuleOfTeam(Map<ShiftType, Integer> rule, DayType dayType, Team team) {
+        for (ShiftType shiftType : rule.keySet()) {
+            int required = rule.get(shiftType);
+            requirementRuleRepository.save(new RequirementRule(team, dayType, shiftType, required));
+        }
+    }
+
+    private Team getTeam(Long teamId) {
+        return teamRepository.findById(teamId).orElseThrow(() ->
+                new IllegalArgumentException(Team.NOT_EXIST_TEAM));
     }
 
     private Ward getWard(Long wardId) {

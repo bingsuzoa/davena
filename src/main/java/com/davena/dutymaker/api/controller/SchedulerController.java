@@ -1,14 +1,13 @@
 package com.davena.dutymaker.api.controller;
 
-import com.davena.dutymaker.api.dto.schedule.RequirementRuleRequest;
-import com.davena.dutymaker.api.dto.schedule.backfill.BackfillGrid;
 import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
+import com.davena.dutymaker.api.dto.schedule.requirement.RequirementRequest;
 import com.davena.dutymaker.service.BackfillService;
 import com.davena.dutymaker.service.DraftService;
 import com.davena.dutymaker.service.ScheduleService;
 import com.davena.dutymaker.service.generator.PreCheck;
-import lombok.RequiredArgsConstructor;
 import jakarta.validation.constraints.Pattern;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +23,8 @@ public class SchedulerController {
     private PreCheck preCheck;
 
     @PutMapping("/requriements")
-    public void updateRequirement(@PathVariable Long wardId, RequirementRuleRequest rules) {
-        scheduleService.updateRequirementRule(wardId, rules);
+    public void updateRequirement(@PathVariable Long wardId, RequirementRequest requirementRequest) {
+        scheduleService.updateRule(wardId, requirementRequest);
     }
 
     @PostMapping("/{wardId}/schedules/{yearMonth}")

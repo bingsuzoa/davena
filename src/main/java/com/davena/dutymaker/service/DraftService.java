@@ -5,6 +5,8 @@ import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftCell;
 import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
 import com.davena.dutymaker.domain.Request;
 import com.davena.dutymaker.domain.organization.Ward;
+import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 import com.davena.dutymaker.repository.*;
@@ -52,20 +54,25 @@ public class DraftService {
 
         Map<Long, Map<Integer, DraftCell>> board = new HashMap<>();
 
-        for(Request request : requests) {
-            Long memberId = request.getId();
-            String memberName = memberRepository.findById(memberId).orElseThrow().getName();
+        for (Request request : requests) {
+            Long memberId = request.getMember().getId();
+            Member member = memberRepository.findMemberWithTeam(memberId).orElseThrow();
+            Team team = member.getTeam();
             LocalDate start = request.getStartDate().isBefore(monthStart) ? monthStart : request.getStartDate();
-            LocalDate end   = request.getEndDate().isAfter(monthEnd) ? monthEnd : request.getEndDate();
+            LocalDate end = request.getEndDate().isAfter(monthEnd) ? monthEnd : request.getEndDate();
             ShiftType shift = request.getShiftType();
 
             Map<Integer, DraftCell> row = board.computeIfAbsent(memberId, k -> new HashMap<>());
             for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
                 int day = d.getDayOfMonth();
-                row.put(day, new DraftCell(memberId, memberName, day, shift.getId(), shift.getName()));
+                row.put(day, new DraftCell(memberId, member.getName(), team.getId(), team.getName(), day, shift.getId(), shift.getName(), member.isCharge()));
             }
         }
-        return new DraftPayload(board);
+        DraftPayload payload = new DraftPayload(board);
+        Draft draft = new Draft(schedule);
+        draft.updatePayload(payload);
+        draftRepository.save(draft);
+        return payload;
     }
 
     private Ward getWard(Schedule schedule) {

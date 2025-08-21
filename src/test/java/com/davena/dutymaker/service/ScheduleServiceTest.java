@@ -6,7 +6,7 @@ import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
 import com.davena.dutymaker.domain.Request;
 import com.davena.dutymaker.domain.organization.Hospital;
 import com.davena.dutymaker.domain.organization.SkillGrade;
-import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.schedule.ScheduleStatus;
@@ -74,6 +74,4 @@ public class ScheduleServiceTest {
         Map<Long, Map<Integer, DraftCell>> board = ((DraftPayload) view.payload()).board();
         Assertions.assertEquals(board.get(member.getId()).size(), 6);
     }
-
-
 }

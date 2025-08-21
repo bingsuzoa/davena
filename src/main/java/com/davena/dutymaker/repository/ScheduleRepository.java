@@ -27,10 +27,13 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
                 select distinct s
                 from Schedule s
                 join fetch s.candidates c
-                join fetch c.candidateAssignments a
+                join fetch c.assignments a
                 join fetch a.member m
                 join fetch a.shiftType st
                 where s.id = :id
             """)
     Optional<Schedule> findWithCandidatesAndAssignments(@Param("id") Long id);
+
+    @Query("select s from Schedule s join fetch s.draft d where s.id = :id")
+    Optional<Schedule> findByIdWithDraft(@Param("id") Long id);
 }
