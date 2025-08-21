@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ShiftTypeRepository extends JpaRepository<ShiftType, Long> {
 
+    Optional<ShiftType> findByWardIdAndName(Long wardId, String name);
 }

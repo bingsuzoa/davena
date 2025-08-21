@@ -36,14 +36,29 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
             """)
     void deleteEmptyGrades(@Param("wardId") Long wardId);
 
+    @Query("""
+            select distinct w
+            from Ward w
+            left join fetch w.teams t
+            left join fetch t.requirementRules r
+            where w.id = :wardId
+            """)
+    Optional<Ward> findWithTeamsAndRules(@Param("wardId") Long wardId);
+
     @Query("select distinct w from Ward w left join fetch w.shiftTypes where w.id = :wardId")
     Optional<Ward> getWardWithShiftTypes(@Param("wardId") Long wardId);
 
     @Query("select distinct w from Ward w left join fetch w.skillGrades where w.id = :wardId")
     Optional<Ward> getWardWithSkillGrades(@Param("wardId") Long wardId);
 
-    @Query("select distinct w from Ward w left join fetch w.requirementRules where w.id = :wardId")
-    Optional<Ward> getWardWithRequirementRules(@Param("wardId") Long wardId);
+    @Query("""
+                select distinct w 
+                from Ward w
+                left join fetch w.teams t
+                left join fetch t.requirementRules
+                where w.id = :wardId
+            """)
+    Optional<Ward> getWardWithTeamsAndRules(@Param("wardId") Long wardId);
 
     @Query("select s.ward from Schedule s where s.id = :scheduleId")
     Optional<Ward> findByScheduleId(Long scheduleId);
