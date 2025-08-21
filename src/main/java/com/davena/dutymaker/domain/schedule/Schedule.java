@@ -73,4 +73,8 @@ public class Schedule extends BaseEntity {
     public void addCandidate(Candidate candidate) {
         candidates.add(candidate);
     }
+
+    public int getCandidatesCount() {
+        return candidates.size();
+    }
 }

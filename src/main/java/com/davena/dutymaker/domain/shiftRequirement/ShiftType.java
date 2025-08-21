@@ -4,14 +4,13 @@ import com.davena.dutymaker.domain.Assignment;
 import com.davena.dutymaker.domain.BaseEntity;
 import com.davena.dutymaker.domain.Request;
 import com.davena.dutymaker.domain.organization.Ward;
+import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.domain.organization.member.MemberAllowedShift;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -52,9 +51,6 @@ public class ShiftType extends BaseEntity {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean isWorking = true;
 
-    @OneToMany(mappedBy = "shiftType")
-    private Set<ShiftRequirement> requirements = new HashSet<>();
-
     @ManyToOne
     @JoinColumn(name = "ward_id")
     private Ward ward;
@@ -63,10 +59,17 @@ public class ShiftType extends BaseEntity {
     private List<Assignment> assignments = new ArrayList<>();
 
     @OneToMany(mappedBy = "shiftType")
+    private List<MemberAllowedShift> allowedShifts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "shiftType")
     private List<RequirementRule> requirementRules = new ArrayList<>();
 
     @OneToMany(mappedBy = "shiftType")
     private List<Request> requests = new ArrayList<>();
+
+    public void addAllowedShift(MemberAllowedShift allowedShift) {
+        allowedShifts.add(allowedShift);
+    }
 
     public void addAssignment(Assignment assignment) {
         assignments.add(assignment);
@@ -77,5 +80,18 @@ public class ShiftType extends BaseEntity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ShiftType)) return false;
+        ShiftType other = (ShiftType) o;
+        return this.getId() != null && this.getId().equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

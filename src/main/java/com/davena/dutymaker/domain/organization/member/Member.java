@@ -70,10 +70,17 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private SkillGrade skillGrade;
 
     @OneToMany(mappedBy = "member")
+    private List<MemberAllowedShift> allowedShifts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
     private List<Assignment> assignments = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<Request> requests = new ArrayList<>();
+
+    public void addAllowedShifts(MemberAllowedShift allowedShift) {
+        allowedShifts.add(allowedShift);
+    }
 
     public void addAssignment(Assignment assignment) {
         assignments.add(assignment);

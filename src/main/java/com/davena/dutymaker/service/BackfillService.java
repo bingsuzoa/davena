@@ -8,7 +8,9 @@ import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.schedule.Candidate;
+import com.davena.dutymaker.domain.schedule.CandidateAssignment;
 import com.davena.dutymaker.domain.schedule.Schedule;
+import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 import com.davena.dutymaker.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class BackfillService {
     private final DraftRepository draftRepository;
     private final TeamRepository teamRepository;
     private final CandidateRepository candidateRepository;
+    private final ShiftTypeRepository shiftTypeRepository;
+    private final CandidateAssignmentRepository candidateAssignmentRepository;
 
     @Transactional
     public BackfillGrid buildEmptyBackfillGrid(Long wardId, YearMonth targetYm) {
@@ -80,7 +84,25 @@ public class BackfillService {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow();
         Draft draft = draftRepository.findByScheduleId(scheduleId).orElse(new Draft(schedule));
         draft.updatePayload(payload);
-        schedule.finalizeStatus(candidateRepository.save(new Candidate(schedule)));
+
+        YearMonth ym = YearMonth.parse(schedule.getYearMonth());
+        int days = ym.lengthOfMonth();
+        Candidate candidate = candidateRepository.save(new Candidate(schedule));
+
+        Map<Long, Map<Integer, DraftCell>> cells = payload.board();
+        for (Long memberId : cells.keySet()) {
+            Map<Integer, DraftCell> cell = cells.get(memberId);
+            Member member = memberRepository.findById(memberId).orElseThrow();
+            for (int day = days - 6; day <= days; day++) {
+                DraftCell draftCell = cell.get(day);
+                LocalDate today = LocalDate.of(ym.getYear(), ym.getMonth(), day);
+                ShiftType shiftType = shiftTypeRepository.findById(draftCell.shiftId()).orElseThrow();
+                CandidateAssignment assignment = candidateAssignmentRepository.save(new CandidateAssignment(candidate, member, today, shiftType, member.isCharge()));
+                candidate.addAssignments(assignment);
+            }
+
+        }
+        schedule.finalizeStatus(candidate);
         draftRepository.save(draft);
     }
 }

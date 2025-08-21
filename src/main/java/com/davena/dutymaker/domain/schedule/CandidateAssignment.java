@@ -14,10 +14,24 @@ import java.time.LocalDate;
         name = "uk_cand_member_day",
         columnNames = {"candidate_id", "member_id", "work_date"}
 ))
-public class CandidateAssignments extends BaseEntity {
+public class CandidateAssignment extends BaseEntity {
 
-    protected CandidateAssignments() {
+    protected CandidateAssignment() {
 
+    }
+
+    public CandidateAssignment(
+            Candidate candidate,
+            Member member,
+            LocalDate workDate,
+            ShiftType shiftType,
+            boolean isCharge
+    ) {
+        this.candidate = candidate;
+        this.member = member;
+        this.workDate = workDate;
+        this.shiftType = shiftType;
+        this.isCharge = isCharge;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

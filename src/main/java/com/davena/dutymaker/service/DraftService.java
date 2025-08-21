@@ -28,7 +28,6 @@ public class DraftService {
     private final RequestRepository requestRepository;
     private final WardRepository wardRepository;
     private final MemberRepository memberRepository;
-    private final ShiftTypeRepository shiftTypeRepository;
 
     public DraftPayload getDraft(Long scheduleId) {
         return draftRepository.findByScheduleId(scheduleId)

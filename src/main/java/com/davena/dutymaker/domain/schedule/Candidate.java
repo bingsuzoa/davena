@@ -1,7 +1,6 @@
 package com.davena.dutymaker.domain.schedule;
 
 import com.davena.dutymaker.domain.BaseEntity;
-import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.organization.member.MemberState;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,7 +8,6 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,6 +24,8 @@ public class Candidate extends BaseEntity {
 
     private int score;
 
+    private boolean selected;
+
     public static final String NOT_FILL_CANDIDATE = "해당 근무표가 채워지지 않았습니다.";
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,15 +33,19 @@ public class Candidate extends BaseEntity {
     private Schedule schedule;
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CandidateAssignments> assignments = new ArrayList<>();
+    private List<CandidateAssignment> assignments = new ArrayList<>();
 
-    public List<CandidateAssignments> getLastWeekAssignmentsFor(MemberState member) {
+    public void addAssignments(CandidateAssignment assignment) {
+        assignments.add(assignment);
+    }
+
+    public List<CandidateAssignment> getLastWeekAssignmentsFor(MemberState member) {
         return getLastWeekAssignments().stream()
                 .filter(a -> a.getMember().getId() == member.getMemberId())
                 .toList();
     }
 
-    public List<CandidateAssignments> getLastWeekAssignments() {
+    public List<CandidateAssignment> getLastWeekAssignments() {
         if (assignments.isEmpty()) {
             throw new IllegalArgumentException(NOT_FILL_CANDIDATE);
         }
@@ -53,7 +57,7 @@ public class Candidate extends BaseEntity {
         return assignments.stream()
                 .filter(a -> !a.getWorkDate().isBefore(startOfLastWeek)
                         && !a.getWorkDate().isAfter(endOfMonth))
-                .sorted(Comparator.comparing(CandidateAssignments::getWorkDate))
+                .sorted(Comparator.comparing(CandidateAssignment::getWorkDate))
                 .toList();
     }
 }

@@ -2,15 +2,15 @@ package com.davena.dutymaker.service;
 
 import com.davena.dutymaker.api.dto.member.ChargeBox;
 import com.davena.dutymaker.api.dto.member.ChargeRequest;
+import com.davena.dutymaker.api.dto.member.MemberAllowedShiftRequest;
 import com.davena.dutymaker.api.dto.member.MemberRequest;
 import com.davena.dutymaker.domain.organization.SkillGrade;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
+import com.davena.dutymaker.domain.organization.member.MemberAllowedShift;
 import com.davena.dutymaker.domain.organization.team.Team;
-import com.davena.dutymaker.repository.MemberRepository;
-import com.davena.dutymaker.repository.SkillGradeRepository;
-import com.davena.dutymaker.repository.TeamRepository;
-import com.davena.dutymaker.repository.WardRepository;
+import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
+import com.davena.dutymaker.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,18 @@ public class MemberService {
     private final WardRepository wardRepository;
     private final TeamRepository teamRepository;
     private final SkillGradeRepository skillGradeRepository;
+    private final ShiftTypeRepository shiftTypeRepository;
+    private final MemberAllowedShiftRepository allowedShiftRepository;
+
+    public void updateAllowedShifts(MemberAllowedShiftRequest request) {
+        for(Long memberId : request.allowedShifts().keySet()) {
+            Member member = memberRepository.findById(memberId).orElseThrow();
+            for(Long shiftId : request.allowedShifts().get(memberId)) {
+                ShiftType shiftType = shiftTypeRepository.findById(shiftId).orElseThrow();
+                allowedShiftRepository.save(new MemberAllowedShift(member, shiftType));
+            }
+        }
+    }
 
     public void updateChargeOfMember(ChargeRequest chargeRequest) {
         Map<Long, ChargeBox> chargeMap = chargeRequest.chargeMap();
