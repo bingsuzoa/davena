@@ -11,19 +11,13 @@ import java.util.PriorityQueue;
 public class TeamState {
 
     public TeamState(
-            int workDate,
-            Team team,
             Map<ShiftType, Integer> remain,
             PriorityQueue<Member> chargeOrder
     ) {
-        this.workDate = workDate;
-        this.team = team;
         this.remain = remain;
         this.chargeOrder = chargeOrder;
     }
 
-    int workDate;
-    Team team;
     Map<ShiftType, Integer> remain;
     Map<ShiftType, Integer> appliedGrade = new HashMap<>();
     Map<ShiftType, Boolean> chargeAssigned = new HashMap<>();

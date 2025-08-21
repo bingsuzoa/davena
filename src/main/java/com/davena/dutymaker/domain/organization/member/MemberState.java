@@ -14,14 +14,14 @@ public class MemberState {
 
     public MemberState(
             Long memberId,
-            String teamName
+            Long teamId
     ) {
         this.memberId = memberId;
-        this.teamName = teamName;
+        this.teamId = teamId;
     }
 
     private final Long memberId;
-    private final String teamName;
+    private final Long teamId;
     private int consecWorkDays = 0;
     private LocalDate lastWorkDate;
     private LocalDateTime lastWorkEndTime;
