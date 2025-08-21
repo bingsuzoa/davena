@@ -13,8 +13,21 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
 public class Request extends BaseEntity {
+
+    protected Request() {
+    }
+
+    public Request(Member member,
+                   ShiftType shiftType,
+                   LocalDate start,
+                   LocalDate end
+    ) {
+        this.member = member;
+        this.shiftType = shiftType;
+        this.startDate = start;
+        this.endDate = end;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

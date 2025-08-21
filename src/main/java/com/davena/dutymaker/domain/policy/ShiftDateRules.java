@@ -1,6 +1,6 @@
 package com.davena.dutymaker.domain.policy;
 
-import com.davena.dutymaker.domain.ShiftType;
+import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

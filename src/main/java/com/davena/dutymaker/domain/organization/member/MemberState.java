@@ -1,6 +1,6 @@
-package com.davena.dutymaker.domain.member;
+package com.davena.dutymaker.domain.organization.member;
 
-import com.davena.dutymaker.domain.ShiftType;
+import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 import com.davena.dutymaker.domain.policy.PolicyRules;
 import com.davena.dutymaker.domain.policy.ShiftDateRules;
 import lombok.Getter;
@@ -12,11 +12,16 @@ import java.util.Set;
 @Getter
 public class MemberState {
 
-    public MemberState(Long memberId) {
+    public MemberState(
+            Long memberId,
+            String teamName
+    ) {
         this.memberId = memberId;
+        this.teamName = teamName;
     }
 
     private final Long memberId;
+    private final String teamName;
     private int consecWorkDays = 0;
     private LocalDate lastWorkDate;
     private LocalDateTime lastWorkEndTime;

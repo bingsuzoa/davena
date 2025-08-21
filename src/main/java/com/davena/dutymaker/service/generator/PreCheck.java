@@ -6,18 +6,20 @@ import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.policy.DayType;
-import com.davena.dutymaker.domain.schedule.Candidate;
 import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.domain.schedule.ScheduleStatus;
 import com.davena.dutymaker.domain.shiftRequirement.RequirementRule;
 import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
-import com.davena.dutymaker.repository.*;
+import com.davena.dutymaker.repository.MemberRepository;
+import com.davena.dutymaker.repository.ScheduleRepository;
+import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,12 +28,11 @@ public class PreCheck {
 
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
-    private final TeamRepository teamRepository;
     private final WardRepository wardRepository;
 
     public boolean preCheckWard(Long wardId, Long scheduleId) {
         Ward ward = getWardWithTeamsAndRules(wardId);
-        for(Team team : ward.getTeams()) {
+        for (Team team : ward.getTeams()) {
             return preCheckTeam(team, scheduleId);
         }
         return true;
@@ -64,7 +65,7 @@ public class PreCheck {
             int required = getRequiredStaffCountOfDay(day, team);
             int requestOff = payload.getCells().stream()
                     .filter(cell -> cell.day() == today)
-                    .filter(cell -> cell.shiftType() == ShiftType.OFF)
+                    .filter(cell -> Objects.equals(cell.shiftType(), ShiftType.OFF))
                     .map(DraftCell::memberId)
                     .collect(Collectors.toSet())
                     .size();
@@ -89,7 +90,7 @@ public class PreCheck {
     }
 
     private Ward getWardWithTeamsAndRules(Long wardId) {
-        return wardRepository.getWardWithRequirementRules(wardId).orElseThrow(() ->
+        return wardRepository.getWardWithTeamsAndRules(wardId).orElseThrow(() ->
                 new IllegalArgumentException(Ward.NOT_EXIST_WARD));
     }
 

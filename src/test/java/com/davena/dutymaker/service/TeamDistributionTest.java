@@ -5,7 +5,7 @@ import com.davena.dutymaker.api.dto.team.TeamDistributionRequest;
 import com.davena.dutymaker.api.dto.team.TeamUpdateRequest;
 import com.davena.dutymaker.domain.organization.Hospital;
 import com.davena.dutymaker.domain.organization.SkillGrade;
-import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.repository.MemberRepository;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Import({
         TeamDistributionService.class
 })
+@ActiveProfiles("test")
 public class TeamDistributionTest {
 
     @Autowired

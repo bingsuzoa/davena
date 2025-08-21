@@ -24,8 +24,7 @@ public class ShiftTypeService {
         return optionalShift.get();
     }
 
-    public ShiftType createOffType(Long wardId) {
-        Ward ward = getWard(wardId);
+    public ShiftType createOffType(Ward ward) {
         return shiftRepository.save(new ShiftType(ward, ShiftType.OFF, null, null, false));
     }
 

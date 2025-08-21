@@ -1,6 +1,7 @@
-package com.davena.dutymaker.domain.organization;
+package com.davena.dutymaker.domain.organization.team;
 
 import com.davena.dutymaker.domain.BaseEntity;
+import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.shiftRequirement.RequirementRule;
 import jakarta.persistence.*;
@@ -33,6 +34,7 @@ public class Team extends BaseEntity {
     }
 
     public static final String NOT_MATCH_TEAM_WITH_WARD_MEMBERS_COUNT = "팀에 분류되지 않은 근무자가 존재합니다.";
+    public static final String NOT_EXIST_SHIFT_RULES = "팀에 근무 규칙이 정해지지 않았습니다.";
     public static final String CANNOT_DELETE_DEFAULT_TEAM = "기본 팀은 삭제할 수 없습니다.";
     public static final String DEFAULT_TEAM_NAME = "A팀";
     public static final String NOT_EXIST_TEAM = "존재하지 않는 팀입니다.";
@@ -57,6 +59,10 @@ public class Team extends BaseEntity {
         Team team = new Team(ward, DEFAULT_TEAM_NAME);
         team.makeDefault(team);
         return team;
+    }
+
+    public void addRequirementRule(RequirementRule rule) {
+        requirementRules.add(rule);
     }
 
     public String updateName(String name) {

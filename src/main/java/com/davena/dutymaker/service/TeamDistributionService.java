@@ -3,7 +3,7 @@ package com.davena.dutymaker.service;
 import com.davena.dutymaker.api.dto.team.TeamBox;
 import com.davena.dutymaker.api.dto.team.TeamDistributionRequest;
 import com.davena.dutymaker.api.dto.team.TeamUpdateRequest;
-import com.davena.dutymaker.domain.organization.Team;
+import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.repository.MemberRepository;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.davena.dutymaker.domain.organization.Team.NOT_MATCH_TEAM_WITH_WARD_MEMBERS_COUNT;
+import static com.davena.dutymaker.domain.organization.team.Team.NOT_MATCH_TEAM_WITH_WARD_MEMBERS_COUNT;
 
 @Service
 @RequiredArgsConstructor

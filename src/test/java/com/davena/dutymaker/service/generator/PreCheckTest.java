@@ -43,7 +43,7 @@ import java.util.Map;
         ShiftTypeService.class
 })
 @ActiveProfiles("test")
-public class PreCheckIntegrationTest {
+public class PreCheckTest {
 
     @Autowired
     private EntityManager em;

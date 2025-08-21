@@ -1,4 +1,4 @@
-package com.davena.dutymaker.service;
+package com.davena.dutymaker.service.generator;
 
 import com.davena.dutymaker.domain.organization.member.MemberState;
 import com.davena.dutymaker.domain.organization.team.Team;
