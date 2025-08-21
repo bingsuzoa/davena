@@ -29,7 +29,7 @@ public class WardService {
     private final HospitalRepository hospitalRepository;
 
     public ChargeRequest getMembersForCharge(Long wardId) {
-        List<Member> members = memberRepository.findMembersWithTeam(wardId);
+        List<Member> members = memberRepository.findMembersWithTeamByWardId(wardId);
         Map<Long, ChargeBox> chargeRequest = new HashMap<>();
 
         for (Member member : members) {

@@ -32,7 +32,8 @@ public class Schedule extends BaseEntity {
     }
 
     public static final String NOT_EXIST_THIS_MONTH_SCHEDULE = "해당 월의 스케줄이 존재하지 않습니다.";
-    public static final String NOT_DRAFT_STATE = "이미 헤당 월 근무표가 생성되었거나 확정된 상태입니다. 다시 만들고 싶으시면 초기화 해주세요.";
+    public static final String NOT_DRAFT_STATE = "이미 해당 월 근무표가 생성되었거나 확정된 상태입니다. 다시 만들고 싶으시면 초기화 해주세요.";
+    public static final String NOT_EXIST_FINALIZED_SCHEDULE = "해당 월의 확정된 근무표가 없습니다.";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ward_id", nullable = false)
@@ -60,11 +61,16 @@ public class Schedule extends BaseEntity {
     @OneToMany(mappedBy = "schedule")
     private List<ShiftRequirement> requirements = new ArrayList<>();
 
-    public void finalizeStatus() {
+    public void finalizeStatus(Candidate finalized) {
+        selectedCandidate = finalized;
         this.status = ScheduleStatus.FINALIZED;
     }
 
     public void updateDraft(Draft draft) {
         this.draft = draft;
+    }
+
+    public void addCandidate(Candidate candidate) {
+        candidates.add(candidate);
     }
 }

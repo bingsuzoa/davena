@@ -16,13 +16,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     long countByTeamId(Long teamId);
 
-    List<Member> findByWardId(Long wardId);
+    List<Member> findMembersByWardId(Long wardId);
 
     @Query("select m from Member m join fetch m.team where m.ward.id = :wardId")
-    List<Member> findMembersWithTeam(@Param("wardId") Long wardId);
+    List<Member> findMembersWithTeamByWardId(@Param("wardId") Long wardId);
 
     @Query("select m from Member m join fetch m.team where m.team.id = :teamId")
-    List<Member> findMembersByTeamId(@Param("teamId") Long teamId);
+    List<Member> findMembersWithTeamByTeamId(@Param("teamId") Long teamId);
 
     @Query("select m from Member m join fetch m.team where m.id = :id")
     Optional<Member> findMemberWithTeam(@Param("id") Long memberId);

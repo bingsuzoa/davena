@@ -7,6 +7,7 @@ import com.davena.dutymaker.api.dto.schedule.payload.draft.DraftPayload;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.organization.team.Team;
+import com.davena.dutymaker.domain.schedule.Candidate;
 import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.repository.*;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,7 @@ public class BackfillService {
     private final ScheduleRepository scheduleRepository;
     private final DraftRepository draftRepository;
     private final TeamRepository teamRepository;
+    private final CandidateRepository candidateRepository;
 
     @Transactional
     public BackfillGrid buildEmptyBackfillGrid(Long wardId, YearMonth targetYm) {
@@ -41,7 +43,7 @@ public class BackfillService {
                 .orElseGet(() -> scheduleRepository.save(new Schedule(ward, ymKey)));
 
         Map<Long, Map<Integer, DraftCell>> board = new HashMap<>();
-        for (Member m : memberRepository.findMembersWithTeam(wardId)) {
+        for (Member m : memberRepository.findMembersWithTeamByWardId(wardId)) {
             Team team = m.getTeam();
             Map<Integer, DraftCell> row = new HashMap<>();
             for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
@@ -71,7 +73,14 @@ public class BackfillService {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow();
         Draft draft = draftRepository.findByScheduleId(scheduleId).orElse(new Draft(schedule));
         draft.updatePayload(payload);
-        schedule.finalizeStatus();
+        draftRepository.save(draft);
+    }
+
+    public void applyInitialHistory(Long scheduleId, DraftPayload payload) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow();
+        Draft draft = draftRepository.findByScheduleId(scheduleId).orElse(new Draft(schedule));
+        draft.updatePayload(payload);
+        schedule.finalizeStatus(candidateRepository.save(new Candidate(schedule)));
         draftRepository.save(draft);
     }
 }

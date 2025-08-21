@@ -46,7 +46,7 @@ public class SchedulerController {
 
     @PostMapping("/{scheduleId}/backfill-grid/{targetYm}")
     public void updateBakfillGrid(@PathVariable Long scheduleId, @RequestBody DraftPayload payload) {
-        backfillService.updateDraft(scheduleId, payload);
+        backfillService.applyInitialHistory(scheduleId, payload);
     }
 
     @PostMapping("/wards/{wardId}/schedules/{scheduleId}/preCheck")
