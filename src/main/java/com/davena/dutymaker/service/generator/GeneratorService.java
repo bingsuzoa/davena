@@ -2,27 +2,50 @@ package com.davena.dutymaker.service.generator;
 
 
 import com.davena.dutymaker.domain.organization.Ward;
-import com.davena.dutymaker.domain.organization.member.MemberState;
-import com.davena.dutymaker.domain.organization.team.TeamState;
+import com.davena.dutymaker.domain.schedule.Candidate;
 import com.davena.dutymaker.domain.schedule.Schedule;
+import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
+import com.davena.dutymaker.repository.ScheduleRepository;
+import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class GeneratorService {
 
-    private final MemberStateService memberStateService;
-    private final TeamStateService teamStateService;
+    private final ScheduleRepository scheduleRepository;
+    private final WardRepository wardRepository;
+    private final CandidateService candidateService;
 
-    private Map<Long, MemberState> initMemberState(Long wardId, Long scheduleId) {
-        return memberStateService.initMemberState(wardId, scheduleId);
+
+    public void generateCandidates(Long wardId, Long scheduleId) {
+        Schedule schedule = getScheduleWithCandidates(scheduleId);
+        Ward ward = wardRepository.getWardWithTeams(wardId).orElseThrow();
+
+        int maxCandidates = 10;
+        int maxAttempts = 100;
+        int attempts = 0;
+
+        while (schedule.getCandidates().size() < maxCandidates && attempts < maxAttempts) {
+            try {
+                Candidate c = candidateService.generateCandidate(schedule, ward);
+                schedule.addCandidate(c);
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                System.out.println("Candidate 생성 실패: " + e.getMessage());
+            }
+            attempts++;
+        }
+
+        if (schedule.getCandidates().isEmpty()) {
+            throw new IllegalStateException("Candidate 생성 실패: 가능한 경우 아예 없음");
+        }
+
     }
 
-    private Map<Long, TeamState> initTeamState(Schedule schedule, Ward ward) {
-        return teamStateService.initTeamState(schedule, ward);
+    private Schedule getScheduleWithCandidates(Long scheduleId) {
+        return scheduleRepository.findWithCandidates(scheduleId).orElseThrow(() ->
+                new IllegalArgumentException(Schedule.NOT_EXIST_THIS_MONTH_SCHEDULE));
     }
 
 }

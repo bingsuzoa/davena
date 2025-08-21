@@ -5,6 +5,7 @@ import com.davena.dutymaker.api.dto.schedule.requirement.RequirementRequest;
 import com.davena.dutymaker.service.BackfillService;
 import com.davena.dutymaker.service.DraftService;
 import com.davena.dutymaker.service.ScheduleService;
+import com.davena.dutymaker.service.generator.GeneratorService;
 import com.davena.dutymaker.service.generator.PreCheck;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class SchedulerController {
     private DraftService draftService;
     private BackfillService backfillService;
     private PreCheck preCheck;
+    private GeneratorService generatorService;
 
     @PutMapping("/requriements")
     public void updateRequirement(@PathVariable Long wardId, RequirementRequest requirementRequest) {
@@ -52,5 +54,10 @@ public class SchedulerController {
     @PostMapping("/wards/{wardId}/schedules/{scheduleId}/preCheck")
     public void preCheck(@PathVariable Long wardId, @PathVariable Long scheduleId) {
         preCheck.preCheckWard(wardId, scheduleId);
+    }
+
+    @PostMapping("/ward/{wardId}/schedule/{scheduleId}/generate")
+    public void generateSchedule(@PathVariable Long wardId, @PathVariable Long scheduleId) {
+        generatorService.generateCandidates(wardId, scheduleId);
     }
 }

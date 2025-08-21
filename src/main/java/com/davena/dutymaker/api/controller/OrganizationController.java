@@ -1,6 +1,7 @@
 package com.davena.dutymaker.api.controller;
 
 import com.davena.dutymaker.api.dto.member.ChargeRequest;
+import com.davena.dutymaker.api.dto.member.MemberAllowedShiftRequest;
 import com.davena.dutymaker.api.dto.member.MemberRequest;
 import com.davena.dutymaker.api.dto.skillGrade.GradeDistributionRequest;
 import com.davena.dutymaker.api.dto.skillGrade.GradeUpdateRequest;
@@ -34,6 +35,11 @@ public class OrganizationController {
     @PostMapping("/{memberId}/ward")
     public void createWard(@PathVariable Long memberId, WardRequest wardRequest) {
         wardService.createWardAndOffType(memberId, wardRequest);
+    }
+
+    @PostMapping("/ward/{wardId}/allowedShifts")
+    public void updateAllowedShifts(@PathVariable Long wardId, @RequestBody MemberAllowedShiftRequest request) {
+        memberService.updateAllowedShifts(request);
     }
 
     @GetMapping("/{wardId}/charge")

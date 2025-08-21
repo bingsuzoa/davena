@@ -4,9 +4,10 @@ import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.member.Member;
 import com.davena.dutymaker.domain.organization.member.MemberState;
 import com.davena.dutymaker.domain.schedule.Candidate;
-import com.davena.dutymaker.domain.schedule.CandidateAssignments;
+import com.davena.dutymaker.domain.schedule.CandidateAssignment;
 import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
+import com.davena.dutymaker.repository.MemberAllowedShiftRepository;
 import com.davena.dutymaker.repository.MemberRepository;
 import com.davena.dutymaker.repository.ScheduleRepository;
 import com.davena.dutymaker.repository.WardRepository;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class MemberStateService {
     private final ScheduleRepository scheduleRepository;
     private final WardRepository wardRepository;
     private final MemberRepository memberRepository;
+    private final MemberAllowedShiftRepository allowedShiftRepository;
 
     public Map<Long, MemberState> initMemberState(Long wardId, Long scheduleId) {
         Ward ward = getWardWithTeamsAndRules(wardId);
@@ -34,14 +33,18 @@ public class MemberStateService {
         List<Member> membersOfWard = getMembersOfWard(wardId);
 
         Map<Long, MemberState> memberStates = new HashMap<>();
-        for(Member member : membersOfWard) {
-            MemberState memberState = new MemberState(member.getId(), member.getTeam().getId());
+        for (Member member : membersOfWard) {
+            MemberState memberState = new MemberState(member.getId(), member.getTeam().getId(), member.getSkillGrade(), getPossibleShifts(member));
             memberStates.put(member.getId(), applyLastMonth(memberState, ward, schedule));
         }
         return memberStates;
     }
 
-    public MemberState applyLastMonth(MemberState memberState, Ward ward, Schedule schedule) {
+    private Set<ShiftType> getPossibleShifts(Member member) {
+        return new HashSet<>(allowedShiftRepository.findShiftTypesByMemberId(member.getId()));
+    }
+
+    private MemberState applyLastMonth(MemberState memberState, Ward ward, Schedule schedule) {
         return applyLastWeek(memberState, ward, schedule);
     }
 
@@ -59,17 +62,14 @@ public class MemberStateService {
             throw new IllegalStateException(Schedule.NOT_EXIST_FINALIZED_SCHEDULE);
         }
 
-        List<CandidateAssignments> lastAssignments = lastCandidate.getLastWeekAssignmentsFor(memberState);
+        List<CandidateAssignment> lastAssignments =
+                lastCandidate.getLastWeekAssignmentsFor(memberState).stream()
+                        .sorted(Comparator.comparing(CandidateAssignment::getWorkDate))
+                        .toList();
 
-        lastAssignments.sort(Comparator.comparing(CandidateAssignments::getWorkDate));
-
-        for (CandidateAssignments assignment : lastAssignments) {
+        for (CandidateAssignment assignment : lastAssignments) {
             ShiftType shift = assignment.getShiftType();
             LocalDate date = assignment.getWorkDate();
-
-            if (shift.isNight()) {
-                memberState.applyPostNightOff();
-            }
             memberState.updateMemberState(date, shift);
         }
         return memberState;

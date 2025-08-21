@@ -12,7 +12,7 @@ import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.organization.team.Team;
 import com.davena.dutymaker.domain.policy.DayType;
 import com.davena.dutymaker.domain.schedule.Candidate;
-import com.davena.dutymaker.domain.schedule.CandidateAssignments;
+import com.davena.dutymaker.domain.schedule.CandidateAssignment;
 import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.domain.shiftRequirement.RequirementRule;
 import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
@@ -47,7 +47,7 @@ public class ScheduleService {
                 Candidate finalizedSchedule = scheduleRepository.findWithSelectedWithAssignments(schedule.getId())
                         .orElseThrow().getSelectedCandidate();
                 List<AssignmentDto> assignmentDtos = finalizedSchedule.getAssignments().stream()
-                        .sorted(Comparator.comparing(CandidateAssignments::getWorkDate)
+                        .sorted(Comparator.comparing(CandidateAssignment::getWorkDate)
                                 .thenComparing(a -> a.getMember().getName()))
                         .map(a -> new AssignmentDto(
                                 a.getWorkDate(),
