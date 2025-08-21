@@ -3,7 +3,8 @@ package com.davena.dutymaker.domain.organization;
 
 import com.davena.dutymaker.domain.BaseEntity;
 import com.davena.dutymaker.domain.organization.member.Member;
-import com.davena.dutymaker.domain.shiftRequirement.RequirementRule;
+import com.davena.dutymaker.domain.organization.team.Team;
+import com.davena.dutymaker.domain.schedule.Schedule;
 import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -66,7 +67,7 @@ public class Ward extends BaseEntity {
     private Set<ShiftType> shiftTypes = new HashSet<>();
 
     @OneToMany(mappedBy = "ward")
-    private List<RequirementRule> requirementRules = new ArrayList<>();
+    private List<Schedule> schedules = new ArrayList<>();
 
     public void addShiftType(ShiftType type) {
         shiftTypes.add(type);
@@ -83,6 +84,11 @@ public class Ward extends BaseEntity {
     public void addSkillGrade(SkillGrade grade) {
         skillGrades.add(grade);
     }
+
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+    }
+
 
     @Override
     public boolean equals(Object o) {
