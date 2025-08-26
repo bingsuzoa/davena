@@ -4,7 +4,6 @@ package com.davena.dutymaker.service.generator;
 import com.davena.dutymaker.domain.organization.Ward;
 import com.davena.dutymaker.domain.schedule.Candidate;
 import com.davena.dutymaker.domain.schedule.Schedule;
-import com.davena.dutymaker.domain.shiftRequirement.ShiftType;
 import com.davena.dutymaker.repository.ScheduleRepository;
 import com.davena.dutymaker.repository.WardRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +36,7 @@ public class GeneratorService {
             attempts++;
         }
 
+        System.out.println("🎉🎉🎉두구두구 " + schedule.getCandidates().size());
         if (schedule.getCandidates().isEmpty()) {
             throw new IllegalStateException("Candidate 생성 실패: 가능한 경우 아예 없음");
         }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class SchedulerController {
 

@@ -31,9 +31,9 @@ public class MemberService {
     private final MemberAllowedShiftRepository allowedShiftRepository;
 
     public void updateAllowedShifts(MemberAllowedShiftRequest request) {
-        for(Long memberId : request.allowedShifts().keySet()) {
+        for (Long memberId : request.allowedShifts().keySet()) {
             Member member = memberRepository.findById(memberId).orElseThrow();
-            for(Long shiftId : request.allowedShifts().get(memberId)) {
+            for (Long shiftId : request.allowedShifts().get(memberId)) {
                 ShiftType shiftType = shiftTypeRepository.findById(shiftId).orElseThrow();
                 allowedShiftRepository.save(new MemberAllowedShift(member, shiftType));
             }
@@ -58,10 +58,12 @@ public class MemberService {
 
     public Member createMember(MemberRequest memberRequest) {
         return memberRepository.save(
-                new Member(memberRequest.name(),
+                new Member(
+                        memberRequest.name(),
                         memberRequest.nickName(),
                         memberRequest.phoneNumber(),
-                        memberRequest.password()));
+                        memberRequest.password()
+                ));
     }
 
     public void saveWardOfMember(Long wardId, Long memberId) {

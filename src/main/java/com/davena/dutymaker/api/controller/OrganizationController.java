@@ -18,7 +18,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class OrganizationController {
 
@@ -28,12 +28,12 @@ public class OrganizationController {
     private final GradeDistributionService gradeDistributionService;
 
     @PostMapping("/member")
-    public void createMember(MemberRequest memberRequest) {
+    public void createMember(@RequestBody MemberRequest memberRequest) {
         memberService.createMember(memberRequest);
     }
 
     @PostMapping("/{memberId}/ward")
-    public void createWard(@PathVariable Long memberId, WardRequest wardRequest) {
+    public void createWard(@PathVariable Long memberId, @RequestBody WardRequest wardRequest) {
         wardService.createWardAndOffType(memberId, wardRequest);
     }
 
@@ -63,12 +63,12 @@ public class OrganizationController {
     }
 
     @PutMapping("/{wardId}/{teamId}")
-    public void updateTeam(@PathVariable Long wardId, @PathVariable Long teamId, TeamUpdateRequest request) {
+    public void updateTeam(@PathVariable Long wardId, @PathVariable Long teamId, @RequestBody TeamUpdateRequest request) {
         teamDistributionService.updateTeam(wardId, teamId, request);
     }
 
     @PutMapping("/{wardId}/grades/distribution")
-    public void distributeSkillGrades(@PathVariable Long wardId, GradeDistributionRequest request) {
+    public void distributeSkillGrades(@PathVariable Long wardId, @RequestBody GradeDistributionRequest request) {
         gradeDistributionService.createSkillGrades(wardId, request);
     }
 
@@ -78,7 +78,7 @@ public class OrganizationController {
     }
 
     @PutMapping("/{wardId}/{gradeId}")
-    public void updateGrade(@PathVariable Long wardId, @PathVariable Long gradeId, GradeUpdateRequest request) {
+    public void updateGrade(@PathVariable Long wardId, @PathVariable Long gradeId, @RequestBody GradeUpdateRequest request) {
         gradeDistributionService.updateGrade(wardId, gradeId, request);
     }
 }

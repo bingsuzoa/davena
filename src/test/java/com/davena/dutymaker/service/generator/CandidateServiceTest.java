@@ -143,6 +143,7 @@ public class CandidateServiceTest {
         allowedShiftRepository.save(new MemberAllowedShift(m2, N));
         allowedShiftRepository.save(new MemberAllowedShift(m2, off));
 
+
         Member m3 = memberRepository.save(new Member("최지민", "최지민", "01011112224", "1234"));
         m3.isCharge(true, 2);
         m3.joinWard(ward, aTeam, grade1);
@@ -448,18 +449,19 @@ public class CandidateServiceTest {
         DraftPayload payload = new DraftPayload(cells);
         backfillService.applyInitialHistory(schedule.getId(), payload);
 
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, D, 5));
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, E, 4));
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, N, 3));
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, D, 3));
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, E, 3));
-        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, N, 2));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, D, 5));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, E, 4));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, N, 3));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, D, 3));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, E, 3));
-        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, N, 2));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, D, 2));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, E, 2));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKDAY, N, 2));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, D, 1));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, E, 2));
+        ruleRepository.save(new RequirementRule(aTeam, DayType.WEEKEND, N, 1));
+
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, D, 2));
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, E, 2));
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKDAY, N, 1));
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, D, 2));
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, E, 1));
+        ruleRepository.save(new RequirementRule(bTeam, DayType.WEEKEND, N, 1));
         return ward;
     }
 
