@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public record WardRequest(
         UUID hospitalId,
-        UUID memberId,
+        UUID supervisorId,
         String wardName
 ) {
 }
