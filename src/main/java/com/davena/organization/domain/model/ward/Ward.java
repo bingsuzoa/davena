@@ -3,7 +3,7 @@ package com.davena.organization.domain.model.ward;
 import com.davena.organization.domain.model.grade.Grade;
 import com.davena.organization.domain.model.grade.GradeId;
 import com.davena.organization.domain.model.hospital.HospitalId;
-import com.davena.organization.domain.model.member.MemberId;
+import com.davena.organization.domain.model.user.UserId;
 import com.davena.organization.domain.model.shift.Shift;
 import com.davena.organization.domain.model.shift.ShiftId;
 import com.davena.organization.domain.model.team.Team;
@@ -20,13 +20,15 @@ public class Ward {
     private Ward(
             HospitalId hospitalId,
             WardId id,
-            MemberId memberId,
-            String name
+            UserId supervisorId,
+            String name,
+            String token
     ) {
         this.hospitalId = hospitalId;
         this.id = id;
-        this.memberId = memberId;
+        this.supervisorId = supervisorId;
         this.name = name;
+        this.token = token;
     }
 
     public static final String DEFAULT_TEAM = "A팀";
@@ -35,14 +37,16 @@ public class Ward {
 
     private HospitalId hospitalId;
     private WardId id;
-    private MemberId memberId;
+    private UserId supervisorId;
     private String name;
     private List<Team> teams = new ArrayList<>();
     private List<Grade> grades = new ArrayList<>();
     private List<Shift> shifts = new ArrayList<>();
 
-    public static Ward create(HospitalId hospitalId, MemberId memberId, String name) {
-        Ward ward = new Ward(hospitalId, new WardId(UUID.randomUUID()), memberId, name);
+    private String token;
+
+    public static Ward create(HospitalId hospitalId, UserId supervisorId, String name, String token) {
+        Ward ward = new Ward(hospitalId, new WardId(UUID.randomUUID()), supervisorId, name, token);
         ward.addTeam(DEFAULT_TEAM, true);
         ward.addGrade(DEFAULT_GRADE, true);
         ward.addShift(OFF, true);
