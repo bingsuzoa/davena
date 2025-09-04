@@ -1,7 +1,8 @@
-package com.davena.organization.domain.model.grade;
+package com.davena.organization.domain.model.ward;
 
-import com.davena.organization.domain.model.ward.WardId;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Getter
 public class Grade {
@@ -22,4 +23,12 @@ public class Grade {
     private WardId wardId;
     private String name;
     private boolean isDefault;
+
+    protected static Grade createDefaultGrade(String name, WardId wardId) {
+        return new Grade(new GradeId(UUID.randomUUID()), wardId, name, true);
+    }
+
+    protected static Grade createGrade(String name, WardId wardId) {
+        return new Grade(new GradeId(UUID.randomUUID()), wardId, name, false);
+    }
 }
