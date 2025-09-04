@@ -30,7 +30,7 @@ public class User {
     private String password;
     private String phoneNumber;
 
-    private WardEnrollment wardEnrollment;
+    private WardEnrollment wardEnrollment = new WardEnrollment(null, JoinStatus.NONE);
 
     public static User create(String name, String loginId, String password, String phoneNumber) {
         return new User(new UserId(UUID.randomUUID()), name, loginId, password, phoneNumber);
@@ -47,8 +47,16 @@ public class User {
         wardEnrollment = new WardEnrollment(wardId, JoinStatus.APPROVE);
     }
 
+    public void rejectEnrollment(WardId wardId) {
+        wardEnrollment = new WardEnrollment(null, JoinStatus.NONE);
+    }
+
     public JoinStatus getStatus() {
         return wardEnrollment.status();
+    }
+
+    public WardId getWardId() {
+        return wardEnrollment.wardId();
     }
 
 }

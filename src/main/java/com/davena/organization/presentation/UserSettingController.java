@@ -25,8 +25,13 @@ public class UserSettingController {
     }
 
     @PostMapping("/members/approve")
-    public void approve() {
+    public void approveJoinRequest(@RequestBody JoinRequest request) {
+        JoinResponse response = joinService.approveJoinRequest(request);
+    }
 
+    @PostMapping("/members/reject")
+    public void rejectJoinReqeust(@RequestBody JoinRequest request) {
+        JoinResponse response = joinService.rejectJoinRequest(request);
     }
 
     @PatchMapping("/members/{id}/team")

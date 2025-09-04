@@ -1,7 +1,11 @@
 package com.davena.organization.service;
 
+import com.davena.organization.application.dto.user.JoinRequest;
+import com.davena.organization.application.dto.user.JoinResponse;
 import com.davena.organization.application.dto.ward.WardResponse;
 import com.davena.organization.domain.model.hospital.HospitalId;
+import com.davena.organization.domain.model.user.JoinStatus;
+import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.user.UserId;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
@@ -40,6 +44,42 @@ public class JoinServiceTest {
         when(wardRepository.findByToken(any())).thenReturn(Optional.of(ward));
         WardResponse response = joinService.findWardByToken(ward.getToken());
         Assertions.assertEquals(ward.getId().id(), response.wardId());
+    }
+
+    @Test
+    @DisplayName("병동 가입 신청 시 USER 상태 PENDING으로 변환")
+    void applyForWard() {
+        Ward ward = Ward.create(new HospitalId(UUID.randomUUID()), new UserId(UUID.randomUUID()), "외상 병동", UUID.randomUUID().toString());
+        User user = User.create("name", "loginId", "password", "phone");
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.getUser(any())).thenReturn(user);
+        JoinResponse response = joinService.applyForWard(new JoinRequest(user.getId().id(), ward.getId().id()));
+        Assertions.assertEquals(response.status(), JoinStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("병동 가입 승인 시 USER 상태 APPROVED")
+    void approveJoinRequest() {
+        Ward ward = Ward.create(new HospitalId(UUID.randomUUID()), new UserId(UUID.randomUUID()), "외상 병동", UUID.randomUUID().toString());
+        User user = User.create("name", "loginId", "password", "phone");
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.getUser(any())).thenReturn(user);
+        JoinResponse response = joinService.approveJoinRequest(new JoinRequest(user.getId().id(), ward.getId().id()));
+        Assertions.assertEquals(response.status(), JoinStatus.APPROVE);
+        Assertions.assertEquals(response.wardId(), ward.getId().id());
+    }
+
+    @Test
+    @DisplayName("병동 가입 거절 시 USER 상태 NONE, 프론트 반환 상태는 REJECTED")
+    void rejectJoinRequest() {
+        Ward ward = Ward.create(new HospitalId(UUID.randomUUID()), new UserId(UUID.randomUUID()), "외상 병동", UUID.randomUUID().toString());
+        User user = User.create("name", "loginId", "password", "phone");
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.getUser(any())).thenReturn(user);
+        JoinResponse response = joinService.rejectJoinRequest(new JoinRequest(user.getId().id(), ward.getId().id()));
+        Assertions.assertEquals(user.getStatus(), JoinStatus.NONE);
+        Assertions.assertEquals(response.status(), JoinStatus.REJECTED);
+        Assertions.assertEquals(response.wardId(), ward.getId().id());
     }
 
     /// /// 예외 테스트
