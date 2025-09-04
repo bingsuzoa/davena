@@ -1,6 +1,5 @@
-package com.davena.organization.domain.model.team;
+package com.davena.organization.domain.model.ward;
 
-import com.davena.organization.domain.model.ward.WardId;
 import lombok.Getter;
 
 import java.util.UUID;
@@ -25,7 +24,12 @@ public class Team {
     private WardId wardId;
     private boolean isDefault;
 
-    protected static Team create(String name, WardId wardId) {
+
+    protected static Team createDefaultTeam(String name, WardId wardId) {
+        return new Team(new TeamId(UUID.randomUUID()), wardId, name, true);
+    }
+
+    protected static Team createTeam(String name, WardId wardId) {
         return new Team(new TeamId(UUID.randomUUID()), wardId, name, false);
     }
 
