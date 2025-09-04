@@ -1,4 +1,4 @@
-package com.davena.organization.domain.model.shift;
+package com.davena.organization.domain.model.ward;
 
 import java.util.UUID;
 

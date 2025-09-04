@@ -1,7 +1,8 @@
-package com.davena.organization.domain.model.shift;
+package com.davena.organization.domain.model.ward;
 
-import com.davena.organization.domain.model.ward.WardId;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Getter
 public class Shift {
@@ -22,4 +23,12 @@ public class Shift {
     private WardId wardId;
     private String name;
     private boolean isDefault;
+
+    protected static Shift createDefaultOff(String name, WardId wardId) {
+        return new Shift(new ShiftId(UUID.randomUUID()), wardId, name, true);
+    }
+
+    protected static Shift createShift(String name, WardId wardId) {
+        return new Shift(new ShiftId(UUID.randomUUID()), wardId, name, false);
+    }
 }
