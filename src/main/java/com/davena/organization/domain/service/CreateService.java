@@ -17,4 +17,7 @@ public class UserService {
         User user = User.create(request.name(), request.loginId(), request.password(), request.phoneNumber());
         return UserResponse.from(userRepository.save(user));
     }
+
+
+
 }
