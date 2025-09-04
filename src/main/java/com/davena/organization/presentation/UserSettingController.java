@@ -19,37 +19,37 @@ public class UserSettingController {
         WardResponse response = joinService.findWardByToken(token);
     }
 
-    @PostMapping("/members/apply")
+    @PostMapping("/users/apply")
     public void applyForWard(@RequestBody JoinRequest request) {
         JoinResponse response = joinService.applyForWard(request);
     }
 
-    @PostMapping("/members/approve")
+    @PostMapping("/users/approve")
     public void approveJoinRequest(@RequestBody JoinRequest request) {
         JoinResponse response = joinService.approveJoinRequest(request);
     }
 
-    @PostMapping("/members/reject")
+    @PostMapping("/users/reject")
     public void rejectJoinReqeust(@RequestBody JoinRequest request) {
         JoinResponse response = joinService.rejectJoinRequest(request);
     }
 
-    @PatchMapping("/members/{id}/team")
+    @PatchMapping("/users/{id}/team")
     public void patchTeam() {
 
     }
 
-    @PatchMapping("/members/{id}/grade")
+    @PatchMapping("/users/{id}/grade")
     public void patchGrade() {
 
     }
 
-    @PatchMapping("/members/{id}/shifts")
+    @PatchMapping("/users/{id}/shifts")
     public void patchShifts() {
 
     }
 
-    @PatchMapping("/members/{id}/charge")
+    @PatchMapping("/users/{id}/charge")
     public void patchCharge() {
 
     }

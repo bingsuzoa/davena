@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record JoinRequest(
         UUID userId,
+        UUID supervisorId,
         UUID wardId
 ) {
 }

@@ -1,4 +1,4 @@
-package com.davena.organization.application.dto;
+package com.davena.organization.application.dto.ward;
 
 import java.util.UUID;
 

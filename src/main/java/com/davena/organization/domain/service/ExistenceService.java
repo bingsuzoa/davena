@@ -9,6 +9,8 @@ import com.davena.organization.domain.port.WardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.davena.organization.domain.service.JoinService.NOT_SUPERVISOR;
+
 @Service
 @RequiredArgsConstructor
 public class ExistenceService {
@@ -27,5 +29,12 @@ public class ExistenceService {
     public Ward getWard(WardId wardId) {
         return wardRepository.findById(wardId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_WARD));
+    }
+
+    public boolean verifySupervisor(Ward ward, UserId supervisorId) {
+        if(!ward.isSupervisor(supervisorId)) {
+            throw new IllegalArgumentException(NOT_SUPERVISOR);
+        }
+        return true;
     }
 }
