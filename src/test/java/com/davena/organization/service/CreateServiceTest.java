@@ -2,9 +2,15 @@ package com.davena.organization.service;
 
 import com.davena.organization.application.dto.user.UserRequest;
 import com.davena.organization.application.dto.user.UserResponse;
+import com.davena.organization.application.dto.ward.WardRequest;
+import com.davena.organization.application.dto.ward.WardResponse;
+import com.davena.organization.domain.model.hospital.HospitalId;
 import com.davena.organization.domain.model.user.User;
+import com.davena.organization.domain.model.user.UserId;
+import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
-import com.davena.organization.domain.service.UserService;
+import com.davena.organization.domain.port.WardRepository;
+import com.davena.organization.domain.service.CreateService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,17 +19,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class CreateServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private WardRepository wardRepository;
+
     @InjectMocks
-    private UserService userService;
+    private CreateService createService;
 
     @Test
     @DisplayName("User 객체 생성 확인")
@@ -31,7 +42,17 @@ public class UserServiceTest {
         UserRequest request = new UserRequest("name", "loginId", "password", "phone");
         User user = User.create("name", "loginId", "password", "phone");
         when(userRepository.save(any())).thenReturn(user);
-        UserResponse response = userService.createUser(request);
+        UserResponse response = createService.createUser(request);
         Assertions.assertNotNull(response.userId());
+    }
+
+    @Test
+    @DisplayName("병동 생성 확인")
+    void Ward_생성_확인() {
+        WardRequest request = new WardRequest(UUID.randomUUID(), UUID.randomUUID(), "외상 병동");
+        Ward ward = Ward.create(new HospitalId(UUID.randomUUID()), new UserId(UUID.randomUUID()), "외상 병동", UUID.randomUUID().toString());
+        when(wardRepository.save(any())).thenReturn(ward);
+        WardResponse response = createService.createWard(request);
+        Assertions.assertNotNull(response.wardId());
     }
 }
