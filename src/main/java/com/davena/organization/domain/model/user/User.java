@@ -1,6 +1,5 @@
 package com.davena.organization.domain.model.user;
 
-import com.davena.organization.domain.model.ward.WardId;
 import lombok.Getter;
 
 import java.util.UUID;
@@ -9,7 +8,7 @@ import java.util.UUID;
 public class User {
 
     public User(
-            UserId id,
+            UUID id,
             String name,
             String loginId,
             String password,
@@ -24,7 +23,7 @@ public class User {
 
     public static final String NOT_EXIST_REQUEST_ENROLLMENT = "병동 가입 신청부터 진행해주세요.";
 
-    private UserId id;
+    private UUID id;
     private String name;
     private String loginId;
     private String password;
@@ -33,21 +32,21 @@ public class User {
     private WardEnrollment wardEnrollment = new WardEnrollment(null, JoinStatus.NONE);
 
     public static User create(String name, String loginId, String password, String phoneNumber) {
-        return new User(new UserId(UUID.randomUUID()), name, loginId, password, phoneNumber);
+        return new User(UUID.randomUUID(), name, loginId, password, phoneNumber);
     }
 
-    public void applyForWard(WardId wardId) {
+    public void applyForWard(UUID wardId) {
         this.wardEnrollment = new WardEnrollment(wardId, JoinStatus.PENDING);
     }
 
-    public void approveEnrollment(WardId wardId) {
-        if(wardEnrollment == null) {
+    public void approveEnrollment(UUID wardId) {
+        if (wardEnrollment == null) {
             throw new IllegalArgumentException(NOT_EXIST_REQUEST_ENROLLMENT);
         }
         wardEnrollment = new WardEnrollment(wardId, JoinStatus.APPROVE);
     }
 
-    public void rejectEnrollment(WardId wardId) {
+    public void rejectEnrollment(UUID wardId) {
         wardEnrollment = new WardEnrollment(null, JoinStatus.NONE);
     }
 
@@ -55,8 +54,7 @@ public class User {
         return wardEnrollment.status();
     }
 
-    public WardId getWardId() {
+    public UUID getWardId() {
         return wardEnrollment.wardId();
     }
-
 }

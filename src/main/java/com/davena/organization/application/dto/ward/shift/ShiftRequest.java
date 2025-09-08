@@ -1,4 +1,4 @@
-package com.davena.organization.application.dto.ward;
+package com.davena.organization.application.dto.ward.shift;
 
 import java.util.UUID;
 

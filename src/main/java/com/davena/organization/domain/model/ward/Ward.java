@@ -1,20 +1,20 @@
 package com.davena.organization.domain.model.ward;
 
-import com.davena.organization.domain.model.hospital.HospitalId;
-import com.davena.organization.domain.model.user.UserId;
+import com.davena.organization.application.dto.ward.grade.GradeDto;
+import com.davena.organization.application.dto.ward.shift.ShiftDto;
+import com.davena.organization.application.dto.ward.team.TeamDto;
+import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class Ward {
 
     private Ward(
-            HospitalId hospitalId,
-            WardId id,
-            UserId supervisorId,
+            UUID hospitalId,
+            UUID id,
+            UUID supervisorId,
             String name,
             String token
     ) {
@@ -31,19 +31,29 @@ public class Ward {
     public static final String ALREADY_EXIST_TEAM_NAME = "팀 이름이 중복입니다. 구분해주세요.";
     public static final String ALREADY_EXIST_GRADE_NAME = "숙련도 이름이 중복입니다. 구분해주세요.";
     public static final String ALREADY_EXIST_SHIFT_NAME = "근무명이 중복입니다. 구분해주세요.";
+    public static final String NOT_EXIST_TEAM = "존재하지 않는 팀 입니다.";
+    public static final String NOT_EXIST_USER_OF_WARD = "병동에 승인되지 않은 사용자가 포함되어 있습니다.";
 
-    private HospitalId hospitalId;
-    private WardId id;
-    private UserId supervisorId;
+    private UUID hospitalId;
+    private UUID id;
+    private UUID supervisorId;
     private String name;
+
+    @Getter(AccessLevel.NONE)
     private List<Team> teams = new ArrayList<>();
+
+    @Getter(AccessLevel.NONE)
     private List<Grade> grades = new ArrayList<>();
+
+    @Getter(AccessLevel.NONE)
     private List<Shift> shifts = new ArrayList<>();
+
+    private Set<UUID> users = new HashSet<>();
 
     private String token;
 
-    public static Ward create(HospitalId hospitalId, UserId supervisorId, String name, String token) {
-        Ward ward = new Ward(hospitalId, new WardId(UUID.randomUUID()), supervisorId, name, token);
+    public static Ward create(UUID hospitalId, UUID supervisorId, String name, String token) {
+        Ward ward = new Ward(hospitalId, UUID.randomUUID(), supervisorId, name, token);
         ward.createDefault();
         return ward;
     }
@@ -54,12 +64,14 @@ public class Ward {
         shifts.add(Shift.createDefaultOff(OFF, this.getId()));
     }
 
-    public boolean isSupervisor(UserId supervisorId) {
-        return this.supervisorId == supervisorId ? true : false;
+    public List<TeamDto> getTeams() {
+        return teams.stream()
+                .map(team -> new TeamDto(team.getId(), team.getName(), team.isDefault()))
+                .toList();
     }
 
-    public TeamId addNewTeam(String name) {
-        if(teams.stream().anyMatch(t -> t.getName().equals(name))) {
+    public UUID addNewTeam(String name) {
+        if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
             throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
         }
         Team newTeam = Team.createTeam(name, this.getId());
@@ -67,8 +79,44 @@ public class Ward {
         return newTeam.getId();
     }
 
-    public GradeId addNewGrade(String name) {
-        if(grades.stream().anyMatch(g -> g.getName().equals(name))) {
+    public UUID deleteTeam(UUID teamId) {
+        Team team = teams.stream()
+                .filter(t -> t.getId().equals(teamId))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+        validateRemovableTeam(team);
+        teams.remove(team);
+        return teamId;
+    }
+
+    private void validateRemovableTeam(Team team) {
+        team.isEmptyMembers();
+        team.isDefaultTeam();
+    }
+
+    public List<ShiftDto> getShifts() {
+        return shifts.stream()
+                .map(shift -> new ShiftDto(shift.getId(), shift.getName(), shift.isDefault()))
+                .toList();
+    }
+
+    public UUID addNewShift(String name) {
+        if (shifts.stream().anyMatch(s -> s.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_NAME);
+        }
+        Shift newShift = Shift.createDefaultOff(name, this.getId());
+        shifts.add(newShift);
+        return newShift.getId();
+    }
+
+    public List<GradeDto> getGrades() {
+        return grades.stream()
+                .map(grade -> new GradeDto(grade.getId(), grade.getName(), grade.isDefault()))
+                .toList();
+    }
+
+    public UUID addNewGrade(String name) {
+        if (grades.stream().anyMatch(g -> g.getName().equals(name))) {
             throw new IllegalArgumentException(ALREADY_EXIST_GRADE_NAME);
         }
         Grade newGrade = Grade.createGrade(name, this.getId());
@@ -76,12 +124,56 @@ public class Ward {
         return newGrade.getId();
     }
 
-    public ShiftId addNewShift(String name) {
-        if(shifts.stream().anyMatch(s -> s.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_NAME);
+    public List<UUID> getUsersOfTeam(UUID teamId) {
+        return teams.stream()
+                .filter(team -> team.getId().equals(teamId))
+                .findFirst()
+                .map(Team::getUsers)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+    }
+
+    public boolean isSupervisor(UUID supervisorId) {
+        return this.supervisorId == supervisorId ? true : false;
+    }
+
+    public UUID addNewUser(UUID userId) {
+        users.add(userId);
+        addUserToDefaultTeam(userId);
+        return userId;
+    }
+
+    private void addUserToDefaultTeam(UUID userId) {
+        Team defaultTeam = teams.getFirst();
+        defaultTeam.addNewUser(userId);
+    }
+
+    public UUID updateUsersToTeam(UUID teamId, List<UUID> users) {
+        Team team = teams.stream()
+                .filter(t -> t.getId().equals(teamId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+        if (!users.stream().allMatch(this.users::contains)) {
+            throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
         }
-        Shift newShift = Shift.createDefaultOff(name, this.getId());
-        shifts.add(newShift);
-        return newShift.getId();
+        isMembersOfWard(users);
+        team.updateUsers(users);
+        return teamId;
+    }
+
+    private boolean isMembersOfWard(List<UUID> users) {
+        for(UUID userId : users) {
+            if(!this.users.contains(userId)) {
+                throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
+            }
+        }
+        return true;
+    }
+
+    public Map<TeamDto, List<UUID>> getTeamUsers() {
+        Map<TeamDto, List<UUID>> teamUsers = new HashMap<>();
+        for (Team team : teams) {
+            teamUsers.put(new TeamDto(team.getId(), team.getName(), team.isDefault()), team.getUsers());
+        }
+        return teamUsers;
     }
 }

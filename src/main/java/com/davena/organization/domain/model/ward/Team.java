@@ -2,14 +2,16 @@ package com.davena.organization.domain.model.ward;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 public class Team {
 
     private Team(
-            TeamId id,
-            WardId wardId,
+            UUID id,
+            UUID wardId,
             String name,
             boolean isDefault
     ) {
@@ -19,18 +21,47 @@ public class Team {
         this.isDefault = isDefault;
     }
 
-    private TeamId id;
+    private UUID id;
     private String name;
-    private WardId wardId;
+    private UUID wardId;
     private boolean isDefault;
 
+    private List<UUID> users = new ArrayList<>();
 
-    protected static Team createDefaultTeam(String name, WardId wardId) {
-        return new Team(new TeamId(UUID.randomUUID()), wardId, name, true);
+    protected static final String HAS_ANY_MEMBER = "팀에 멤버가 배정된 경우에는 팀을 삭제할 수 없어요. 멤버를 다른 팀으로 우선 옮겨주세요.";
+    protected static final String CAN_NOT_REMOVE_DEFAULT_TEAM = "기본 팀은 삭제가 불가능합니다.";
+
+
+    protected static Team createDefaultTeam(String name, UUID wardId) {
+        return new Team(UUID.randomUUID(), wardId, name, true);
     }
 
-    protected static Team createTeam(String name, WardId wardId) {
-        return new Team(new TeamId(UUID.randomUUID()), wardId, name, false);
+    protected static Team createTeam(String name, UUID wardId) {
+        return new Team(UUID.randomUUID(), wardId, name, false);
+    }
+
+    protected UUID addNewUser(UUID userId) {
+        users.add(userId);
+        return userId;
+    }
+
+    protected void updateUsers(List<UUID> newUsers) {
+        users.clear();
+        users.addAll(newUsers);
+    }
+
+    protected boolean isEmptyMembers() {
+        if (!users.isEmpty()) {
+            throw new IllegalArgumentException(HAS_ANY_MEMBER);
+        }
+        return true;
+    }
+
+    protected boolean isDefaultTeam() {
+        if (this.isDefault) {
+            throw new IllegalArgumentException(CAN_NOT_REMOVE_DEFAULT_TEAM);
+        }
+        return false;
     }
 
 }

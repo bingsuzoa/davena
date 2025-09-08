@@ -8,8 +8,8 @@ import java.util.UUID;
 public class Grade {
 
     public Grade(
-            GradeId id,
-            WardId wardId,
+            UUID id,
+            UUID wardId,
             String name,
             boolean isDefault
     ) {
@@ -19,16 +19,16 @@ public class Grade {
         this.isDefault = isDefault;
     }
 
-    private GradeId id;
-    private WardId wardId;
+    private UUID id;
+    private UUID wardId;
     private String name;
     private boolean isDefault;
 
-    protected static Grade createDefaultGrade(String name, WardId wardId) {
-        return new Grade(new GradeId(UUID.randomUUID()), wardId, name, true);
+    protected static Grade createDefaultGrade(String name, UUID wardId) {
+        return new Grade(UUID.randomUUID(), wardId, name, true);
     }
 
-    protected static Grade createGrade(String name, WardId wardId) {
-        return new Grade(new GradeId(UUID.randomUUID()), wardId, name, false);
+    protected static Grade createGrade(String name, UUID wardId) {
+        return new Grade(UUID.randomUUID(), wardId, name, false);
     }
 }

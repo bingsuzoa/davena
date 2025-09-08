@@ -8,8 +8,8 @@ import java.util.UUID;
 public class Shift {
 
     public Shift(
-            ShiftId id,
-            WardId wardId,
+            UUID id,
+            UUID wardId,
             String name,
             boolean isDefault
     ) {
@@ -19,16 +19,16 @@ public class Shift {
         this.isDefault = isDefault;
     }
 
-    private ShiftId id;
-    private WardId wardId;
+    private UUID id;
+    private UUID wardId;
     private String name;
     private boolean isDefault;
 
-    protected static Shift createDefaultOff(String name, WardId wardId) {
-        return new Shift(new ShiftId(UUID.randomUUID()), wardId, name, true);
+    protected static Shift createDefaultOff(String name, UUID wardId) {
+        return new Shift(UUID.randomUUID(), wardId, name, true);
     }
 
-    protected static Shift createShift(String name, WardId wardId) {
-        return new Shift(new ShiftId(UUID.randomUUID()), wardId, name, false);
+    protected static Shift createShift(String name, UUID wardId) {
+        return new Shift(UUID.randomUUID(), wardId, name, false);
     }
 }

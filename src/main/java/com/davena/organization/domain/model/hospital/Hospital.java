@@ -2,17 +2,19 @@ package com.davena.organization.domain.model.hospital;
 
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class Hospital {
 
     public Hospital(
-            HospitalId id,
+            UUID id,
             String name
     ) {
         this.id = id;
         this.name = name;
     }
 
-    private HospitalId id;
+    private UUID id;
     private String name;
 }

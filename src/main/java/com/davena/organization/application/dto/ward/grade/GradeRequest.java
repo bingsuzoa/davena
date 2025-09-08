@@ -1,4 +1,4 @@
-package com.davena.organization.application.dto.ward;
+package com.davena.organization.application.dto.ward.grade;
 
 import java.util.UUID;
 

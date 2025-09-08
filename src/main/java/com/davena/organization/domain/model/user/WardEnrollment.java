@@ -1,9 +1,9 @@
 package com.davena.organization.domain.model.user;
 
-import com.davena.organization.domain.model.ward.WardId;
+import java.util.UUID;
 
 public record WardEnrollment(
-        WardId wardId,
+        UUID wardId,
         JoinStatus status
 ) {
 }
