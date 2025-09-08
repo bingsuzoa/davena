@@ -28,8 +28,8 @@ public class Team {
 
     private List<UUID> users = new ArrayList<>();
 
-    protected static final String HAS_ANY_MEMBER = "팀에 멤버가 배정된 경우에는 팀을 삭제할 수 없어요. 멤버를 다른 팀으로 우선 옮겨주세요.";
-    protected static final String CAN_NOT_REMOVE_DEFAULT_TEAM = "기본 팀은 삭제가 불가능합니다.";
+    public static final String HAS_ANY_MEMBER = "팀에 멤버가 배정된 경우에는 팀을 삭제할 수 없어요. 멤버를 다른 팀으로 우선 옮겨주세요.";
+    public static final String CAN_NOT_REMOVE_DEFAULT_TEAM = "기본 팀은 삭제가 불가능합니다.";
 
 
     protected static Team createDefaultTeam(String name, UUID wardId) {
@@ -46,8 +46,11 @@ public class Team {
     }
 
     protected void updateUsers(List<UUID> newUsers) {
-        users.clear();
         users.addAll(newUsers);
+    }
+
+    protected void clearUsers() {
+        users.clear();
     }
 
     protected boolean isEmptyMembers() {

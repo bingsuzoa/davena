@@ -147,7 +147,7 @@ public class Ward {
         defaultTeam.addNewUser(userId);
     }
 
-    public UUID updateUsersToTeam(UUID teamId, List<UUID> users) {
+    public UUID setUsersToTeam(UUID teamId, List<UUID> users) {
         Team team = teams.stream()
                 .filter(t -> t.getId().equals(teamId))
                 .findFirst()
@@ -155,18 +155,13 @@ public class Ward {
         if (!users.stream().allMatch(this.users::contains)) {
             throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
         }
-        isMembersOfWard(users);
+
         team.updateUsers(users);
         return teamId;
     }
 
-    private boolean isMembersOfWard(List<UUID> users) {
-        for(UUID userId : users) {
-            if(!this.users.contains(userId)) {
-                throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
-            }
-        }
-        return true;
+    public void clearAllTeamMembers() {
+        teams.forEach(team -> team.clearUsers());
     }
 
     public Map<TeamDto, List<UUID>> getTeamUsers() {
