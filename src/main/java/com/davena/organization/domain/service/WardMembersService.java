@@ -3,7 +3,6 @@ package com.davena.organization.domain.service;
 import com.davena.organization.application.dto.user.JoinRequest;
 import com.davena.organization.application.dto.user.JoinResponse;
 import com.davena.organization.application.dto.ward.WardResponse;
-import com.davena.organization.domain.model.user.JoinStatus;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
@@ -14,7 +13,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class WardJoinService {
+public class WardMembersService {
 
     private final ExistenceService existenceCheck;
     private final WardRepository wardRepository;

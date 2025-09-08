@@ -1,9 +1,9 @@
 package com.davena.organization.domain.port;
 
 import com.davena.organization.domain.model.ward.Ward;
-import com.davena.organization.domain.model.ward.WardId;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface WardRepository {
 
@@ -11,6 +11,6 @@ public interface WardRepository {
 
     Optional<Ward> findByToken(String token);
 
-    Optional<Ward> findById(WardId wardId);
+    Optional<Ward> findById(UUID wardId);
 
 }
