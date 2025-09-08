@@ -1,6 +1,7 @@
 package com.davena.organization.service;
 
-import com.davena.organization.application.dto.ward.team.TeamMembersDto;
+import com.davena.organization.application.dto.ward.team.TeamMembersRequest;
+import com.davena.organization.application.dto.ward.team.TeamMembersResponse;
 import com.davena.organization.application.dto.ward.team.TeamRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
@@ -15,11 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.davena.organization.domain.model.ward.Team.CAN_NOT_REMOVE_DEFAULT_TEAM;
-import static com.davena.organization.domain.model.ward.Team.HAS_ANY_MEMBER;
+import static com.davena.organization.domain.model.ward.Team.HAS_ANY_MEMBER_OF_TEAM;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +48,37 @@ public class TeamMembersServiceTest {
     }
 
     @Test
+    @DisplayName("Team에 Member 배정하기")
+    void updateMembersOfTeam() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        UUID aTeamId = ward.getTeams().getFirst().id();
+        UUID bTeamId = ward.addNewTeam("B팀");
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+
+        User user1 = User.create("name1", "loginId1", "password", "01011112222");
+        ward.addNewUser(user1.getId());
+        User user2 = User.create("name2", "loginId2", "password", "01011112223");
+        ward.addNewUser(user2.getId());
+        User user3 = User.create("name3", "loginId3", "password", "01011112224");
+        ward.addNewUser(user3.getId());
+        User user4 = User.create("name4", "loginId4", "password", "01011112225");
+        ward.addNewUser(user4.getId());
+        User user5 = User.create("name5", "loginId5", "password", "01011112226");
+        ward.addNewUser(user5.getId());
+
+        when(userRepository.findAllById(any())).thenReturn(List.of(user1, user2, user3, user4, user5));
+
+        Map<UUID, List<UUID>> map = new HashMap<>();
+        map.put(aTeamId, List.of(user1.getId(), user2.getId()));
+        map.put(bTeamId, List.of(user3.getId(), user4.getId(), user5.getId()));
+
+        teamMembersService.updateMembersOfTeam( new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+        Assertions.assertEquals(ward.getUsersOfTeam(bTeamId).size(), 3);
+        Assertions.assertEquals(ward.getUsersOfTeam(aTeamId).size(), 2);
+    }
+
+    @Test
     @DisplayName("팀 삭제")
     void deleteTeam() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
@@ -70,7 +101,7 @@ public class TeamMembersServiceTest {
         when(userRepository.findAllById(any())).thenReturn(users);
 
         TeamRequest request = new TeamRequest(bTeamId, ward.getSupervisorId(), ward.getId(), ward.getName());
-        TeamMembersDto dto = teamMembersService.deleteTeam(request);
+        TeamMembersResponse dto = teamMembersService.deleteTeam(request);
         Assertions.assertEquals(dto.usersOfTeam().size(), 1);
     }
 
@@ -116,7 +147,7 @@ public class TeamMembersServiceTest {
             teamMembersService.deleteTeam(request);
         });
 
-        Assertions.assertEquals(e.getMessage(), HAS_ANY_MEMBER);
+        Assertions.assertEquals(e.getMessage(), HAS_ANY_MEMBER_OF_TEAM);
     }
 
     @Test
