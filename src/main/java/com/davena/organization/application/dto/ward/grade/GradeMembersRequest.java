@@ -1,11 +1,12 @@
 package com.davena.organization.application.dto.ward.grade;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public record GradeRequest(
-        UUID gradeId,
+public record GradeMembersRequest(
         UUID supervisorId,
         UUID wardId,
-        String name
+        Map<UUID, List<UUID>> usersOfGrade
 ) {
 }

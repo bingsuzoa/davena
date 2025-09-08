@@ -1,12 +1,15 @@
 package com.davena.organization.presentation;
 
 import com.davena.organization.application.dto.ward.*;
+import com.davena.organization.application.dto.ward.grade.GradeRequest;
+import com.davena.organization.application.dto.ward.grade.GradeResponse;
+import com.davena.organization.application.dto.ward.shift.ShiftRequest;
+import com.davena.organization.application.dto.ward.shift.ShiftResponse;
+import com.davena.organization.application.dto.ward.team.TeamRequest;
+import com.davena.organization.application.dto.ward.team.TeamResponse;
 import com.davena.organization.domain.service.CreateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,10 +22,6 @@ public class OrganizationController {
         WardResponse response = createService.createWard(request);
     }
 
-    @PostMapping("/team")
-    public void addTeam(@RequestBody TeamRequest request) {
-        TeamResponse response = createService.addNewTeam(request);
-    }
 
     @PostMapping("/grade")
     public void addGrade(@RequestBody GradeRequest request) {
