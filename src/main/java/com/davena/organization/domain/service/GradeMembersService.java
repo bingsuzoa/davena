@@ -9,6 +9,7 @@ import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,18 +26,19 @@ public class GradeMembersService {
     private final ExistenceService existenceCheck;
     private final MembersValidator membersValidator;
     private final UserRepository userRepository;
+    private final Mapper mapper;
 
     public GradeMembersResponse addNewGrade(GradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         ward.addNewGrade(request.name());
-        return getGradeMembersDto(ward, ward.getGradeUsers());
+        return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
     }
 
     public GradeMembersResponse getGradeMembers(GradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
-        return getGradeMembersDto(ward, ward.getGradeUsers());
+        return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
     }
 
     public GradeMembersResponse deleteGrade(GradeRequest request) {
@@ -44,7 +46,7 @@ public class GradeMembersService {
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         UUID gradeId = request.gradeId();
         ward.deleteGrade(gradeId);
-        return getGradeMembersDto(ward, ward.getGradeUsers());
+        return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
     }
 
     public GradeMembersResponse updateMembersOfGrade(GradeMembersRequest request) {
@@ -54,7 +56,7 @@ public class GradeMembersService {
         membersValidator.validateContainAllMembers(ward, request.usersOfGrade());
         ward.clearAllGradeMembers();
         request.usersOfGrade().forEach(ward::setUsersToGrade);
-        return getGradeMembersDto(ward, ward.getGradeUsers());
+        return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
     }
 
     private GradeMembersResponse getGradeMembersDto(Ward ward, Map<GradeDto, List<UUID>> gradeUsers) {

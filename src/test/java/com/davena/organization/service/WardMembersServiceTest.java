@@ -81,7 +81,7 @@ public class WardMembersServiceTest {
         wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertTrue(ward.getTeams().getFirst().isDefault());
 
-        UUID teamId = ward.getTeams().getFirst().id();
+        UUID teamId = ward.getTeams().getFirst().getId();
         List<UUID> users = ward.getUsersOfTeam(teamId);
         Assertions.assertEquals(users.size(), 1);
     }

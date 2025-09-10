@@ -9,6 +9,7 @@ import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,12 +26,13 @@ public class TeamMembersService {
     private final ExistenceService existenceCheck;
     private final MembersValidator membersValidator;
     private final UserRepository userRepository;
+    private final Mapper mapper;
 
     public TeamMembersResponse addNewTeam(TeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         ward.addNewTeam(request.name());
-        return getTeamMembersDto(ward, ward.getTeamUsers());
+        return getTeamMembersDto(ward, mapper.getTeamUsers(ward.getTeams()));
     }
 
     public TeamMembersResponse deleteTeam(TeamRequest request) {
@@ -38,13 +40,13 @@ public class TeamMembersService {
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         UUID teamId = request.teamId();
         ward.deleteTeam(teamId);
-        return getTeamMembersDto(ward, ward.getTeamUsers());
+        return getTeamMembersDto(ward, mapper.getTeamUsers(ward.getTeams()));
     }
 
     public TeamMembersResponse getTeamMembers(TeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
-        return getTeamMembersDto(ward, ward.getTeamUsers());
+        return getTeamMembersDto(ward, mapper.getTeamUsers(ward.getTeams()));
     }
 
     public TeamMembersResponse updateMembersOfTeam(TeamMembersRequest request) {
@@ -56,7 +58,7 @@ public class TeamMembersService {
         ward.clearAllTeamMembers();
         request.usersOfTeam().forEach(ward::setUsersToTeam);
 
-        return getTeamMembersDto(ward, ward.getTeamUsers());
+        return getTeamMembersDto(ward, mapper.getTeamUsers(ward.getTeams()));
     }
 
     private TeamMembersResponse getTeamMembersDto(Ward ward, Map<TeamDto, List<UUID>> teamUsers) {

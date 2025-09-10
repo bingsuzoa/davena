@@ -8,6 +8,7 @@ import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.service.TeamMembersService;
 import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -25,20 +26,19 @@ import java.util.UUID;
 import static com.davena.organization.domain.model.ward.Team.CAN_NOT_REMOVE_DEFAULT_TEAM;
 import static com.davena.organization.domain.model.ward.Team.HAS_ANY_MEMBER_OF_TEAM;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TeamMembersServiceTest {
 
-    @Mock
-    private ExistenceService existenceCheck;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private MembersValidator membersValidator;
-    @InjectMocks
-    private TeamMembersService teamMembersService;
+    private ExistenceService existenceCheck = mock(ExistenceService.class);
+    private MembersValidator membersValidator = mock(MembersValidator.class);
+    private UserRepository userRepository = mock(UserRepository.class);
+    private Mapper mapper = new Mapper();
+
+    private TeamMembersService teamMembersService =
+            new TeamMembersService(existenceCheck, membersValidator, userRepository, mapper);
+
 
     @Test
     @DisplayName("병동에서 팀 추가 확인")
@@ -48,17 +48,17 @@ public class TeamMembersServiceTest {
 
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        teamMembersService.addNewTeam(request);
+        TeamMembersResponse response = teamMembersService.addNewTeam(request);
 
-        Assertions.assertEquals(ward.getTeams().getLast().name(), "B팀");
-        Assertions.assertEquals(ward.getTeams().getLast().isDefault(), false);
+        Assertions.assertEquals("B팀", ward.getTeams().getLast().getName());
+        Assertions.assertFalse(ward.getTeams().getLast().isDefault());
     }
 
     @Test
     @DisplayName("Team에 Member 배정하기")
     void updateMembersOfTeam() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        UUID aTeamId = ward.getTeams().getFirst().id();
+        UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("B팀");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
@@ -94,7 +94,7 @@ public class TeamMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        UUID aTeamId = ward.getTeams().getFirst().id();
+        UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("B팀");
 
         User user1 = User.create("user1", "user1", "1111", "01011111111");
@@ -136,7 +136,7 @@ public class TeamMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        UUID aTeamId = ward.getTeams().getFirst().id();
+        UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("B팀");
 
         User user1 = User.create("user1", "user1", "1111", "01011111111");
@@ -166,7 +166,7 @@ public class TeamMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        UUID aTeamId = ward.getTeams().getFirst().id();
+        UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("B팀");
 
         User user1 = User.create("user1", "user1", "1111", "01011111111");
