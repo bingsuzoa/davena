@@ -6,7 +6,7 @@ import com.davena.organization.application.dto.ward.team.TeamRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
-import com.davena.organization.domain.service.ExistenceService;
+import com.davena.organization.domain.service.util.ExistenceService;
 import com.davena.organization.domain.service.TeamMembersService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

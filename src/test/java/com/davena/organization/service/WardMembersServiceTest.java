@@ -7,8 +7,8 @@ import com.davena.organization.domain.model.user.JoinStatus;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
-import com.davena.organization.domain.service.ExistenceService;
-import com.davena.organization.domain.service.WardJoinService;
+import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.WardMembersService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class WardJoinServiceTest {
+public class WardMembersServiceTest {
 
     @Mock
     private ExistenceService existenceCheck;
@@ -34,14 +34,14 @@ public class WardJoinServiceTest {
     private WardRepository wardRepository;
 
     @InjectMocks
-    private WardJoinService wardJoinService;
+    private WardMembersService wardMembersService;
 
     @Test
     @DisplayName("입력한 토큰과 일치하는 병동이 있으면 반환")
     void findWardByToken() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(wardRepository.findByToken(any())).thenReturn(Optional.of(ward));
-        WardResponse response = wardJoinService.findWardByToken(ward.getToken());
+        WardResponse response = wardMembersService.findWardByToken(ward.getToken());
         Assertions.assertEquals(ward.getId(), response.wardId());
     }
 
@@ -53,7 +53,7 @@ public class WardJoinServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
-        JoinResponse response = wardJoinService.applyForWard(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        JoinResponse response = wardMembersService.applyForWard(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.PENDING);
     }
 
@@ -65,7 +65,7 @@ public class WardJoinServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
-        JoinResponse response = wardJoinService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        JoinResponse response = wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.APPROVE);
         Assertions.assertEquals(response.wardId(), ward.getId());
     }
@@ -78,7 +78,7 @@ public class WardJoinServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
-        wardJoinService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertTrue(ward.getTeams().getFirst().isDefault());
 
         UUID teamId = ward.getTeams().getFirst().id();
@@ -95,7 +95,7 @@ public class WardJoinServiceTest {
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        JoinResponse response = wardJoinService.rejectJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        JoinResponse response = wardMembersService.rejectJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(user.getStatus(), JoinStatus.NONE);
         Assertions.assertEquals(response.status(), JoinStatus.NONE);
         Assertions.assertEquals(response.wardId(), null);
@@ -109,7 +109,7 @@ public class WardJoinServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(wardRepository.findByToken(any())).thenReturn(Optional.empty());
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            wardJoinService.findWardByToken(ward.getToken());
+            wardMembersService.findWardByToken(ward.getToken());
         });
     }
 
@@ -124,7 +124,7 @@ public class WardJoinServiceTest {
         when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            wardJoinService.approveJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
+            wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
         });
     }
 
@@ -138,7 +138,7 @@ public class WardJoinServiceTest {
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            wardJoinService.rejectJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
+            wardMembersService.rejectJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
         });
     }
 

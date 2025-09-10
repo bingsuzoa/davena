@@ -1,7 +1,5 @@
 package com.davena.organization.domain.ward;
 
-import com.davena.organization.domain.model.hospital.HospitalId;
-import com.davena.organization.domain.model.user.UserId;
 import com.davena.organization.domain.model.ward.Ward;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -14,12 +12,31 @@ public class WardTest {
     @Test
     @DisplayName("Ward 생성 시 기본 Team, Grade, Shift(Off) 생성되는지 확인")
     void Ward_생성_시_기본_Team_Grade_Shift_생성되는지_확인() {
-        HospitalId hospitalId = new HospitalId(UUID.randomUUID());
-        UserId supervisorId = new UserId(UUID.randomUUID());
+        UUID hospitalId = UUID.randomUUID();
+        UUID supervisorId = UUID.randomUUID();
 
-        Ward ward = Ward.create(hospitalId, supervisorId, "외상 병동");
-        Assertions.assertEquals(ward.getGrades().getFirst().getName(), Ward.DEFAULT_GRADE);
-        Assertions.assertEquals(ward.getTeams().getFirst().getName(), Ward.DEFAULT_TEAM);
-        Assertions.assertEquals(ward.getShifts().getFirst().getName(), Ward.OFF);
+        Ward ward = Ward.create(hospitalId, supervisorId, "외상 병동", UUID.randomUUID().toString());
+        Assertions.assertEquals(ward.getGrades().getFirst().name(), Ward.DEFAULT_GRADE);
+        Assertions.assertEquals(ward.getTeams().getFirst().name(), Ward.DEFAULT_TEAM);
+        Assertions.assertEquals(ward.getShifts().getFirst().name(), Ward.OFF);
+    }
+
+    @Test
+    @DisplayName("Ward에 Team 추가하기")
+    void addTeam() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        ward.addNewTeam("B팀");
+        Assertions.assertEquals(ward.getTeams().size(), 2);
+    }
+
+    /// ///예외 테스트
+    @Test
+    @DisplayName("존재하는 Team명으로 이름 생성할 경우 예외 발생")
+    void addTeam_duplicate_team_name() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        ward.addNewTeam("B팀");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ward.addNewTeam("B팀");
+        });
     }
 }

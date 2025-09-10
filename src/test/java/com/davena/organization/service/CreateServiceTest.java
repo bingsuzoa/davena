@@ -4,13 +4,12 @@ import com.davena.organization.application.dto.user.UserRequest;
 import com.davena.organization.application.dto.user.UserResponse;
 import com.davena.organization.application.dto.ward.WardRequest;
 import com.davena.organization.application.dto.ward.WardResponse;
-import com.davena.organization.domain.model.hospital.HospitalId;
 import com.davena.organization.domain.model.user.User;
-import com.davena.organization.domain.model.user.UserId;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.port.WardRepository;
 import com.davena.organization.domain.service.CreateService;
+import com.davena.organization.domain.service.util.ExistenceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +25,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateServiceTest {
+
+    @Mock
+    private ExistenceService existenceCheck;
 
     @Mock
     private UserRepository userRepository;
@@ -50,7 +52,7 @@ public class CreateServiceTest {
     @DisplayName("병동 생성 확인")
     void Ward_생성_확인() {
         WardRequest request = new WardRequest(UUID.randomUUID(), UUID.randomUUID(), "외상 병동");
-        Ward ward = Ward.create(new HospitalId(UUID.randomUUID()), new UserId(UUID.randomUUID()), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(wardRepository.save(any())).thenReturn(ward);
         WardResponse response = createService.createWard(request);
         Assertions.assertNotNull(response.wardId());
