@@ -1,10 +1,14 @@
 package com.davena.organization.domain.ward;
 
+import com.davena.organization.application.dto.ward.shift.ShiftDto;
+import com.davena.organization.domain.model.ward.DayType;
 import com.davena.organization.domain.model.ward.Ward;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class WardTest {
@@ -18,7 +22,13 @@ public class WardTest {
         Ward ward = Ward.create(hospitalId, supervisorId, "외상 병동", UUID.randomUUID().toString());
         Assertions.assertEquals(ward.getGrades().getFirst().name(), Ward.DEFAULT_GRADE);
         Assertions.assertEquals(ward.getTeams().getFirst().name(), Ward.DEFAULT_TEAM);
-        Assertions.assertEquals(ward.getShifts().getFirst().name(), Ward.OFF);
+
+        Map<DayType, List<ShiftDto>> shifts = ward.getShifts();
+        List<ShiftDto> weekDayShifts = shifts.get(DayType.WEEKDAY);
+        List<ShiftDto> weekEndShifts = shifts.get(DayType.WEEKEND);
+
+        Assertions.assertEquals(weekDayShifts.size(), 4);
+        Assertions.assertEquals(weekEndShifts.size(), 4);
     }
 
     @Test

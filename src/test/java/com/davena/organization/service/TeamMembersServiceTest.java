@@ -6,8 +6,9 @@ import com.davena.organization.application.dto.ward.team.TeamRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
-import com.davena.organization.domain.service.util.ExistenceService;
 import com.davena.organization.domain.service.TeamMembersService;
+import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.util.MembersValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.davena.organization.domain.model.ward.Team.CAN_NOT_REMOVE_DEFAULT_TEAM;
 import static com.davena.organization.domain.model.ward.Team.HAS_ANY_MEMBER_OF_TEAM;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +35,8 @@ public class TeamMembersServiceTest {
     private ExistenceService existenceCheck;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private MembersValidator membersValidator;
     @InjectMocks
     private TeamMembersService teamMembersService;
 
@@ -41,7 +48,7 @@ public class TeamMembersServiceTest {
 
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-       teamMembersService.addNewTeam(request);
+        teamMembersService.addNewTeam(request);
 
         Assertions.assertEquals(ward.getTeams().getLast().name(), "B팀");
         Assertions.assertEquals(ward.getTeams().getLast().isDefault(), false);
@@ -69,11 +76,14 @@ public class TeamMembersServiceTest {
 
         when(userRepository.findAllById(any())).thenReturn(List.of(user1, user2, user3, user4, user5));
 
+        doNothing().when(membersValidator).validateAtLeastOneMember(any());
+        doNothing().when(membersValidator).validateContainAllMembers(any(), any());
+
         Map<UUID, List<UUID>> map = new HashMap<>();
         map.put(aTeamId, List.of(user1.getId(), user2.getId()));
         map.put(bTeamId, List.of(user3.getId(), user4.getId(), user5.getId()));
 
-        teamMembersService.updateMembersOfTeam( new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+        teamMembersService.updateMembersOfTeam(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
         Assertions.assertEquals(ward.getUsersOfTeam(bTeamId).size(), 3);
         Assertions.assertEquals(ward.getUsersOfTeam(aTeamId).size(), 2);
     }

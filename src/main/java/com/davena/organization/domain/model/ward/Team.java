@@ -57,7 +57,7 @@ public class Team {
         if (!users.isEmpty()) {
             throw new IllegalArgumentException(HAS_ANY_MEMBER_OF_TEAM);
         }
-        if (!isDefault) {
+        if (isDefault) {
             throw new IllegalArgumentException(CAN_NOT_REMOVE_DEFAULT_TEAM);
         }
         return true;

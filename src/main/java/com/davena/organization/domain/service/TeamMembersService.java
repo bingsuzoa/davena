@@ -7,9 +7,9 @@ import com.davena.organization.application.dto.ward.team.TeamMembersResponse;
 import com.davena.organization.application.dto.ward.team.TeamRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
+import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.service.util.ExistenceService;
 import com.davena.organization.domain.service.util.MembersValidator;
-import com.davena.organization.domain.service.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class TeamMembersService {
 
     private final ExistenceService existenceCheck;
     private final MembersValidator membersValidator;
-    private final Mapper mapper;
+    private final UserRepository userRepository;
 
     public TeamMembersResponse addNewTeam(TeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
@@ -55,17 +55,28 @@ public class TeamMembersService {
 
         ward.clearAllTeamMembers();
         request.usersOfTeam().forEach(ward::setUsersToTeam);
+
         return getTeamMembersDto(ward, ward.getTeamUsers());
     }
 
     private TeamMembersResponse getTeamMembersDto(Ward ward, Map<TeamDto, List<UUID>> teamUsers) {
-        Map<UUID, User> userMap = mapper.getUserMap(teamUsers);
+        List<UUID> allUserIds = teamUsers.values().stream()
+                .flatMap(List::stream)
+                .distinct()
+                .toList();
+
+        Map<UUID, User> userMap = userRepository.findAllById(allUserIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
 
         Map<TeamDto, List<UserDto>> teamUserDtos = teamUsers.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> mapper.toUserDtos(e.getValue(), userMap)
+                        e -> e.getValue().stream()
+                                .map(userMap::get)
+                                .map(UserDto::from)
+                                .toList()
                 ));
+
         return new TeamMembersResponse(ward.getSupervisorId(), ward.getId(), teamUserDtos);
     }
 }
