@@ -1,4 +1,4 @@
-package com.davena.organization.domain.service;
+package com.davena.organization.domain.service.util;
 
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;

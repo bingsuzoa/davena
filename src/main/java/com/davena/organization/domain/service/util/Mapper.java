@@ -1,7 +1,9 @@
 package com.davena.organization.domain.service.util;
 
 import com.davena.organization.application.dto.user.UserDto;
+import com.davena.organization.application.dto.ward.shift.ShiftDto;
 import com.davena.organization.domain.model.user.User;
+import com.davena.organization.domain.model.ward.Shift;
 import com.davena.organization.domain.port.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class UserMapper {
+public class Mapper {
 
     private final UserRepository userRepository;
 

@@ -7,6 +7,9 @@ import com.davena.organization.application.dto.ward.grade.GradeMembersResponse;
 import com.davena.organization.application.dto.ward.grade.GradeRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
+import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.organization.domain.service.util.MembersValidator;
+import com.davena.organization.domain.service.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,7 @@ public class GradeMembersService {
 
     private final ExistenceService existenceCheck;
     private final MembersValidator membersValidator;
-    private final UserMapper userMapper;
+    private final Mapper mapper;
 
     public GradeMembersResponse addNewGrade(GradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
@@ -55,12 +58,12 @@ public class GradeMembersService {
     }
 
     private GradeMembersResponse getGradeMembersDto(Ward ward, Map<GradeDto, List<UUID>> gradeMembers) {
-        Map<UUID, User> userMap = userMapper.getUserMap(gradeMembers);
+        Map<UUID, User> userMap = mapper.getUserMap(gradeMembers);
 
         Map<GradeDto, List<UserDto>> gradeMemberDtos = gradeMembers.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> userMapper.toUserDtos(e.getValue(), userMap)
+                        e -> mapper.toUserDtos(e.getValue(), userMap)
                 ));
         return new GradeMembersResponse(ward.getSupervisorId(), ward.getId(), gradeMemberDtos);
     }
