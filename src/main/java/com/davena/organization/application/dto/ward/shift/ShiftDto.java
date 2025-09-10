@@ -1,10 +1,12 @@
 package com.davena.organization.application.dto.ward.shift;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 public record ShiftDto(
-        UUID shiftId,
+        UUID id,
         String name,
-        boolean isDefault
+        LocalTime statTime,
+        LocalTime endTime
 ) {
 }
