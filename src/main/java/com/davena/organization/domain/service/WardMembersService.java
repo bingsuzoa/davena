@@ -1,12 +1,14 @@
 package com.davena.organization.domain.service;
 
+import com.davena.common.ExistenceService;
 import com.davena.organization.application.dto.user.JoinRequest;
 import com.davena.organization.application.dto.user.JoinResponse;
 import com.davena.organization.application.dto.ward.WardResponse;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
-import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.possibleShifts.domain.model.Member;
+import com.davena.possibleShifts.domain.port.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class WardMembersService {
 
     private final ExistenceService existenceCheck;
     private final WardRepository wardRepository;
+    private final MemberRepository memberRepository;
 
     public static final String NOT_EXIST_WARD_BY_TOKEN = "입력하신 토큰을 가지는 병동이 존재하지 않습니다.";
     public static final String NOT_SUPERVISOR = "팀장이 아닌 사용자는 권한이 없습니다.";
@@ -44,7 +47,15 @@ public class WardMembersService {
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         user.approveEnrollment(ward.getId());
         ward.addNewUser(user.getId());
+        syncMemberToWard(user, ward);
         return new JoinResponse(user.getId(), user.getWardId(), ward.getName(), user.getStatus());
+    }
+
+    private void syncMemberToWard(User user, Ward ward) {
+        if (!existenceCheck.isAlreadyExistMember(user.getId())) {
+            Member member = memberRepository.save(new Member(user.getId(), ward.getId(), user.getName()));
+            member.initPossibleShifts(ward.getShifts());
+        }
     }
 
     public JoinResponse rejectJoinRequest(JoinRequest request) {

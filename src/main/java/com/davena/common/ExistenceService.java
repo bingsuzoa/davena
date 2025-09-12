@@ -1,12 +1,16 @@
-package com.davena.organization.domain.service.util;
+package com.davena.common;
 
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.port.WardRepository;
+import com.davena.possibleShifts.domain.model.Member;
+import com.davena.possibleShifts.domain.port.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.davena.organization.domain.service.WardMembersService.NOT_SUPERVISOR;
@@ -17,9 +21,11 @@ public class ExistenceService {
 
     private final UserRepository userRepository;
     private final WardRepository wardRepository;
+    private final MemberRepository memberRepository;
 
     public static final String NOT_EXIST_USER = "존재하지 않는 회원입니다.";
     public static final String NOT_EXIST_WARD = "존재하지 않는 병동입니다.";
+    public static final String ALREADY_REGISTERED_MEMBER = "이미 병동에 가입된 회원입니다.";
 
     public User getUser(UUID userId) {
         return userRepository.findById(userId)
@@ -36,5 +42,22 @@ public class ExistenceService {
             throw new IllegalArgumentException(NOT_SUPERVISOR);
         }
         return true;
+    }
+
+    public Member getMember(UUID userId) {
+        return memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException(ALREADY_REGISTERED_MEMBER));
+    }
+
+    public boolean isAlreadyExistMember(UUID userId) {
+        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
+        if(optionalMember.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    public List<Member> getAllMembersOfWard(UUID wardId) {
+        return memberRepository.findAllByWardId(wardId);
     }
 }

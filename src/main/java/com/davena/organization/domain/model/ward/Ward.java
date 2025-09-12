@@ -1,5 +1,6 @@
 package com.davena.organization.domain.model.ward;
 
+import com.davena.possibleShifts.domain.model.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -52,6 +53,9 @@ public class Ward {
     @Getter(AccessLevel.NONE)
     private Map<DayType, List<Shift>> shifts = new HashMap<>();
 
+    @Getter(AccessLevel.NONE)
+    private List<Member> members = new ArrayList<>();
+
     private Set<UUID> users = new HashSet<>();
 
     private String token;
@@ -72,46 +76,8 @@ public class Ward {
         return Collections.unmodifiableList(teams);
     }
 
-    public UUID addNewTeam(String name) {
-        if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
-        }
-        Team newTeam = Team.createTeam(name, this.getId(), getShifts());
-        teams.add(newTeam);
-        return newTeam.getId();
-    }
-
-    public UUID deleteTeam(UUID teamId) {
-        Team team = teams.stream()
-                .filter(t -> t.getId().equals(teamId))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
-        team.validateRemovableTeam();
-        teams.remove(team);
-        return teamId;
-    }
-
     public List<Grade> getGrades() {
         return Collections.unmodifiableList(grades);
-    }
-
-    public UUID addNewGrade(String name) {
-        if (grades.stream().anyMatch(g -> g.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_GRADE_NAME);
-        }
-        Grade newGrade = Grade.createGrade(name, this.getId());
-        grades.add(newGrade);
-        return newGrade.getId();
-    }
-
-    public UUID deleteGrade(UUID gradeId) {
-        Grade grade = grades.stream()
-                .filter(g -> g.getId().equals(gradeId))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
-        grade.validateRemovableGrade();
-        grades.remove(grade);
-        return gradeId;
     }
 
     public Map<DayType, List<Shift>> getShifts() {
@@ -124,6 +90,32 @@ public class Ward {
         );
     }
 
+    public List<UUID> getUsersOfTeam(UUID teamId) {
+        return teams.stream()
+                .filter(team -> team.getId().equals(teamId))
+                .findFirst()
+                .map(Team::getUsers)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+    }
+
+    public UUID addNewTeam(String name) {
+        if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
+        }
+        Team newTeam = Team.createTeam(name, this.getId(), getShifts());
+        teams.add(newTeam);
+        return newTeam.getId();
+    }
+
+    public UUID addNewGrade(String name) {
+        if (grades.stream().anyMatch(g -> g.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_GRADE_NAME);
+        }
+        Grade newGrade = Grade.createGrade(name, this.getId());
+        grades.add(newGrade);
+        return newGrade.getId();
+    }
+
     public UUID addNewShift(DayType dayType, String name, LocalTime start, LocalTime end) {
         List<Shift> shifts = this.shifts.get(dayType);
         if (shifts.stream().anyMatch(shift -> shift.getName().equals(name))) {
@@ -133,6 +125,32 @@ public class Ward {
         Shift newShift = Shift.addNewShift(this.getId(), name, start, end);
         shifts.add(newShift);
         return newShift.getId();
+    }
+
+    public UUID addNewUser(UUID userId) {
+        users.add(userId);
+        UUID defaultTeamId = addUserToDefaultTeam(userId);
+        return userId;
+    }
+
+    public UUID deleteTeam(UUID teamId) {
+        Team team = teams.stream()
+                .filter(t -> t.getId().equals(teamId))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+        team.validateRemovableTeam();
+        teams.remove(team);
+        return teamId;
+    }
+
+    public UUID deleteGrade(UUID gradeId) {
+        Grade grade = grades.stream()
+                .filter(g -> g.getId().equals(gradeId))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
+        grade.validateRemovableGrade();
+        grades.remove(grade);
+        return gradeId;
     }
 
     public UUID deleteShift(DayType dayType, UUID shiftId) {
@@ -165,29 +183,6 @@ public class Ward {
         return shiftId;
     }
 
-    public List<UUID> getUsersOfTeam(UUID teamId) {
-        return teams.stream()
-                .filter(team -> team.getId().equals(teamId))
-                .findFirst()
-                .map(Team::getUsers)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
-    }
-
-    public boolean isSupervisor(UUID supervisorId) {
-        return this.supervisorId == supervisorId ? true : false;
-    }
-
-    public UUID addNewUser(UUID userId) {
-        users.add(userId);
-        addUserToDefaultTeam(userId);
-        return userId;
-    }
-
-    private void addUserToDefaultTeam(UUID userId) {
-        Team defaultTeam = teams.getFirst();
-        defaultTeam.addNewUser(userId);
-    }
-
     public UUID setUsersToTeam(UUID teamId, List<UUID> users) {
         Team team = findTeamOrThrow(teamId);
         if (!users.stream().allMatch(this.users::contains)) {
@@ -205,6 +200,17 @@ public class Ward {
         }
         grade.updateUsers(users);
         return gradeId;
+    }
+
+    public boolean isSupervisor(UUID supervisorId) {
+        return this.supervisorId == supervisorId ? true : false;
+    }
+
+
+    private UUID addUserToDefaultTeam(UUID userId) {
+        Team defaultTeam = teams.getFirst();
+        defaultTeam.addNewUser(userId);
+        return defaultTeam.getId();
     }
 
     public void clearAllTeamMembers() {
@@ -240,6 +246,13 @@ public class Ward {
                 .filter(g -> g.getId().equals(gradeId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
+    }
+
+    private Shift getShiftOrThrow(UUID shiftId, DayType dayType) {
+        return shifts.get(dayType).stream()
+                .filter(s -> s.getId().equals(shiftId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
     }
 
 

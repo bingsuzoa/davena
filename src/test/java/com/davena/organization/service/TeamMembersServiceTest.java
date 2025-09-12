@@ -7,15 +7,13 @@ import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.service.TeamMembersService;
-import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.common.ExistenceService;
 import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
@@ -56,7 +54,7 @@ public class TeamMembersServiceTest {
 
     @Test
     @DisplayName("Team에 Member 배정하기")
-    void updateMembersOfTeam() {
+    void updateTeamAssignments() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("B팀");
@@ -83,7 +81,7 @@ public class TeamMembersServiceTest {
         map.put(aTeamId, List.of(user1.getId(), user2.getId()));
         map.put(bTeamId, List.of(user3.getId(), user4.getId(), user5.getId()));
 
-        teamMembersService.updateMembersOfTeam(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+        teamMembersService.updateTeamAssignments(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
         Assertions.assertEquals(ward.getUsersOfTeam(bTeamId).size(), 3);
         Assertions.assertEquals(ward.getUsersOfTeam(aTeamId).size(), 2);
     }

@@ -31,6 +31,6 @@ public class TeamMembersController {
 
     @PutMapping("/users")
     public TeamMembersResponse updateTeamMembers(@RequestBody TeamMembersRequest request) {
-        return teamMembersService.updateMembersOfTeam(request);
+        return teamMembersService.updateTeamAssignments(request);
     }
 }

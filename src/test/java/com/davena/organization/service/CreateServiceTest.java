@@ -9,7 +9,7 @@ import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.port.WardRepository;
 import com.davena.organization.domain.service.CreateService;
-import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.common.ExistenceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

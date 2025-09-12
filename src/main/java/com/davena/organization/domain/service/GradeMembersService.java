@@ -8,9 +8,10 @@ import com.davena.organization.application.dto.ward.grade.GradeRequest;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
-import com.davena.organization.domain.service.util.ExistenceService;
+import com.davena.common.ExistenceService;
 import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
+import com.davena.possibleShifts.domain.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -49,14 +50,31 @@ public class GradeMembersService {
         return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
     }
 
-    public GradeMembersResponse updateMembersOfGrade(GradeMembersRequest request) {
+    public GradeMembersResponse updateWardGradeAssignments(GradeMembersRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         membersValidator.validateAtLeastOneMember(request.usersOfGrade());
         membersValidator.validateContainAllMembers(ward, request.usersOfGrade());
         ward.clearAllGradeMembers();
         request.usersOfGrade().forEach(ward::setUsersToGrade);
-        return getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
+        GradeMembersResponse gradeMembers =  getGradeMembersDto(ward, mapper.getGradeUsers(ward.getGrades()));
+        syncMembersGrade(gradeMembers);
+        return gradeMembers;
+    }
+
+    private void syncMembersGrade(GradeMembersResponse gradeMembers) {
+        Map<GradeDto, List<UserDto>> usersOfGrade = gradeMembers.usersOfGrade();
+        for(GradeDto gradeDto : usersOfGrade.keySet()) {
+            syncMemberGrade(gradeDto, usersOfGrade.get(gradeDto));
+        }
+    }
+
+    private void syncMemberGrade(GradeDto gradeDto, List<UserDto> userDtos) {
+        UUID gradeId = gradeDto.id();
+        for(UserDto userDto : userDtos) {
+            Member member = existenceCheck.getMember(userDto.id());
+            member.updateGrade(gradeId);
+        }
     }
 
     private GradeMembersResponse getGradeMembersDto(Ward ward, Map<GradeDto, List<UUID>> gradeUsers) {

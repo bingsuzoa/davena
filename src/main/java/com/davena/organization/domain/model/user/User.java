@@ -31,6 +31,7 @@ public class User {
 
     private WardEnrollment wardEnrollment = new WardEnrollment(null, JoinStatus.NONE);
 
+
     public static User create(String name, String loginId, String password, String phoneNumber) {
         return new User(UUID.randomUUID(), name, loginId, password, phoneNumber);
     }

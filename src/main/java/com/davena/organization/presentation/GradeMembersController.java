@@ -31,7 +31,7 @@ public class GradeMembersController {
 
     @PutMapping("/users")
     public GradeMembersResponse updateGradeMembers(@RequestBody GradeMembersRequest request) {
-        return gradeMembersService.updateMembersOfGrade(request);
+        return gradeMembersService.updateWardGradeAssignments(request);
     }
 
 }
