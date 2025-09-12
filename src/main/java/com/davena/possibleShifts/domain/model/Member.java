@@ -25,12 +25,12 @@ public class Member {
     private UUID teamId;
     private UUID gradeId;
 
-    private boolean canCharge;
-    private int rank;
+    private boolean canCharge = false;
+    private int rank = LOWEST_RANK;
     private Map<DayType, List<PossibleShift>> possibleShifts = new HashMap<>();
 
     public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무 유형입니다.";
-    private static final int LOWEST_RANK = 5;
+    private static final int LOWEST_RANK = 100;
 
     public void updateGrade(UUID gradeId) {
         this.gradeId = gradeId;
@@ -42,6 +42,14 @@ public class Member {
 
     public void updateName(String name) {
         this.name = name;
+    }
+
+    public void updateCanCharge(boolean canCharge) {
+        this.canCharge = canCharge;
+    }
+
+    public void updateRank(int rank) {
+        this.rank = rank;
     }
 
     public void addWardNewShift(DayType dayType, UUID shiftId, String shiftName) {
