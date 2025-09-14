@@ -11,7 +11,7 @@ import com.davena.organization.domain.port.UserRepository;
 import com.davena.common.ExistenceService;
 import com.davena.organization.domain.service.util.Mapper;
 import com.davena.organization.domain.service.util.MembersValidator;
-import com.davena.possibleShifts.domain.model.Member;
+import com.davena.constraint.domain.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

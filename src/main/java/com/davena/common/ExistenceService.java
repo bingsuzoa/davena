@@ -4,8 +4,8 @@ import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.port.WardRepository;
-import com.davena.possibleShifts.domain.model.Member;
-import com.davena.possibleShifts.domain.port.MemberRepository;
+import com.davena.constraint.domain.model.Member;
+import com.davena.constraint.domain.port.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

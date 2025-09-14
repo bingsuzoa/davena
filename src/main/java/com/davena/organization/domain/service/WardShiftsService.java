@@ -7,7 +7,7 @@ import com.davena.organization.application.dto.ward.shift.WardShiftsResponse;
 import com.davena.organization.domain.model.ward.DayType;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.service.util.Mapper;
-import com.davena.possibleShifts.domain.model.Member;
+import com.davena.constraint.domain.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

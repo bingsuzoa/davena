@@ -1,6 +1,6 @@
 package com.davena.organization.domain.model.ward;
 
-import com.davena.possibleShifts.domain.model.Member;
+import com.davena.constraint.domain.model.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -254,6 +254,7 @@ public class Ward {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
     }
+
 
 
 }
