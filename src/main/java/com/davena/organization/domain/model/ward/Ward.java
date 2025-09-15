@@ -90,6 +90,15 @@ public class Ward {
         );
     }
 
+    public String getShiftName(UUID shiftId) {
+        return this.shifts.values().stream()
+                .flatMap(List::stream)
+                .filter(shift -> shift.getId().equals(shiftId))
+                .map(Shift::getName)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
+    }
+
     public List<UUID> getUsersOfTeam(UUID teamId) {
         return teams.stream()
                 .filter(team -> team.getId().equals(teamId))
@@ -247,14 +256,4 @@ public class Ward {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
     }
-
-    private Shift getShiftOrThrow(UUID shiftId, DayType dayType) {
-        return shifts.get(dayType).stream()
-                .filter(s -> s.getId().equals(shiftId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
-    }
-
-
-
 }

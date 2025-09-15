@@ -1,4 +1,4 @@
-package com.davena.constraint.application.dto.availabiltyRequest;
+package com.davena.constraint.application.dto.shiftRequest;
 
 import java.util.UUID;
 
