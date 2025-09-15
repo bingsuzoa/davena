@@ -30,7 +30,7 @@ public class Member {
     private Map<DayType, List<PossibleShift>> possibleShifts = new HashMap<>();
 
     public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무 유형입니다.";
-    private static final int LOWEST_RANK = 100;
+    public static final int LOWEST_RANK = 100;
 
     public void updateGrade(UUID gradeId) {
         this.gradeId = gradeId;

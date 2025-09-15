@@ -2,7 +2,6 @@ package com.davena.organization.infrastructure.adapter.ward;
 
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
-import com.davena.organization.infrastructure.entity.WardEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

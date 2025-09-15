@@ -65,6 +65,7 @@ public class WardMembersServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
+        when(existenceCheck.isAlreadyExistMember(any())).thenReturn(true);
         JoinResponse response = wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.APPROVE);
         Assertions.assertEquals(response.wardId(), ward.getId());
@@ -78,6 +79,7 @@ public class WardMembersServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
+        when(existenceCheck.isAlreadyExistMember(any())).thenReturn(true);
         wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertTrue(ward.getTeams().getFirst().isDefault());
 

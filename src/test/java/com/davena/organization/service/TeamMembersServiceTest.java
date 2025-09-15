@@ -1,5 +1,6 @@
 package com.davena.organization.service;
 
+import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.team.TeamMembersRequest;
 import com.davena.organization.application.dto.ward.team.TeamMembersResponse;
 import com.davena.organization.application.dto.ward.team.TeamRequest;
@@ -63,14 +64,19 @@ public class TeamMembersServiceTest {
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         ward.addNewUser(user1.getId());
+        when(existenceCheck.getMember(user1.getId())).thenReturn(new Member(user1.getId(), ward.getId(), user1.getName()));
         User user2 = User.create("name2", "loginId2", "password", "01011112223");
         ward.addNewUser(user2.getId());
+        when(existenceCheck.getMember(user2.getId())).thenReturn(new Member(user2.getId(), ward.getId(), user2.getName()));
         User user3 = User.create("name3", "loginId3", "password", "01011112224");
         ward.addNewUser(user3.getId());
+        when(existenceCheck.getMember(user3.getId())).thenReturn(new Member(user3.getId(), ward.getId(), user3.getName()));
         User user4 = User.create("name4", "loginId4", "password", "01011112225");
         ward.addNewUser(user4.getId());
+        when(existenceCheck.getMember(user4.getId())).thenReturn(new Member(user4.getId(), ward.getId(), user4.getName()));
         User user5 = User.create("name5", "loginId5", "password", "01011112226");
         ward.addNewUser(user5.getId());
+        when(existenceCheck.getMember(user5.getId())).thenReturn(new Member(user5.getId(), ward.getId(), user5.getName()));
 
         when(userRepository.findAllById(any())).thenReturn(List.of(user1, user2, user3, user4, user5));
 
