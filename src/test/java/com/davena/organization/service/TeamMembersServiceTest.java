@@ -93,6 +93,44 @@ public class TeamMembersServiceTest {
     }
 
     @Test
+    @DisplayName("Member 객체에도 TeamId 배정되는지 확인")
+    void updateTeamAssignments_실제Member객체_배정_확인() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        UUID aTeamId = ward.getTeams().getFirst().getId();
+        UUID bTeamId = ward.addNewTeam("B팀");
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+
+        User user1 = User.create("name1", "loginId1", "password", "01011112222");
+        ward.addNewUser(user1.getId());
+        Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
+        when(existenceCheck.getMember(user1.getId())).thenReturn(member1);
+
+        User user2 = User.create("name2", "loginId2", "password", "01011112223");
+        ward.addNewUser(user2.getId());
+        Member member2 = new Member(user2.getId(), ward.getId(), user2.getName());
+        when(existenceCheck.getMember(user2.getId())).thenReturn(member2);
+
+        User user3 = User.create("name3", "loginId3", "password", "01011112224");
+        ward.addNewUser(user3.getId());
+        Member member3 = new Member(user3.getId(), ward.getId(), user3.getName());
+        when(existenceCheck.getMember(user3.getId())).thenReturn(member3);
+
+        when(userRepository.findAllById(any())).thenReturn(List.of(user1, user2, user3));
+
+        doNothing().when(membersValidator).validateAtLeastOneMember(any());
+        doNothing().when(membersValidator).validateContainAllMembers(any(), any());
+
+        Map<UUID, List<UUID>> map = new HashMap<>();
+        map.put(aTeamId, List.of(user1.getId(), user2.getId()));
+        map.put(bTeamId, List.of(user3.getId()));
+        teamMembersService.updateTeamAssignments(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+
+        Assertions.assertEquals(member1.getTeamId(), aTeamId);
+        Assertions.assertEquals(member3.getTeamId(), bTeamId);
+    }
+
+    @Test
     @DisplayName("팀 삭제")
     void deleteTeam() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
