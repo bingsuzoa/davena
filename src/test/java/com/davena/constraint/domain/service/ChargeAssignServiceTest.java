@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +28,8 @@ public class ChargeAssignServiceTest {
     private ExistenceService existenceCheck;
     @InjectMocks
     private ChargeAssignService chargeAssignService;
+
+    /// ///해피 테스트
 
     @Test
     @DisplayName("병동의 차지 정보 업데이트하기")
@@ -74,13 +75,13 @@ public class ChargeAssignServiceTest {
         WardChargeDto response = chargeAssignService.updateWardCharges(wardChargeDto);
 
         List<TeamChargeDto> responseTeamCharges = response.teamChargeDto();
-        for(TeamChargeDto teamChargeDto : responseTeamCharges) {
+        for (TeamChargeDto teamChargeDto : responseTeamCharges) {
             UUID teamId = teamChargeDto.teamId();
             List<ChargeMemberDto> chargeMembers = teamChargeDto.chargeMembersDto();
-            if(teamId.equals(aTeamId)) {
+            if (teamId.equals(aTeamId)) {
                 Assertions.assertEquals(2, chargeMembers.size());
             } else {
-                Assertions.assertEquals( 1, chargeMembers.size());
+                Assertions.assertEquals(1, chargeMembers.size());
             }
         }
         Assertions.assertEquals(member1.getRank(), 1);

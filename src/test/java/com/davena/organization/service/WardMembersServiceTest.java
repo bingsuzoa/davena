@@ -1,10 +1,14 @@
 package com.davena.organization.service;
 
+import com.davena.constraint.domain.model.Member;
+import com.davena.constraint.domain.model.PossibleShift;
+import com.davena.constraint.domain.port.MemberRepository;
 import com.davena.organization.application.dto.user.JoinRequest;
 import com.davena.organization.application.dto.user.JoinResponse;
 import com.davena.organization.application.dto.ward.WardResponse;
 import com.davena.organization.domain.model.user.JoinStatus;
 import com.davena.organization.domain.model.user.User;
+import com.davena.organization.domain.model.ward.DayType;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.WardRepository;
 import com.davena.common.ExistenceService;
@@ -16,8 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +38,9 @@ public class WardMembersServiceTest {
 
     @Mock
     private WardRepository wardRepository;
+
+    @Mock
+    private MemberRepository memberRepository;
 
     @InjectMocks
     private WardMembersService wardMembersService;
@@ -69,6 +78,26 @@ public class WardMembersServiceTest {
         JoinResponse response = wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.APPROVE);
         Assertions.assertEquals(response.wardId(), ward.getId());
+    }
+
+    @Test
+    @DisplayName("병동 가입 승인 시 Member객체 생성 + ward의 shifts 갖는지 확인")
+    void syncMemberToWard() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        UUID supervisorId = ward.getSupervisorId();
+        User user = User.create("name", "loginId", "password", "phone");
+        Member member = new Member(user.getId(), ward.getId(), user.getName());
+
+        when(existenceCheck.getWard(any())).thenReturn(ward);
+        when(existenceCheck.getUser(any())).thenReturn(user);
+        when(existenceCheck.isAlreadyExistMember(any())).thenReturn(false);
+        when(memberRepository.save(any())).thenReturn(member);
+
+        wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        Map<DayType, List<PossibleShift> >possibleShifts = member.getPossibleShifts();
+
+        List<PossibleShift> weekdays = possibleShifts.get(DayType.WEEKDAY);
+        Assertions.assertEquals(4, weekdays.size());
     }
 
     @Test
