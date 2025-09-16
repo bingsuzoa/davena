@@ -1,10 +1,11 @@
 package com.davena.constraint.domain.model;
 
-import com.davena.organization.domain.model.ward.DayType;
 import com.davena.organization.domain.model.ward.Shift;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class Member {
@@ -27,9 +28,9 @@ public class Member {
 
     private boolean canCharge = false;
     private int rank = LOWEST_RANK;
-    private Map<DayType, List<PossibleShift>> possibleShifts = new HashMap<>();
+    private List<PossibleShift> shifts = new ArrayList<>();
 
-    public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무 유형입니다.";
+    public static final String NOT_EXIST_SHIFT = "해당 멤버에게 등록되지 않은 근무입니다.";
     public static final int LOWEST_RANK = 100;
 
     public void updateGrade(UUID gradeId) {
@@ -40,9 +41,6 @@ public class Member {
         this.teamId = teamId;
     }
 
-    public void updateName(String name) {
-        this.name = name;
-    }
 
     public void updateCanCharge(boolean canCharge) {
         this.canCharge = canCharge;
@@ -52,39 +50,37 @@ public class Member {
         this.rank = rank;
     }
 
-    public void addWardNewShift(DayType dayType, UUID shiftId, String shiftName) {
-        possibleShifts.get(dayType).add(new PossibleShift(shiftId, shiftName));
+    public void addWardNewShift(UUID shiftId, String shiftName) {
+        shifts.add(new PossibleShift(shiftId, shiftName));
     }
 
-    public void updateShiftName(DayType dayType, UUID shiftId, String newName) {
-        PossibleShift possibleShift = possibleShifts.get(dayType).stream()
-                .filter(shift -> shift.getShiftId().equals(shiftId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
-        possibleShift.updateName(newName);
+    public void deleteWardShift(UUID shiftId) {
+        PossibleShift shift = getShift(shiftId);
+        shifts.remove(shift);
     }
 
-    public void deleteWardShift(DayType dayType, UUID shiftId) {
-        possibleShifts.get(dayType).remove(shiftId);
-    }
 
-    public void initPossibleShifts(Map<DayType, List<Shift>> shiftsOfWard) {
-        for (DayType dayType : shiftsOfWard.keySet()) {
-            possibleShifts.put(dayType, new ArrayList<>());
-            for (Shift shift : shiftsOfWard.get(dayType)) {
-                possibleShifts.get(dayType).add(new PossibleShift(shift.getId(), shift.getName()));
-            }
-        }
-    }
-
-    public void updatePossibleShift(DayType dayType, UUID shiftId, boolean isPossible) {
-        List<PossibleShift> shifts = possibleShifts.get(dayType);
-        PossibleShift shift = shifts.stream()
+    private PossibleShift getShift(UUID shiftId) {
+        return shifts.stream()
                 .filter(s -> s.getShiftId().equals(shiftId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
+    }
 
-        shift.updatePossibleShift(isPossible);
+    public void initPossibleShifts(List<Shift> wardShifts) {
+        for (Shift shift : wardShifts) {
+            shifts.add(new PossibleShift(shift.getId(), shift.getName()));
+        }
+    }
+
+    public void updateIsPossibleOfShift(UUID shiftId, boolean isPossible) {
+        PossibleShift shift = getShift(shiftId);
+        shift.updateIsPossible(isPossible);
+    }
+
+    public void updateWardShifts(UUID shiftId, String shiftName) {
+        PossibleShift shift = getShift(shiftId);
+        shift.updateName(shiftName);
     }
 
     @Override

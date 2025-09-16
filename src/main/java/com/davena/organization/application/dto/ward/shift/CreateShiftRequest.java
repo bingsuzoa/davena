@@ -4,10 +4,14 @@ import com.davena.organization.domain.model.ward.DayType;
 
 import java.util.UUID;
 
-public record ShiftRequest(
-        UUID supervisorId,
+public record CreateShiftRequest(
         UUID wardId,
+        UUID supervisorId,
         DayType dayType,
-        ShiftDto shiftDto
+        String shiftName,
+        int startHour,
+        int startMinute,
+        int endHour,
+        int endMinute
 ) {
 }

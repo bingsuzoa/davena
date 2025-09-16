@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public record TeamMembersRequest(
-        UUID supervisorId,
+public record UpdateTeamMembersRequest(
         UUID wardId,
+        UUID supervisorId,
         Map<UUID, List<UUID>> usersOfTeam
 ) {
 }

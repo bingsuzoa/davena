@@ -26,12 +26,12 @@ public class WardMembersController {
 
     @PostMapping("/users/approve")
     public void approveJoinRequest(@RequestBody JoinRequest request) {
-        JoinResponse response = wardMembersService.approveJoinRequest(request);
+        JoinResponse response = wardMembersService.acceptUserJoinRequest(request);
     }
 
     @PostMapping("/users/reject")
     public void rejectJoinReqeust(@RequestBody JoinRequest request) {
-        JoinResponse response = wardMembersService.rejectJoinRequest(request);
+        JoinResponse response = wardMembersService.rejectUserJoinRequest(request);
     }
 
 }

@@ -1,11 +1,10 @@
 package com.davena.organization.application.dto.ward.grade;
 
-import java.util.Map;
 import java.util.UUID;
 
-public record GradeMembersResponse(
+public record DeleteGradeRequest(
         UUID wardId,
         UUID supervisorId,
-        Map<UUID, GradeDto> gradeMembers
+        UUID gradeId
 ) {
 }

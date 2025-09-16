@@ -19,7 +19,7 @@ public class PossibleShift {
     private String name;
     private boolean isPossible = true;
 
-    public void updatePossibleShift(boolean isPossible) {
+    public void updateIsPossible(boolean isPossible) {
         this.isPossible = isPossible;
     }
 

@@ -39,7 +39,7 @@ public class PossibleShiftService {
     private void updateMemberPossibleShift(Member member, Map<DayType, List<PossibleShiftDto>> possibleShifts) {
         for(DayType dayType : possibleShifts.keySet()) {
             for(PossibleShiftDto possibleShift : possibleShifts.get(dayType)) {
-                member.updatePossibleShift(dayType, possibleShift.shiftId(), possibleShift.isPossible());
+                member.updateIsPossibleOfShift(dayType, possibleShift.shiftId(), possibleShift.isPossible());
             }
         }
     }

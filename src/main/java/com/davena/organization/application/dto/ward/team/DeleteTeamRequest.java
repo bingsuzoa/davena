@@ -2,10 +2,9 @@ package com.davena.organization.application.dto.ward.team;
 
 import java.util.UUID;
 
-public record TeamRequest(
-        UUID teamId,
-        UUID supervisorId,
+public record DeleteTeamRequest(
         UUID wardId,
-        String name
+        UUID supervisorId,
+        UUID teamId
 ) {
 }

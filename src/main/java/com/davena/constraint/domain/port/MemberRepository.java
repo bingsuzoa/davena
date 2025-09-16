@@ -13,4 +13,8 @@ public interface MemberRepository {
     Optional<Member> findByUserId(UUID userId);
 
     List<Member> findAllByWardId(UUID wardId);
+
+    List<Member> findByWardIdAndGradeId(UUID wardId, UUID gradeId);
+
+    List<Member> findByWardIdAndTeamId(UUID wardId, UUID teamId);
 }

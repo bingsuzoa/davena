@@ -1,7 +1,7 @@
 package com.davena.organization.presentation;
 
-import com.davena.organization.application.dto.ward.shiftRequirement.RequirementRequest;
-import com.davena.organization.application.dto.ward.shiftRequirement.RequirementsResponse;
+import com.davena.organization.application.dto.ward.shiftRequirement.GetWardRequirementsRequest;
+import com.davena.organization.application.dto.ward.shiftRequirement.WardRequirementsDto;
 import com.davena.organization.domain.service.RequirementsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -18,12 +18,12 @@ public class ShiftRequirementsController {
     private final RequirementsService requirementsService;
 
     @GetMapping
-    public RequirementsResponse getRequirements(@RequestBody RequirementRequest request) {
+    public WardRequirementsDto getRequirements(@RequestBody GetWardRequirementsRequest request) {
         return requirementsService.getRequirements(request);
     }
 
     @PutMapping
-    public RequirementsResponse updateRequirement(@RequestBody RequirementRequest request) {
-        return requirementsService.updateRequirement(request);
+    public WardRequirementsDto updateRequirement(@RequestBody WardRequirementsDto request) {
+        return requirementsService.updateWardRequirements(request);
     }
 }

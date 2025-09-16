@@ -6,7 +6,9 @@ import lombok.Getter;
 
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.davena.organization.domain.model.ward.Grade.DEFAULT_GRADE;
+import static com.davena.organization.domain.model.ward.Team.DEFAULT_TEAM;
 
 @Getter
 public class Ward {
@@ -24,9 +26,6 @@ public class Ward {
         this.name = name;
         this.token = token;
     }
-
-    public static final String DEFAULT_TEAM = "A팀";
-    public static final String DEFAULT_GRADE = "1단계";
 
     public static final String ALREADY_EXIST_TEAM_NAME = "팀 이름이 중복입니다. 구분해주세요.";
     public static final String ALREADY_EXIST_GRADE_NAME = "숙련도 이름이 중복입니다. 구분해주세요.";
@@ -51,12 +50,14 @@ public class Ward {
     private List<Grade> grades = new ArrayList<>();
 
     @Getter(AccessLevel.NONE)
-    private Map<DayType, List<Shift>> shifts = new HashMap<>();
+    private List<Shift> shifts = new ArrayList<>();
 
     @Getter(AccessLevel.NONE)
     private List<Member> members = new ArrayList<>();
 
     private Set<UUID> users = new HashSet<>();
+
+    private Map<UUID, Map<UUID, Integer>> requirements = new HashMap<>();
 
     private String token;
 
@@ -67,9 +68,124 @@ public class Ward {
     }
 
     private void createDefault() {
-        teams.add(Team.createDefaultTeam(DEFAULT_TEAM, this.getId(), getShifts()));
-        grades.add(Grade.createDefaultGrade(DEFAULT_GRADE, this.getId()));
-        shifts = Shift.getDefaultShifts(this.getId());
+        Team defaultTeam = new Team(UUID.randomUUID(), this.getId(), DEFAULT_TEAM, true);
+        teams.add(defaultTeam);
+        grades.add(new Grade(UUID.randomUUID(), this.getId(), DEFAULT_GRADE, true));
+
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKDAY, Shift.Day, false, new WorkTime(LocalTime.of(07, 30), LocalTime.of(16, 30))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKDAY, Shift.Eve, false, new WorkTime(LocalTime.of(16, 00), LocalTime.of(0, 0))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKDAY, Shift.Nig, false, new WorkTime(LocalTime.of(0, 0), LocalTime.of(8, 0))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKDAY, Shift.Off, true, null));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKEND, Shift.Day, false, new WorkTime(LocalTime.of(8, 00), LocalTime.of(16, 00))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKEND, Shift.Eve, false, new WorkTime(LocalTime.of(16, 00), LocalTime.of(0, 0))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKEND, Shift.Nig, false, new WorkTime(LocalTime.of(0, 0), LocalTime.of(8, 0))));
+        shifts.add(new Shift(UUID.randomUUID(), this.getId(), DayType.WEEKEND, Shift.Off, true, null));
+
+        initRequirementsOfNewTeam(defaultTeam.getId());
+    }
+
+    private void initRequirementsOfNewTeam(UUID teamId) {
+        requirements.put(teamId, new HashMap<>());
+        Map<UUID, Integer> requirementsOfTeam = new HashMap<>();
+        for (Shift shift : shifts) {
+            requirementsOfTeam.putIfAbsent(shift.getId(), 0);
+        }
+    }
+
+    public UUID addNewTeam(String name) {
+        if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
+        }
+        Team newTeam = new Team(UUID.randomUUID(), this.getId(), name, false);
+        teams.add(newTeam);
+        initRequirementsOfNewTeam(newTeam.getId());
+        return newTeam.getId();
+    }
+
+    public UUID addNewGrade(String name) {
+        if (grades.stream().anyMatch(g -> g.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_GRADE_NAME);
+        }
+        Grade newGrade = new Grade(UUID.randomUUID(), this.getId(), name, false);
+        grades.add(newGrade);
+        return newGrade.getId();
+    }
+
+    public UUID addNewShift(DayType dayType, String name, int startHour, int startMinute, int endHour, int endMinute) {
+        if (shifts.stream().anyMatch(shift -> shift.getName().equals(name))) {
+            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_NAME);
+        }
+        LocalTime start = Shift.toLocalTime(startHour, startMinute);
+        LocalTime end = Shift.toLocalTime(endHour, endMinute);
+        Shift newShift = new Shift(UUID.randomUUID(), this.getId(), dayType, name, false, new WorkTime(start, end));
+        shifts.add(newShift);
+        return newShift.getId();
+    }
+
+    public UUID deleteTeam(UUID teamId) {
+        Team team = teams.stream()
+                .filter(t -> t.getId().equals(teamId))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+        team.validateDefaultTeam();
+        teams.remove(team);
+        return teamId;
+    }
+
+    public UUID deleteGrade(UUID gradeId) {
+        Grade grade = grades.stream()
+                .filter(g -> g.getId().equals(gradeId))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
+        grade.validateDefaultGrade();
+        grades.remove(grade);
+        return gradeId;
+    }
+
+    public UUID deleteShift(UUID shiftId) {
+        Shift shift = getShift(shiftId);
+        shifts.remove(shift);
+        return shiftId;
+    }
+
+    public UUID updateShift(UUID shiftId, DayType dayType, String name, int startHour, int startMinute, int endHour, int endMinute) {
+        Shift shift = getShift(shiftId);
+        shift.updateShift(dayType, name, startHour, startMinute, endHour, endMinute);
+        return shiftId;
+    }
+
+    public void updateRequirement(UUID teamId, UUID shiftId, int updatedCount) {
+        Team team = getTeam(teamId);
+        Map<UUID, Integer> shiftsRequirement = requirements.get(team.getId());
+
+        Shift shift = getShift(shiftId);
+        shiftsRequirement.put(shift.getId(), updatedCount);
+    }
+
+    public boolean isSupervisor(UUID supervisorId) {
+        return this.supervisorId == supervisorId ? true : false;
+    }
+
+
+    public Team getTeam(UUID teamId) {
+        return teams.stream()
+                .filter(t -> t.getId().equals(teamId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
+    }
+
+    public Grade getGrade(UUID gradeId) {
+        return grades.stream()
+                .filter(g -> g.getId().equals(gradeId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
+    }
+
+    public Shift getShift(UUID shiftId) {
+        return shifts.stream()
+                .filter(s -> s.getId().equals(shiftId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
     }
 
     public List<Team> getTeams() {
@@ -80,180 +196,15 @@ public class Ward {
         return Collections.unmodifiableList(grades);
     }
 
-    public Map<DayType, List<Shift>> getShifts() {
-        return Collections.unmodifiableMap(
-                shifts.entrySet().stream()
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                e -> List.copyOf(e.getValue())
-                        ))
-        );
+    public List<Shift> getShifts() {
+        return Collections.unmodifiableList(shifts);
     }
 
     public String getShiftName(UUID shiftId) {
-        return this.shifts.values().stream()
-                .flatMap(List::stream)
+        return this.shifts.stream()
                 .filter(shift -> shift.getId().equals(shiftId))
                 .map(Shift::getName)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
-    }
-
-    public List<UUID> getUsersOfTeam(UUID teamId) {
-        return teams.stream()
-                .filter(team -> team.getId().equals(teamId))
-                .findFirst()
-                .map(Team::getUsers)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
-    }
-
-    public UUID addNewTeam(String name) {
-        if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
-        }
-        Team newTeam = Team.createTeam(name, this.getId(), getShifts());
-        teams.add(newTeam);
-        return newTeam.getId();
-    }
-
-    public UUID addNewGrade(String name) {
-        if (grades.stream().anyMatch(g -> g.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_GRADE_NAME);
-        }
-        Grade newGrade = Grade.createGrade(name, this.getId());
-        grades.add(newGrade);
-        return newGrade.getId();
-    }
-
-    public UUID addNewShift(DayType dayType, String name, LocalTime start, LocalTime end) {
-        List<Shift> shifts = this.shifts.get(dayType);
-        if (shifts.stream().anyMatch(shift -> shift.getName().equals(name))) {
-            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_NAME);
-        }
-
-        Shift newShift = Shift.addNewShift(this.getId(), name, start, end);
-        shifts.add(newShift);
-        return newShift.getId();
-    }
-
-    public UUID addNewUser(UUID userId) {
-        users.add(userId);
-        UUID defaultTeamId = addUserToDefaultTeam(userId);
-        return userId;
-    }
-
-    public UUID deleteTeam(UUID teamId) {
-        Team team = teams.stream()
-                .filter(t -> t.getId().equals(teamId))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
-        team.validateRemovableTeam();
-        teams.remove(team);
-        return teamId;
-    }
-
-    public UUID deleteGrade(UUID gradeId) {
-        Grade grade = grades.stream()
-                .filter(g -> g.getId().equals(gradeId))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
-        grade.validateRemovableGrade();
-        grades.remove(grade);
-        return gradeId;
-    }
-
-    public UUID deleteShift(DayType dayType, UUID shiftId) {
-        List<Shift> shifts = this.shifts.get(dayType);
-        if (shifts == null || shifts.isEmpty()) {
-            throw new IllegalArgumentException(NOT_EXIST_SHIFT);
-        }
-        Iterator<Shift> iterator = shifts.iterator();
-        while (iterator.hasNext()) {
-            Shift shift = iterator.next();
-            if (shift.getId().equals(shiftId)) {
-                if (shift.isDefault()) {
-                    throw new IllegalArgumentException(CAN_NOT_DELETE_DEFAULT);
-                }
-                iterator.remove();
-                return shiftId;
-            }
-        }
-        throw new IllegalArgumentException(NOT_EXIST_SHIFT);
-    }
-
-    public UUID updateShift(UUID shiftId, DayType dayType, String name, LocalTime start, LocalTime end) {
-        List<Shift> shiftList = shifts.get(dayType);
-        Optional<Shift> optionalShift = shiftList.stream().filter(s -> s.getId().equals(shiftId)).findFirst();
-        if (optionalShift.isEmpty()) {
-            throw new IllegalArgumentException(NOT_EXIST_SHIFT);
-        }
-        Shift shift = optionalShift.get();
-        shift.update(name, start, end);
-        return shiftId;
-    }
-
-    public UUID setUsersToTeam(UUID teamId, List<UUID> users) {
-        Team team = findTeamOrThrow(teamId);
-        if (!users.stream().allMatch(this.users::contains)) {
-            throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
-        }
-
-        team.updateUsers(users);
-        return teamId;
-    }
-
-    public UUID setUsersToGrade(UUID gradeId, List<UUID> users) {
-        Grade grade = getGradeOrThrow(gradeId);
-        if (!users.stream().allMatch(this.users::contains)) {
-            throw new IllegalArgumentException(NOT_EXIST_USER_OF_WARD);
-        }
-        grade.updateUsers(users);
-        return gradeId;
-    }
-
-    public boolean isSupervisor(UUID supervisorId) {
-        return this.supervisorId == supervisorId ? true : false;
-    }
-
-
-    private UUID addUserToDefaultTeam(UUID userId) {
-        Team defaultTeam = teams.getFirst();
-        defaultTeam.addNewUser(userId);
-        return defaultTeam.getId();
-    }
-
-    public void clearAllTeamMembers() {
-        teams.forEach(team -> team.clearUsers());
-    }
-
-    public void clearAllGradeMembers() {
-        grades.forEach(grade -> grade.clearUsers());
-    }
-
-    public Map<UUID, Map<DayType, Map<UUID, ShiftRequirement>>> getRequirements() {
-        return teams.stream()
-                .collect(Collectors.toMap(
-                        Team::getId,
-                        Team::getRequirements
-                ));
-    }
-
-    public void updateRequirement(UUID teamId, DayType dayType, UUID shiftId, int updatedCount) {
-        Team team = findTeamOrThrow(teamId);
-        team.updateRequirement(dayType, shiftId, updatedCount);
-    }
-
-    private Team findTeamOrThrow(UUID teamId) {
-        return teams.stream()
-                .filter(t -> t.getId().equals(teamId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TEAM));
-    }
-
-    private Grade getGradeOrThrow(UUID gradeId) {
-        return grades.stream()
-                .filter(g -> g.getId().equals(gradeId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GRADE));
     }
 }

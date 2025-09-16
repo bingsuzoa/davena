@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 import java.util.Map;
@@ -68,21 +67,21 @@ public class WardMembersServiceTest {
 
     @Test
     @DisplayName("병동 가입 승인 시 USER 상태 APPROVED")
-    void approveJoinRequest() {
+    void acceptUserJoinRequest() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.isAlreadyExistMember(any())).thenReturn(true);
-        JoinResponse response = wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        JoinResponse response = wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.APPROVE);
         Assertions.assertEquals(response.wardId(), ward.getId());
     }
 
     @Test
     @DisplayName("병동 가입 승인 시 Member객체 생성 + ward의 shifts 갖는지 확인")
-    void syncMemberToWard() {
+    void createMember() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
@@ -93,7 +92,7 @@ public class WardMembersServiceTest {
         when(existenceCheck.isAlreadyExistMember(any())).thenReturn(false);
         when(memberRepository.save(any())).thenReturn(member);
 
-        wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Map<DayType, List<PossibleShift> >possibleShifts = member.getPossibleShifts();
 
         List<PossibleShift> weekdays = possibleShifts.get(DayType.WEEKDAY);
@@ -102,14 +101,14 @@ public class WardMembersServiceTest {
 
     @Test
     @DisplayName("병동 가입 승인 시 USER는 DefaultTeam에 배정된다.")
-    void approveJoinRequest_DefaultTeam_배정확인() {
+    void acceptUserJoinRequest_DefaultTeam_배정확인() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.isAlreadyExistMember(any())).thenReturn(true);
-        wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertTrue(ward.getTeams().getFirst().isDefault());
 
         UUID teamId = ward.getTeams().getFirst().getId();
@@ -119,14 +118,14 @@ public class WardMembersServiceTest {
 
     @Test
     @DisplayName("병동 가입 거절 시 USER 상태 NONE")
-    void rejectJoinRequest() {
+    void rejectUserJoinRequest() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
-        JoinResponse response = wardMembersService.rejectJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
+        JoinResponse response = wardMembersService.rejectUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(user.getStatus(), JoinStatus.NONE);
         Assertions.assertEquals(response.status(), JoinStatus.NONE);
         Assertions.assertEquals(response.wardId(), null);
@@ -146,7 +145,7 @@ public class WardMembersServiceTest {
 
     @Test
     @DisplayName("병동의 supervisor가 아닌 사용자가 승인 시 예외")
-    void approveJoinRequest_exception() {
+    void acceptUserJoinRequest_exception() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
@@ -155,13 +154,13 @@ public class WardMembersServiceTest {
         when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            wardMembersService.approveJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
+            wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
         });
     }
 
     @Test
     @DisplayName("병동의 supervisor가 아닌 사용자가 거절 시 예외")
-    void rejectJoinRequest_exception() {
+    void rejectUserJoinRequest_exception() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
@@ -169,7 +168,7 @@ public class WardMembersServiceTest {
         when(existenceCheck.getUser(any())).thenReturn(user);
         when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            wardMembersService.rejectJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
+            wardMembersService.rejectUserJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
         });
     }
 

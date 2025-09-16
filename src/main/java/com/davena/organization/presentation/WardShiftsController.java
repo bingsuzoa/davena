@@ -1,7 +1,9 @@
 package com.davena.organization.presentation;
 
-import com.davena.organization.application.dto.ward.shift.ShiftRequest;
-import com.davena.organization.application.dto.ward.shift.WardShiftsResponse;
+import com.davena.organization.application.dto.ward.shift.CreateShiftRequest;
+import com.davena.organization.application.dto.ward.shift.DeleteShiftRequest;
+import com.davena.organization.application.dto.ward.shift.GetShiftRequest;
+import com.davena.organization.application.dto.ward.shift.WardShiftsDto;
 import com.davena.organization.domain.service.WardShiftsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,22 +16,22 @@ public class WardShiftsController {
     private WardShiftsService wardShiftsService;
 
     @GetMapping
-    public WardShiftsResponse getShifts(@RequestBody ShiftRequest request) {
+    public WardShiftsDto getWardShifts(@RequestBody GetShiftRequest request) {
         return wardShiftsService.getShifts(request);
     }
 
     @PostMapping("/new")
-    public WardShiftsResponse addNewShift(@RequestBody ShiftRequest request) {
+    public WardShiftsDto addNewShift(@RequestBody CreateShiftRequest request) {
         return wardShiftsService.addNewShift(request);
     }
 
     @DeleteMapping
-    public WardShiftsResponse deleteNewShift(@RequestBody ShiftRequest request) {
+    public WardShiftsDto deleteNewShift(@RequestBody DeleteShiftRequest request) {
         return wardShiftsService.deleteShift(request);
     }
 
     @PutMapping
-    public WardShiftsResponse updateShift(@RequestBody ShiftRequest request) {
+    public WardShiftsDto updateShift(@RequestBody WardShiftsDto request) {
         return wardShiftsService.updateShift(request);
     }
 }

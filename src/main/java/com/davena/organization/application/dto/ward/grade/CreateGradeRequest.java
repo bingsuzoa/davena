@@ -2,9 +2,9 @@ package com.davena.organization.application.dto.ward.grade;
 
 import java.util.UUID;
 
-public record GradeResponse(
+public record CreateGradeRequest(
+        UUID supervisorId,
         UUID wardId,
-        UUID gradeId,
         String name
 ) {
 }

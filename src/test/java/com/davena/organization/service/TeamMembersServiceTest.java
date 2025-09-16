@@ -1,7 +1,7 @@
 package com.davena.organization.service;
 
 import com.davena.constraint.domain.model.Member;
-import com.davena.organization.application.dto.ward.team.TeamMembersRequest;
+import com.davena.organization.application.dto.ward.team.UpdateTeamMembersRequest;
 import com.davena.organization.application.dto.ward.team.TeamMembersResponse;
 import com.davena.organization.application.dto.ward.team.TeamRequest;
 import com.davena.organization.domain.model.user.User;
@@ -87,7 +87,7 @@ public class TeamMembersServiceTest {
         map.put(aTeamId, List.of(user1.getId(), user2.getId()));
         map.put(bTeamId, List.of(user3.getId(), user4.getId(), user5.getId()));
 
-        teamMembersService.updateTeamAssignments(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+        teamMembersService.updateTeamAssignments(new UpdateTeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
         Assertions.assertEquals(ward.getUsersOfTeam(bTeamId).size(), 3);
         Assertions.assertEquals(ward.getUsersOfTeam(aTeamId).size(), 2);
     }
@@ -124,7 +124,7 @@ public class TeamMembersServiceTest {
         Map<UUID, List<UUID>> map = new HashMap<>();
         map.put(aTeamId, List.of(user1.getId(), user2.getId()));
         map.put(bTeamId, List.of(user3.getId()));
-        teamMembersService.updateTeamAssignments(new TeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
+        teamMembersService.updateTeamAssignments(new UpdateTeamMembersRequest(ward.getSupervisorId(), ward.getId(), map));
 
         Assertions.assertEquals(member1.getTeamId(), aTeamId);
         Assertions.assertEquals(member3.getTeamId(), bTeamId);

@@ -2,9 +2,8 @@ package com.davena.organization.application.dto.ward.team;
 
 import java.util.UUID;
 
-public record TeamResponse(
+public record GetTeamRequest(
         UUID wardId,
-        UUID teamId,
-        String name
+        UUID supervisorId
 ) {
 }
