@@ -36,8 +36,6 @@ public class Ward {
     public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무입니다.";
     public static final String NOT_EXIST_USER_OF_WARD = "병동에 승인되지 않은 사용자가 포함되어 있습니다.";
 
-    public static final String CAN_NOT_DELETE_DEFAULT = "기본 설정 값은 삭제할 수 없습니다.";
-
     private UUID hospitalId;
     private UUID id;
     private UUID supervisorId;

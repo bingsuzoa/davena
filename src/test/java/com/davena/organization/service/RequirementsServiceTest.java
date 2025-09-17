@@ -9,7 +9,6 @@ import com.davena.organization.domain.model.ward.Shift;
 import com.davena.organization.domain.model.ward.Team;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.service.RequirementsService;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ public class RequirementsServiceTest {
 
         WardRequirementsDto response = requirementsService.getRequirements(new GetWardRequirementsRequest(ward.getId(), ward.getSupervisorId()));
         List<RequirementShiftDto> wardRequirements = response.requirements().getFirst().requirements();
-        for(RequirementShiftDto shiftDto : wardRequirements) {
+        for (RequirementShiftDto shiftDto : wardRequirements) {
             Assertions.assertEquals(0, shiftDto.requiredCount());
         }
     }
@@ -57,7 +56,7 @@ public class RequirementsServiceTest {
         when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
 
         List<RequirementShiftDto> shiftDtos = new ArrayList<>();
-        for(Shift shift : ward.getShifts()) {
+        for (Shift shift : ward.getShifts()) {
             shiftDtos.add(new RequirementShiftDto(shift.getId(), shift.getDayType(), shift.getName(), 2));
         }
         Team team = ward.getTeams().getFirst();
@@ -67,12 +66,12 @@ public class RequirementsServiceTest {
         WardRequirementsDto response = requirementsService.updateWardRequirements(request);
         Map<UUID, Map<UUID, Integer>> result = ward.getRequirements();
         Map<UUID, Integer> requirements = result.get(team.getId());
-        for(Shift shift : ward.getShifts()) {
+        for (Shift shift : ward.getShifts()) {
             Assertions.assertEquals(2, requirements.get(shift.getId()));
         }
 
         List<RequirementShiftDto> wardRequirements = response.requirements().getFirst().requirements();
-        for(RequirementShiftDto shiftDto : wardRequirements) {
+        for (RequirementShiftDto shiftDto : wardRequirements) {
             Assertions.assertEquals(2, shiftDto.requiredCount());
         }
     }
