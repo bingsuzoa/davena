@@ -1,6 +1,7 @@
 package com.davena.constraint.domain.service;
 
 import com.davena.common.ExistenceService;
+import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.holidayRequest.*;
 import com.davena.constraint.domain.model.HolidayRequest;
 import com.davena.constraint.domain.model.Member;
@@ -18,6 +19,7 @@ public class HolidayService {
 
     private final HolidayRepository holidayRepository;
     private final ExistenceService existenceService;
+    private final MemberService memberService;
 
     public static final String ALREADY_EXIST_HOLIDAY_REQUEST = "이미 신청된 휴가신청 내역이 있습니다.";
 
@@ -30,14 +32,14 @@ public class HolidayService {
 
     public MemberHolidayResponse getMemberHolidays(MemberHolidayRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         List<HolidayRequest> requests = holidayRepository.findByMemberIdAndWardIdAndYearAndMonth(ward.getId(), member.getUserId(), request.year(), request.month());
         return getMemberHolidayResponse(ward, member, requests);
     }
 
     public MemberHolidayResponse addMemberHoliday(CreateHolidayRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         Optional<HolidayRequest> optionalRequest = holidayRepository.findByMemberIdAndWardIdAndRequestDay(ward.getId(), member.getUserId(), request.requestDay());
         if(optionalRequest.isPresent()) {
             throw new IllegalArgumentException(ALREADY_EXIST_HOLIDAY_REQUEST);
@@ -51,7 +53,7 @@ public class HolidayService {
 
     public MemberHolidayResponse deleteMemberHoliday(DeleteHolidayRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         Optional<HolidayRequest> optionalRequest = holidayRepository.findByMemberIdAndWardIdAndRequestDay(ward.getId(), member.getUserId(), request.requestDay());
         if(optionalRequest.isPresent()) {
             holidayRepository.delete(optionalRequest.get().getId());
@@ -75,13 +77,13 @@ public class HolidayService {
         Map<UUID, MemberHolidayResponse> allMembersRequests = new HashMap<>();
 
         for (HolidayRequest request : requests) {
-            Member member = existenceService.getMember(request.getMemberId());
+            Member member = memberService.getMember(request.getMemberId());
             memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>())
                     .add(new HolidayRequestDto(request.getId(), request.getRequestDay()));
         }
 
         for(UUID memberId : memberRequests.keySet()) {
-            Member member = existenceService.getMember(memberId);
+            Member member = memberService.getMember(memberId);
             List<HolidayRequestDto> memberRequestDtos = memberRequests.containsKey(memberId) ? memberRequests.get(memberId) : new ArrayList<>();
             allMembersRequests.putIfAbsent(memberId, new MemberHolidayResponse(ward.getId(), memberId, member.getName(), memberRequestDtos));
         }

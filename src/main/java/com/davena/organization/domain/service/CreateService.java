@@ -18,7 +18,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CreateService {
 
-    private final ExistenceService existenceCheck;
     private final UserRepository userRepository;
     private final WardRepository wardRepository;
 

@@ -1,6 +1,7 @@
 package com.davena.constraint.domain.service;
 
 import com.davena.common.ExistenceService;
+import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.shiftRequest.*;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.UnavailShiftRequest;
@@ -17,6 +18,7 @@ public class UnavailShiftService {
 
     private final UnavailShiftRepository unavailShiftRepository;
     private final ExistenceService existenceService;
+    private final MemberService memberService;
 
     public static final String ALREADY_EXIST_SHIFT_REQUEST = "해당 일에 같은 리퀘스트 신청이 존재합니다.";
 
@@ -29,14 +31,14 @@ public class UnavailShiftService {
 
     public MemberUnavailShiftsResponse getMemberUnavailShiftRequest(MemberUnavailShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndWardIdAndYearAndMonth(ward.getId(), member.getUserId(), request.year(), request.month());
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
     public MemberUnavailShiftsResponse addMemberUnavailShift(CreateShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndWardIdAndShiftIdAndRequestDay(ward.getId(), member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {
             throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_REQUEST);
@@ -50,7 +52,7 @@ public class UnavailShiftService {
 
     public MemberUnavailShiftsResponse deleteMemberUnavailShift(DeleteShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
-        Member member = existenceService.getMember(request.memberId());
+        Member member = memberService.getMember(request.memberId());
         Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndWardIdAndShiftIdAndRequestDay(ward.getId(), member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {
             unavailShiftRepository.delete(optionalShiftRequest.get().getId());
@@ -76,13 +78,13 @@ public class UnavailShiftService {
         Map<UUID, MemberUnavailShiftsResponse> allMembersRequests = new HashMap<>();
 
         for (UnavailShiftRequest request : requests) {
-            Member member = existenceService.getMember(request.getId());
+            Member member = memberService.getMember(request.getId());
             memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>())
                     .add(new UnavailableShiftDto(request.getShiftId(), ward.getShiftName(request.getShiftId())));
         }
 
         for (UUID memberId : memberRequests.keySet()) {
-            Member member = existenceService.getMember(memberId);
+            Member member = memberService.getMember(memberId);
             List<UnavailableShiftDto> memberRequestsDto = memberRequests.containsKey(memberId) ? memberRequests.get(memberId) : new ArrayList<>();
             allMembersRequests.putIfAbsent(memberId, new MemberUnavailShiftsResponse(ward.getId(), memberId, member.getName(), memberRequestsDto));
         }

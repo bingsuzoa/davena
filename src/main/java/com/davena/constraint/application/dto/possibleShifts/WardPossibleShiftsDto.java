@@ -3,9 +3,9 @@ package com.davena.constraint.application.dto.possibleShifts;
 import java.util.List;
 import java.util.UUID;
 
-public record AllMembersPossibleShiftsDto(
+public record WardPossibleShiftsDto(
         UUID wardId,
         UUID supervisorId,
-        List<MemberPossibleShiftsDto> membersPossibleShiftsDto
+        List<MemberPossibleShiftsDto> shits
 ) {
 }

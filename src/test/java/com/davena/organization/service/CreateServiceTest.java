@@ -27,9 +27,6 @@ import static org.mockito.Mockito.when;
 public class CreateServiceTest {
 
     @Mock
-    private ExistenceService existenceCheck;
-
-    @Mock
     private UserRepository userRepository;
 
     @Mock

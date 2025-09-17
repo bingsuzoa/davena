@@ -46,7 +46,6 @@ public class WardMembersService {
         Ward ward = existenceCheck.getWard(request.wardId());
         existenceCheck.verifySupervisor(ward, request.supervisorId());
         user.approveEnrollment(ward.getId());
-        ward.addNewUser(user.getId());
         createMember(user, ward);
         return new JoinResponse(user.getId(), user.getWardId(), ward.getName(), user.getStatus());
     }

@@ -1,11 +1,16 @@
 package com.davena.constraint.presentation;
 
-import com.davena.constraint.application.dto.possibleShifts.AllMembersPossibleShiftsDto;
-import com.davena.constraint.application.dto.possibleShifts.AllMembersPossibleShiftsRequest;
+import com.davena.constraint.application.dto.possibleShifts.MemberPossibleShiftsDto;
+import com.davena.constraint.application.dto.possibleShifts.MemberPossibleShiftsRequest;
+import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsDto;
+import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsRequest;
 import com.davena.constraint.domain.service.PossibleShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
@@ -14,13 +19,18 @@ public class PossibleShiftController {
 
     private final PossibleShiftService possibleShiftService;
 
-    @GetMapping
-    public AllMembersPossibleShiftsDto getAllMembersPossibleShifts(@RequestBody AllMembersPossibleShiftsRequest request) {
-        return possibleShiftService.getAllMembersPossibleShifts(request);
+    @GetMapping("/ward")
+    public WardPossibleShiftsDto getWardPossibleShifts(@RequestBody WardPossibleShiftsRequest request) {
+        return possibleShiftService.getWardPossibleShifts(request);
     }
 
-    @PutMapping
-    public AllMembersPossibleShiftsDto updatePossibleShifts(@RequestBody AllMembersPossibleShiftsDto request) {
-        return possibleShiftService.updateAllMembersPossibleShifts(request);
+    @PutMapping("/ward")
+    public WardPossibleShiftsDto updateWardPossibleShifts(@RequestBody WardPossibleShiftsDto request) {
+        return possibleShiftService.updateWardPossibleShifts(request);
+    }
+
+    @GetMapping("/members")
+    public MemberPossibleShiftsDto getMemberPossibleShifts(@RequestBody MemberPossibleShiftsRequest request) {
+        return possibleShiftService.getMemberPossibleShifts(request);
     }
 }

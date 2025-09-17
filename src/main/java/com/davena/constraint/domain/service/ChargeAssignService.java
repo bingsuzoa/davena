@@ -1,6 +1,7 @@
 package com.davena.constraint.domain.service;
 
 import com.davena.common.ExistenceService;
+import com.davena.common.MemberService;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.constraint.application.dto.wardCharge.ChargeMemberDto;
 import com.davena.constraint.application.dto.wardCharge.TeamChargeDto;
@@ -20,11 +21,12 @@ import java.util.stream.Collectors;
 public class ChargeAssignService {
 
     private final ExistenceService existenceService;
+    private final MemberService memberService;
 
     public WardChargeDto getWardCharges(WardChargeRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         existenceService.verifySupervisor(ward, request.supervisorId());
-        return getWardChargeDto(existenceService.getAllMembersOfWard(ward.getId()), ward);
+        return getWardChargeDto(memberService.getAllMembersOfWard(ward.getId()), ward);
     }
 
     public WardChargeDto updateWardCharges(WardChargeDto request) {
@@ -34,12 +36,12 @@ public class ChargeAssignService {
         for (TeamChargeDto teamCharge : teamCharges) {
             updateCanChargeOfMember(teamCharge);
         }
-        return getWardChargeDto(existenceService.getAllMembersOfWard(ward.getId()), ward);
+        return getWardChargeDto(memberService.getAllMembersOfWard(ward.getId()), ward);
     }
 
     private void updateCanChargeOfMember(TeamChargeDto teamCharge) {
         for (ChargeMemberDto chargeDto : teamCharge.chargeMembersDto()) {
-            Member member = existenceService.getMember(chargeDto.memberId());
+            Member member = memberService.getMember(chargeDto.memberId());
             member.updateCanCharge(chargeDto.canCharge());
             updateRankIfCanCharge(member, chargeDto);
         }
