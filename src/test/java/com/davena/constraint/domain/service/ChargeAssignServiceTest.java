@@ -58,7 +58,7 @@ public class ChargeAssignServiceTest {
 
         WardChargeDto wardChargeDto = chargeAssignService.getWardCharges(new WardChargeRequest(ward.getId(), supervisorId));
         TeamChargeDto team = wardChargeDto.teamChargeDto().getFirst();
-        for(ChargeMemberDto member: team.chargeMembersDto()) {
+        for (ChargeMemberDto member : team.chargeMembersDto()) {
             Assertions.assertEquals(true, member.canCharge());
             Assertions.assertEquals(LOWEST_RANK, member.rank());
         }

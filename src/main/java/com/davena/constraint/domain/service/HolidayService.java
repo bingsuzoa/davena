@@ -8,6 +8,7 @@ import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.port.HolidayRepository;
 import com.davena.organization.domain.model.ward.Ward;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -67,7 +68,11 @@ public class HolidayService {
         List<HolidayRequestDto> memberRequests = new ArrayList<>();
 
         for (HolidayRequest request : requests) {
-            memberRequests.add(new HolidayRequestDto(request.getId(), request.getRequestDay()));
+            LocalDate requestDay = request.getRequestDay();
+            int year = requestDay.getYear();
+            int month = requestDay.getMonthValue();
+            int day = requestDay.getDayOfMonth();
+            memberRequests.add(new HolidayRequestDto(request.getId(), year, month, day));
         }
         return new MemberHolidayResponse(ward.getId(), member.getUserId(), member.getName(), memberRequests);
     }
@@ -81,8 +86,13 @@ public class HolidayService {
 
             List<HolidayRequestDto> requestDtos =
                     memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>());
-            requestDtos.add(new HolidayRequestDto(request.getId(), request.getRequestDay()));
-            
+
+            LocalDate requestDay = request.getRequestDay();
+            int year = requestDay.getYear();
+            int month = requestDay.getMonthValue();
+            int day = requestDay.getDayOfMonth();
+            requestDtos.add(new HolidayRequestDto(request.getId(), year, month, day));
+
             allMembersRequests.putIfAbsent(
                     member.getUserId(),
                     new MemberHolidayResponse(ward.getId(), member.getUserId(), member.getName(), requestDtos)
