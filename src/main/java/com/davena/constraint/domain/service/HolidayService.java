@@ -78,15 +78,17 @@ public class HolidayService {
 
         for (HolidayRequest request : requests) {
             Member member = memberService.getMember(request.getMemberId());
-            memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>())
-                    .add(new HolidayRequestDto(request.getId(), request.getRequestDay()));
+
+            List<HolidayRequestDto> requestDtos =
+                    memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>());
+            requestDtos.add(new HolidayRequestDto(request.getId(), request.getRequestDay()));
+            
+            allMembersRequests.putIfAbsent(
+                    member.getUserId(),
+                    new MemberHolidayResponse(ward.getId(), member.getUserId(), member.getName(), requestDtos)
+            );
         }
 
-        for(UUID memberId : memberRequests.keySet()) {
-            Member member = memberService.getMember(memberId);
-            List<HolidayRequestDto> memberRequestDtos = memberRequests.containsKey(memberId) ? memberRequests.get(memberId) : new ArrayList<>();
-            allMembersRequests.putIfAbsent(memberId, new MemberHolidayResponse(ward.getId(), memberId, member.getName(), memberRequestDtos));
-        }
         return new WardHolidayResponse(allMembersRequests);
     }
 }
