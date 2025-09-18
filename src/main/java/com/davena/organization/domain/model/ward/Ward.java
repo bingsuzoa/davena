@@ -34,6 +34,7 @@ public class Ward {
     public static final String NOT_EXIST_TEAM = "존재하지 않는 팀 입니다.";
     public static final String NOT_EXIST_GRADE = "존재하지 않는 숙련도입니다.";
     public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무입니다.";
+    public static final String NOT_EXIST_DEFAULT_TEAM = "기본 팀이 존재하지 않습니다.";
     public static final String NOT_EXIST_USER_OF_WARD = "병동에 승인되지 않은 사용자가 포함되어 있습니다.";
 
     private UUID hospitalId;
@@ -184,6 +185,14 @@ public class Ward {
                 .filter(s -> s.getId().equals(shiftId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
+    }
+
+    public UUID getDefaultTeamId() {
+        return teams.stream()
+                .filter(t -> t.isDefault())
+                .findFirst()
+                .map(Team::getId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_DEFAULT_TEAM));
     }
 
     public List<Team> getTeams() {

@@ -57,6 +57,7 @@ public class WardMembersService {
         }
         Member member = memberService.save(new Member(user.getId(), ward.getId(), user.getName()));
         member.initPossibleShifts(ward.getShifts());
+        member.initDefaultTeam(ward.getDefaultTeamId());
     }
 
     public JoinResponse rejectUserJoinRequest(JoinRequest request) {

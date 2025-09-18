@@ -82,7 +82,7 @@ public class WardMembersServiceTest {
     }
 
     @Test
-    @DisplayName("병동 가입 승인 시 Member객체 생성 + ward의 shifts 갖는지 확인")
+    @DisplayName("병동 가입 승인 시 Member객체 생성 + ward의 shifts 갖는지 확인, member는 기본 팀 배정 확인")
     void createMember() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
@@ -98,6 +98,7 @@ public class WardMembersServiceTest {
         Assertions.assertEquals(member.getWardId(), ward.getId());
         List<PossibleShift> shifts = member.getShifts();
         Assertions.assertEquals(8, shifts.size());
+        Assertions.assertEquals(ward.getDefaultTeamId(), member.getTeamId());
     }
 
 

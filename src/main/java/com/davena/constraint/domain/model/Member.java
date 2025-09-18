@@ -41,6 +41,10 @@ public class Member {
         this.teamId = teamId;
     }
 
+    public void initDefaultTeam(UUID defaultTeamId) {
+        this.teamId = defaultTeamId;
+    }
+
 
     public void updateCanCharge(boolean canCharge) {
         this.canCharge = canCharge;
