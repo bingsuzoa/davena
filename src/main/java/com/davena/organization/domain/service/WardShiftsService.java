@@ -80,9 +80,13 @@ public class WardShiftsService {
         List<ShiftDto> shiftDtos = new ArrayList<>();
 
         for (Shift shift : shifts) {
-            LocalTime start = shift.getStartTime();
-            LocalTime end = shift.getEndTime();
-            shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), start.getHour(), start.getMinute(), end.getHour(), end.getMinute()));
+            if(shift.isOff()) {
+                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), null, null, null, null));
+            } else {
+                LocalTime start = shift.getStartTime();
+                LocalTime end = shift.getEndTime();
+                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), start.getHour(), start.getMinute(), end.getHour(), end.getMinute()));
+            }
         }
         return new WardShiftsDto(ward.getId(), ward.getSupervisorId(), shiftDtos);
     }
