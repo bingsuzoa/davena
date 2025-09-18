@@ -24,6 +24,7 @@ public class WardMembersService {
 
     public static final String NOT_EXIST_WARD_BY_TOKEN = "입력하신 토큰을 가지는 병동이 존재하지 않습니다.";
     public static final String NOT_SUPERVISOR = "팀장이 아닌 사용자는 권한이 없습니다.";
+    public static final String ALREADY_EXIST_WARD_MEMBER = "이미 병동에 가입된 사용자입니다.";
 
     public WardResponse findWardByToken(String token) {
         Optional<Ward> optionalWard = wardRepository.findByToken(token);
@@ -51,10 +52,11 @@ public class WardMembersService {
     }
 
     private void createMember(User user, Ward ward) {
-        if (!memberService.isAlreadyExistMember(user.getId())) {
-            Member member = memberService.save(new Member(user.getId(), ward.getId(), user.getName()));
-            member.initPossibleShifts(ward.getShifts());
+        if(memberService.isAlreadyExistMember(user.getId())) {
+            throw new IllegalArgumentException(ALREADY_EXIST_WARD_MEMBER);
         }
+        Member member = memberService.save(new Member(user.getId(), ward.getId(), user.getName()));
+        member.initPossibleShifts(ward.getShifts());
     }
 
     public JoinResponse rejectUserJoinRequest(JoinRequest request) {
