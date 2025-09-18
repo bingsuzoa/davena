@@ -146,9 +146,9 @@ public class Ward {
         return shiftId;
     }
 
-    public UUID updateShift(UUID shiftId, DayType dayType, String name, int startHour, int startMinute, int endHour, int endMinute) {
+    public UUID updateShift(UUID shiftId, DayType dayType, boolean isOff, String name, Integer startHour, Integer startMinute, Integer endHour, Integer endMinute) {
         Shift shift = getShift(shiftId);
-        shift.updateShift(dayType, name, startHour, startMinute, endHour, endMinute);
+        shift.updateShift(dayType, name, isOff, startHour, startMinute, endHour, endMinute);
         return shiftId;
     }
 

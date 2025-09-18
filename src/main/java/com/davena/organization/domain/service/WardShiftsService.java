@@ -21,6 +21,8 @@ public class WardShiftsService {
     private final ExistenceService existenceService;
     private final MemberService memberService;
 
+    public static final String CAN_NOT_DELETE_OFF = "오프는 삭제할 수 없습니다.";
+
     public WardShiftsDto getShifts(GetShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         existenceService.verifySupervisor(ward, request.supervisorId());
@@ -45,9 +47,17 @@ public class WardShiftsService {
     public WardShiftsDto deleteShift(DeleteShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         existenceService.verifySupervisor(ward, ward.getSupervisorId());
+        validateShiftIsOff(request.shiftId(), ward);
         UUID deletedShiftId = ward.deleteShift(request.shiftId());
         deleteMembersShift(deletedShiftId, ward);
         return getWardShiftsDto(ward);
+    }
+
+    private void validateShiftIsOff(UUID shiftId, Ward ward) {
+        Shift shift = ward.getShift(shiftId);
+        if(shift.isOff()) {
+            throw new IllegalArgumentException(CAN_NOT_DELETE_OFF);
+        }
     }
 
     private void deleteMembersShift(UUID shiftId, Ward ward) {
@@ -62,7 +72,7 @@ public class WardShiftsService {
         existenceService.verifySupervisor(ward, ward.getSupervisorId());
         List<ShiftDto> shiftDtos = request.shifts();
         for (ShiftDto shiftDto : shiftDtos) {
-            ward.updateShift(shiftDto.id(), shiftDto.dayType(), shiftDto.name(), shiftDto.startHour(), shiftDto.startMinute(), shiftDto.endHour(), shiftDto.endMinute());
+            ward.updateShift(shiftDto.id(), shiftDto.dayType(), shiftDto.isOff(), shiftDto.name(), shiftDto.startHour(), shiftDto.startMinute(), shiftDto.endHour(), shiftDto.endMinute());
             updateMembersShift(shiftDto.id(), shiftDto.name(), ward);
         }
         return getWardShiftsDto(ward);
@@ -80,12 +90,12 @@ public class WardShiftsService {
         List<ShiftDto> shiftDtos = new ArrayList<>();
 
         for (Shift shift : shifts) {
-            if(shift.isOff()) {
-                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), null, null, null, null));
+            if (shift.isOff()) {
+                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), shift.isOff(), null, null, null, null));
             } else {
                 LocalTime start = shift.getStartTime();
                 LocalTime end = shift.getEndTime();
-                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), start.getHour(), start.getMinute(), end.getHour(), end.getMinute()));
+                shiftDtos.add(new ShiftDto(shift.getId(), shift.getDayType(), shift.getName(), shift.isOff(), start.getHour(), start.getMinute(), end.getHour(), end.getMinute()));
             }
         }
         return new WardShiftsDto(ward.getId(), ward.getSupervisorId(), shiftDtos);

@@ -10,6 +10,7 @@ public record ShiftDto(
         UUID id,
         DayType dayType,
         String name,
+        boolean isOff,
         Integer startHour,
         Integer startMinute,
         Integer endHour,

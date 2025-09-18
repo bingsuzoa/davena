@@ -51,11 +51,13 @@ public class Shift {
         return LocalTime.of(workHour, workMinute);
     }
 
-    protected void updateShift(DayType dayType, String name, int startHour, int startMinute, int endHour, int endMinute) {
-        LocalTime start = toLocalTime(startHour, startMinute);
-        LocalTime end = toLocalTime(endHour, endMinute);
-        this.dayType = dayType;
-        this.name = name;
-        this.workTime = new WorkTime(start, end);
+    protected void updateShift(DayType dayType, String name, boolean isOff, Integer startHour, Integer startMinute, Integer endHour, Integer endMinute) {
+        if(!isOff) {
+            LocalTime start = toLocalTime(startHour, startMinute);
+            LocalTime end = toLocalTime(endHour, endMinute);
+            this.dayType = dayType;
+            this.name = name;
+            this.workTime = new WorkTime(start, end);
+        }
     }
 }
