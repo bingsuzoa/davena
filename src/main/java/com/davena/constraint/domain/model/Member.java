@@ -26,7 +26,7 @@ public class Member {
     private UUID teamId;
     private UUID gradeId;
 
-    private boolean canCharge = false;
+    private boolean canCharge = true;
     private int rank = LOWEST_RANK;
     private List<PossibleShift> shifts = new ArrayList<>();
 

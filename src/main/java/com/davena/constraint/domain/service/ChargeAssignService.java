@@ -2,12 +2,12 @@ package com.davena.constraint.domain.service;
 
 import com.davena.common.ExistenceService;
 import com.davena.common.MemberService;
-import com.davena.organization.domain.model.ward.Ward;
 import com.davena.constraint.application.dto.wardCharge.ChargeMemberDto;
 import com.davena.constraint.application.dto.wardCharge.TeamChargeDto;
 import com.davena.constraint.application.dto.wardCharge.WardChargeDto;
 import com.davena.constraint.application.dto.wardCharge.WardChargeRequest;
 import com.davena.constraint.domain.model.Member;
+import com.davena.organization.domain.model.ward.Ward;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,8 @@ public class ChargeAssignService {
 
     private final ExistenceService existenceService;
     private final MemberService memberService;
+
+    public static final String IMPOSSIBLE_EMPTY_CHARGE_OF_TEAM = "팀에 차지가 최소 한 명은 배정되어야 합니다.";
 
     public WardChargeDto getWardCharges(WardChargeRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
@@ -40,10 +42,21 @@ public class ChargeAssignService {
     }
 
     private void updateCanChargeOfMember(TeamChargeDto teamCharge) {
+        existsChargeMember(teamCharge);
         for (ChargeMemberDto chargeDto : teamCharge.chargeMembersDto()) {
             Member member = memberService.getMember(chargeDto.memberId());
             member.updateCanCharge(chargeDto.canCharge());
             updateRankIfCanCharge(member, chargeDto);
+        }
+    }
+
+    private void existsChargeMember(TeamChargeDto teamChargeDto) {
+        boolean isAllFalse = teamChargeDto.chargeMembersDto()
+                .stream()
+                .noneMatch(ChargeMemberDto::canCharge);
+
+        if (isAllFalse) {
+            throw new IllegalArgumentException(IMPOSSIBLE_EMPTY_CHARGE_OF_TEAM);
         }
     }
 
