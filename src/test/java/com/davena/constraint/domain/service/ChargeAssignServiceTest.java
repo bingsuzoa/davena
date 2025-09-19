@@ -91,11 +91,11 @@ public class ChargeAssignServiceTest {
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2, member3));
 
         ChargeMemberDto charge1 = new ChargeMemberDto(user1.getId(), user1.getName(), true, 1);
-        ChargeMemberDto charge2 = new ChargeMemberDto(user3.getId(), user3.getName(), true, 1);
-        ChargeMemberDto charge3 = new ChargeMemberDto(user2.getId(), user2.getName(), false, Member.LOWEST_RANK);
+        ChargeMemberDto charge2 = new ChargeMemberDto(user2.getId(), user2.getName(), true, 1);
+        ChargeMemberDto charge3 = new ChargeMemberDto(user3.getId(), user3.getName(), false, Member.LOWEST_RANK);
 
-        TeamChargeDto teamCharge1 = new TeamChargeDto(aTeamId, "aTeam", List.of(charge1, charge2));
-        TeamChargeDto teamCharge2 = new TeamChargeDto(bTeamId, "bTeam", List.of(charge3));
+        TeamChargeDto teamCharge1 = new TeamChargeDto(aTeamId, "aTeam", List.of(charge1, charge3));
+        TeamChargeDto teamCharge2 = new TeamChargeDto(bTeamId, "bTeam", List.of(charge2));
 
         WardChargeDto wardChargeDto = new WardChargeDto(ward.getId(), ward.getSupervisorId(), List.of(teamCharge1, teamCharge2));
 
@@ -112,8 +112,8 @@ public class ChargeAssignServiceTest {
             }
         }
         Assertions.assertEquals(member1.getRank(), 1);
-        Assertions.assertTrue(member3.isCanCharge());
-        Assertions.assertEquals(member2.getRank(), Member.LOWEST_RANK);
+        Assertions.assertTrue(member2.isCanCharge());
+        Assertions.assertEquals(member3.getRank(), Member.LOWEST_RANK);
     }
 
     /// ///예외 테스트
