@@ -1,6 +1,6 @@
 package com.davena.organization.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.shift.*;
@@ -18,20 +18,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WardShiftsService {
 
-    private final ExistenceService existenceService;
+    private final WardService wardService;
     private final MemberService memberService;
 
     public static final String CAN_NOT_DELETE_OFF = "오프는 삭제할 수 없습니다.";
 
     public WardShiftsDto getShifts(GetShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         return getWardShiftsDto(ward);
     }
 
     public WardShiftsDto addNewShift(CreateShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, ward.getSupervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, ward.getSupervisorId());
         UUID newShiftId = ward.addNewShift(request.dayType(), request.shiftName(), request.startHour(), request.startMinute(), request.endHour(), request.endMinute());
         addMembersNewShift(newShiftId, request.shiftName(), ward);
         return getWardShiftsDto(ward);
@@ -45,8 +45,8 @@ public class WardShiftsService {
     }
 
     public WardShiftsDto deleteShift(DeleteShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, ward.getSupervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, ward.getSupervisorId());
         validateShiftIsOff(request.shiftId(), ward);
         UUID deletedShiftId = ward.deleteShift(request.shiftId());
         deleteMembersShift(deletedShiftId, ward);
@@ -68,8 +68,8 @@ public class WardShiftsService {
     }
 
     public WardShiftsDto updateShift(WardShiftsDto request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, ward.getSupervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, ward.getSupervisorId());
         List<ShiftDto> shiftDtos = request.shifts();
         for (ShiftDto shiftDto : shiftDtos) {
             ward.updateShift(shiftDto.id(), shiftDto.dayType(), shiftDto.isOff(), shiftDto.name(), shiftDto.startHour(), shiftDto.startMinute(), shiftDto.endHour(), shiftDto.endMinute());

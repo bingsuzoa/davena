@@ -8,7 +8,6 @@ import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import com.davena.organization.domain.port.WardRepository;
-import com.davena.common.ExistenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.davena.organization.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.PossibleShift;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class WardShiftsServiceTest {
 
     @Mock
-    private ExistenceService existenceService;
+    private WardService wardService;
     @Mock
     private MemberService memberService;
     @InjectMocks
@@ -43,8 +43,8 @@ public class WardShiftsServiceTest {
     @DisplayName("병동의 근무 유형 조회")
     void getShifts() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         WardShiftsDto response = wardShiftsService.getShifts(new GetShiftRequest(ward.getId(), ward.getSupervisorId()));
         Assertions.assertEquals(8, response.shifts().size());
@@ -54,8 +54,8 @@ public class WardShiftsServiceTest {
     @DisplayName("새로운 근무 유형 추가")
     void addNewShift() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -73,8 +73,8 @@ public class WardShiftsServiceTest {
     @DisplayName("기존 근무 유형 삭제")
     void deleteShift() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -93,8 +93,8 @@ public class WardShiftsServiceTest {
     @DisplayName("근무 유형 변경하기")
     void updateShift() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -125,8 +125,8 @@ public class WardShiftsServiceTest {
     @DisplayName("새로운 근무 유형 추가시 기존 근무 유형의 이름과 동일할 경우 예외 발생")
     void addNewShift_동일_이름_예외() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -142,8 +142,8 @@ public class WardShiftsServiceTest {
     @DisplayName("기존 근무 유형 삭제 - 오프 삭제 시도 시 예외")
     void deleteShift_오프_삭제_시_예외() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());

@@ -1,6 +1,6 @@
 package com.davena.organization.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.PossibleShift;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class WardMembersServiceTest {
 
     @Mock
-    private ExistenceService existenceCheck;
+    private WardService wardService;
 
     @Mock
     private WardRepository wardRepository;
@@ -58,8 +58,8 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
         JoinResponse response = wardMembersService.applyForWard(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(response.status(), JoinStatus.PENDING);
     }
@@ -70,8 +70,8 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
         when(memberService.isAlreadyExistMember(any())).thenReturn(false);
 
         Member member = new Member(user.getId(), ward.getId(), user.getName());
@@ -89,8 +89,8 @@ public class WardMembersServiceTest {
         User user = User.create("name", "loginId", "password", "phone");
         Member member = new Member(user.getId(), ward.getId(), user.getName());
 
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
         when(memberService.isAlreadyExistMember(any())).thenReturn(false);
         when(memberService.save(any())).thenReturn(member);
         wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
@@ -108,9 +108,9 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
         JoinResponse response = wardMembersService.rejectUserJoinRequest(new JoinRequest(user.getId(), supervisorId, ward.getId()));
         Assertions.assertEquals(user.getStatus(), JoinStatus.NONE);
         Assertions.assertEquals(response.status(), JoinStatus.NONE);
@@ -136,9 +136,9 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
-        when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
+        when(wardService.verifySupervisorOfWard(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             wardMembersService.acceptUserJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
@@ -151,9 +151,9 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
-        when(existenceCheck.verifySupervisor(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
+        when(wardService.verifySupervisorOfWard(ward, notSupervisorId)).thenThrow(IllegalArgumentException.class);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             wardMembersService.rejectUserJoinRequest(new JoinRequest(user.getId(), notSupervisorId, ward.getId()));
         });
@@ -165,8 +165,8 @@ public class WardMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
-        when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.getUser(any())).thenReturn(user);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(memberService.getUser(any())).thenReturn(user);
         when(memberService.isAlreadyExistMember(any())).thenReturn(true);
 
         IllegalArgumentException e = Assertions.assertThrows(

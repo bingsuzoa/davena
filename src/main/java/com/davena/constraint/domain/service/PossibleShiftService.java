@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.possibleShifts.MemberPossibleShiftsDto;
 import com.davena.constraint.application.dto.possibleShifts.PossibleShiftDto;
@@ -21,18 +21,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PossibleShiftService {
 
-    private final ExistenceService existenceService;
+    private final WardService wardService;
     private final MemberService memberService;
 
     public WardPossibleShiftsDto getWardPossibleShifts(WardPossibleShiftsRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         return getWardPossibleShiftsDto(ward);
     }
 
     public WardPossibleShiftsDto updateWardPossibleShifts(WardPossibleShiftsDto request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
 
         for (MemberPossibleShiftsDto possibleShiftsDto : request.shits()) {
             updateMemberShiftIsPossible(possibleShiftsDto.userId(), possibleShiftsDto.shifts());

@@ -1,6 +1,6 @@
 package com.davena.organization.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.organization.application.dto.ward.shiftRequirement.GetWardRequirementsRequest;
 import com.davena.organization.application.dto.ward.shiftRequirement.RequirementShiftDto;
 import com.davena.organization.application.dto.ward.shiftRequirement.TeamRequirementsDto;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class RequirementsServiceTest {
 
     @Mock
-    private ExistenceService existenceService;
+    private WardService wardService;
 
     @InjectMocks
     private RequirementsService requirementsService;
@@ -38,8 +38,8 @@ public class RequirementsServiceTest {
     @DisplayName("병동의 각 근무유형별 필요 인원 조회하기 = 처음에는 0으로 세팅 확인")
     void getRequirements() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         WardRequirementsDto response = requirementsService.getRequirements(new GetWardRequirementsRequest(ward.getId(), ward.getSupervisorId()));
         List<RequirementShiftDto> wardRequirements = response.requirements().getFirst().requirements();
@@ -52,8 +52,8 @@ public class RequirementsServiceTest {
     @DisplayName("병동 근무유형별 업데이트 하기")
     void updateWardRequirements() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         List<RequirementShiftDto> shiftDtos = new ArrayList<>();
         for (Shift shift : ward.getShifts()) {

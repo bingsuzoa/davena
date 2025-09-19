@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.wardCharge.ChargeMemberDto;
 import com.davena.constraint.application.dto.wardCharge.TeamChargeDto;
@@ -20,20 +20,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChargeAssignService {
 
-    private final ExistenceService existenceService;
+    private final WardService wardService;
     private final MemberService memberService;
 
     public static final String IMPOSSIBLE_EMPTY_CHARGE_OF_TEAM = "팀에 차지가 최소 한 명은 배정되어야 합니다.";
 
     public WardChargeDto getWardCharges(WardChargeRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         return getWardChargeDto(memberService.getAllMembersOfWard(ward.getId()), ward);
     }
 
     public WardChargeDto updateWardCharges(WardChargeDto request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         List<TeamChargeDto> teamCharges = request.teamChargeDto();
         for (TeamChargeDto teamCharge : teamCharges) {
             updateCanChargeOfMember(teamCharge);

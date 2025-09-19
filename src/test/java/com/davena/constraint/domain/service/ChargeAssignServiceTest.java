@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.wardCharge.ChargeMemberDto;
 import com.davena.constraint.application.dto.wardCharge.TeamChargeDto;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class ChargeAssignServiceTest {
 
     @Mock
-    private ExistenceService existenceCheck;
+    private WardService existenceCheck;
     @Mock
     private MemberService memberService;
     @InjectMocks
@@ -44,7 +44,7 @@ public class ChargeAssignServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         Team defaultTeam = ward.getTeams().getFirst();
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
@@ -87,7 +87,7 @@ public class ChargeAssignServiceTest {
         when(memberService.getMember(user3.getId())).thenReturn(member3);
 
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2, member3));
 
         ChargeMemberDto charge1 = new ChargeMemberDto(user1.getId(), user1.getName(), true, 1);
@@ -137,7 +137,7 @@ public class ChargeAssignServiceTest {
         member3.updateTeam(bTeamId);
 
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         ChargeMemberDto charge1 = new ChargeMemberDto(user1.getId(), user1.getName(), false, Member.LOWEST_RANK);
         ChargeMemberDto charge2 = new ChargeMemberDto(user3.getId(), user3.getName(), false, LOWEST_RANK);

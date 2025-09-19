@@ -1,6 +1,6 @@
 package com.davena.organization.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.organization.application.dto.ward.shiftRequirement.GetWardRequirementsRequest;
 import com.davena.organization.application.dto.ward.shiftRequirement.RequirementShiftDto;
 import com.davena.organization.application.dto.ward.shiftRequirement.TeamRequirementsDto;
@@ -20,17 +20,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RequirementsService {
 
-    private final ExistenceService existenceService;
+    private final WardService wardService;
 
     public WardRequirementsDto getRequirements(GetWardRequirementsRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         return getWardRequirementsDto(ward);
     }
 
     public WardRequirementsDto updateWardRequirements(WardRequirementsDto request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
 
         for (TeamRequirementsDto teamRequirements : request.requirements()) {
             updateTeamRequirements(teamRequirements, ward);

@@ -1,6 +1,6 @@
 package com.davena.organization.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.organization.application.dto.user.JoinRequest;
 import com.davena.organization.application.dto.user.JoinResponse;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WardMembersService {
 
-    private final ExistenceService existenceCheck;
+    private final WardService wardService;
     private final MemberService memberService;
     private final WardRepository wardRepository;
 
@@ -36,16 +36,16 @@ public class WardMembersService {
     }
 
     public JoinResponse applyForWard(JoinRequest request) {
-        User user = existenceCheck.getUser(request.userId());
-        Ward ward = existenceCheck.getWard(request.wardId());
+        User user = memberService.getUser(request.userId());
+        Ward ward = wardService.getWard(request.wardId());
         user.applyForWard(ward.getId());
         return new JoinResponse(user.getId(), user.getWardId(), ward.getName(), user.getStatus());
     }
 
     public JoinResponse acceptUserJoinRequest(JoinRequest request) {
-        User user = existenceCheck.getUser(request.userId());
-        Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        User user = memberService.getUser(request.userId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         user.approveEnrollment(ward.getId());
         createMember(user, ward);
         return new JoinResponse(user.getId(), user.getWardId(), ward.getName(), user.getStatus());
@@ -61,9 +61,9 @@ public class WardMembersService {
     }
 
     public JoinResponse rejectUserJoinRequest(JoinRequest request) {
-        User user = existenceCheck.getUser(request.userId());
-        Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        User user = memberService.getUser(request.userId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         user.rejectEnrollment(ward.getId());
         return new JoinResponse(user.getId(), user.getWardId(), ward.getName(), user.getStatus());
     }

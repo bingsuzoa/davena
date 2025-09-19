@@ -1,6 +1,6 @@
 package com.davena.organization.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.grade.*;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GradeMembersServiceTest {
 
-    private ExistenceService existenceCheck = mock(ExistenceService.class);
+    private WardService existenceCheck = mock(WardService.class);
     private MemberService memberService = mock(MemberService.class);
 
     private GradeMembersService gradeMembersService =
@@ -57,7 +57,7 @@ public class GradeMembersServiceTest {
 
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2, member3));
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         CreateGradeRequest request = new CreateGradeRequest(supervisorId, ward.getId(), "2단계");
         GradeMembersResponse response = gradeMembersService.addNewGrade(request);
@@ -84,7 +84,7 @@ public class GradeMembersServiceTest {
 
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2));
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         doNothing().when(memberService).validateAtLeastOneMember(any());
         doNothing().when(memberService).validateContainAllMembers(any(), any());
 
@@ -113,7 +113,7 @@ public class GradeMembersServiceTest {
 
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1));
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         Map<UUID, List<UUID>> allMembersGrades = new HashMap<>();
         allMembersGrades.put(firstGradeId, List.of(user1.getId()));
@@ -131,7 +131,7 @@ public class GradeMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         UUID supervisorId = ward.getSupervisorId();
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         UUID firstGradeId = ward.getGrades().getFirst().getId();
         UUID secondGradeId = ward.addNewGrade("2단계");

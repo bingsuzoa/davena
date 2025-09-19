@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.holidayRequest.*;
 import com.davena.constraint.domain.model.HolidayRequest;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class HolidayServiceTest {
 
     @Mock
-    private ExistenceService existenceService;
+    private WardService wardService;
     @Mock
     private MemberService memberService;
     @Mock
@@ -58,8 +58,8 @@ public class HolidayServiceTest {
         HolidayRequest member2Req1 = new HolidayRequest(UUID.randomUUID(), member2.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
         HolidayRequest member2Req2 = new HolidayRequest(UUID.randomUUID(), member2.getUserId(), 2025, 9, LocalDate.of(2025, 9, 21), "");
 
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
         when(holidayRepository.findByWardIdAndYearAndMonth(any(), anyInt(), anyInt())).thenReturn(List.of(member1Req1, member2Req1, member2Req2));
 
         WardHolidayResponse response = holidayService.getWardHolidays(new WardHolidayRequest(ward.getId(), ward.getSupervisorId(), 2025, 9));
@@ -73,7 +73,7 @@ public class HolidayServiceTest {
     void addMemberHoliday() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
         when(memberService.getMember(user1.getId())).thenReturn(member1);
@@ -92,7 +92,7 @@ public class HolidayServiceTest {
     void deleteMemberHoliday() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
         when(memberService.getMember(user1.getId())).thenReturn(member1);
@@ -110,7 +110,7 @@ public class HolidayServiceTest {
     void addMemberHoliday_같은_날짜_휴가_신청_내역_있으면_예외() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
         when(memberService.getMember(user1.getId())).thenReturn(member1);
@@ -130,7 +130,7 @@ public class HolidayServiceTest {
     void deleteMemberHoliday_예외() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
         when(memberService.getMember(user1.getId())).thenReturn(member1);

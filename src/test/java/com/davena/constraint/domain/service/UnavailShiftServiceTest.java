@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.shiftRequest.*;
 import com.davena.constraint.domain.model.Member;
@@ -34,7 +34,7 @@ public class UnavailShiftServiceTest {
     @Mock
     private UnavailShiftRepository unavailShiftRepository;
     @Mock
-    private ExistenceService existenceService;
+    private WardService wardService;
     @Mock
     private MemberService memberService;
     @InjectMocks
@@ -55,8 +55,8 @@ public class UnavailShiftServiceTest {
         List<Shift> wardShifts = ward.getShifts();
         Shift shift1 = wardShifts.get(0);
 
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         UnavailShiftRequest req1 = new UnavailShiftRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), shift1.getId(), "");
         when(unavailShiftRepository.findByWardIdAndYearAndMonth(any(), anyInt(), anyInt())).thenReturn(List.of(req1));
@@ -78,7 +78,7 @@ public class UnavailShiftServiceTest {
         List<Shift> wardShifts = ward.getShifts();
         Shift shift1 = wardShifts.get(0);
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
 
         when(unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(any(), any(), any())).thenReturn(Optional.empty());
         UnavailShiftRequest req1 = new UnavailShiftRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), shift1.getId(), "");
@@ -101,8 +101,7 @@ public class UnavailShiftServiceTest {
 
         List<Shift> wardShifts = ward.getShifts();
         Shift shift1 = wardShifts.get(0);
-
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
 
         UnavailShiftRequest req1 = new UnavailShiftRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), shift1.getId(), "");
         when(unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(any(), any(), any())).thenReturn(Optional.of(req1));
@@ -127,7 +126,7 @@ public class UnavailShiftServiceTest {
         List<Shift> wardShifts = ward.getShifts();
         Shift shift1 = wardShifts.get(0);
 
-        when(existenceService.getWard(any())).thenReturn(ward);
+        when(wardService.getWard(any())).thenReturn(ward);
 
         UnavailShiftRequest req1 = new UnavailShiftRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), shift1.getId(), "");
         when(unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(any(), any(), any())).thenReturn(Optional.of(req1));

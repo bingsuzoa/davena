@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.possibleShifts.MemberPossibleShiftsDto;
 import com.davena.constraint.application.dto.possibleShifts.PossibleShiftDto;
@@ -8,9 +8,7 @@ import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsDt
 import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsRequest;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.PossibleShift;
-import com.davena.organization.application.dto.ward.shift.ShiftDto;
 import com.davena.organization.domain.model.user.User;
-import com.davena.organization.domain.model.ward.DayType;
 import com.davena.organization.domain.model.ward.Shift;
 import com.davena.organization.domain.model.ward.Ward;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class PossibleShiftServiceTest {
 
     @Mock
-    private ExistenceService existenceService;
+    private WardService wardService;
     @Mock
     private MemberService memberService;
     @InjectMocks
@@ -51,8 +49,8 @@ public class PossibleShiftServiceTest {
         Member member2 = new Member(user2.getId(), ward.getId(), user2.getName());
         member2.initPossibleShifts(ward.getShifts());
 
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2));
 
         WardPossibleShiftsDto response = possibleShiftService.getWardPossibleShifts(new WardPossibleShiftsRequest(ward.getId(), ward.getSupervisorId()));
@@ -82,8 +80,8 @@ public class PossibleShiftServiceTest {
         member2.initPossibleShifts(ward.getShifts());
         when(memberService.getMember(member2.getUserId())).thenReturn(member2);
 
-        when(existenceService.getWard(any())).thenReturn(ward);
-        when(existenceService.verifySupervisor(any(), any())).thenReturn(true);
+        when(wardService.getWard(any())).thenReturn(ward);
+        when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
         when(memberService.getAllMembersOfWard(any())).thenReturn(List.of(member1, member2));
 
         List<MemberPossibleShiftsDto> allMembersShifts = new ArrayList<>();

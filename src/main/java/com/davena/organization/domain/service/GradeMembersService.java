@@ -1,7 +1,7 @@
 package com.davena.organization.domain.service;
 
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.MemberDto;
@@ -17,27 +17,27 @@ import java.util.*;
 @RequiredArgsConstructor
 public class GradeMembersService {
 
-    private final ExistenceService existenceCheck;
+    private final WardService existenceCheck;
     private final MemberService memberService;
 
     public static final String HAS_ANY_MEMBER_OF_GRADE = "숙련도에 멤버가 배정된 경우에는 숙련도 삭제할 수 없어요. 멤버를 옮겨주세요.";
 
     public GradeMembersResponse addNewGrade(CreateGradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         ward.addNewGrade(request.name());
         return getGradeMembersDto(ward);
     }
 
     public GradeMembersResponse getGradeMembers(GetGradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         return getGradeMembersDto(ward);
     }
 
     public GradeMembersResponse deleteGrade(DeleteGradeRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         UUID gradeId = request.gradeId();
         validateGradeHasNoMembers(ward, gradeId);
         ward.deleteGrade(gradeId);
@@ -53,7 +53,7 @@ public class GradeMembersService {
 
     public GradeMembersResponse updateWardGradeAssignments(UpdateGradeMembersRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         memberService.validateAtLeastOneMember(request.usersOfGrade());
         memberService.validateContainAllMembers(ward, request.usersOfGrade());
         updateMembersGrade(request);

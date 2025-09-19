@@ -1,6 +1,6 @@
 package com.davena.organization.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.MemberDto;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class TeamMembersServiceTest {
 
-    private ExistenceService existenceCheck = mock(ExistenceService.class);
+    private WardService existenceCheck = mock(WardService.class);
     private MemberService memberService = mock(MemberService.class);
     private TeamMembersService teamMembersService = new TeamMembersService(existenceCheck, memberService);
 
@@ -38,7 +38,7 @@ public class TeamMembersServiceTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         Team team = ward.getTeams().getFirst();
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -60,7 +60,7 @@ public class TeamMembersServiceTest {
     void addNewTeam() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         CreateTeamRequest request = new CreateTeamRequest(ward.getId(), ward.getSupervisorId(), "bTeam");
         TeamMembersResponse response = teamMembersService.addNewTeam(request);
@@ -72,7 +72,7 @@ public class TeamMembersServiceTest {
     void deleteTeam() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         UUID bTeamId = ward.addNewTeam("bTeam");
         Assertions.assertEquals(2, ward.getTeams().size());
 
@@ -85,7 +85,7 @@ public class TeamMembersServiceTest {
     void updateTeamAssignments() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("bTeam");
 
@@ -114,7 +114,7 @@ public class TeamMembersServiceTest {
     void addNewTeam_동일_이름_예외() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         CreateTeamRequest request = new CreateTeamRequest(ward.getId(), ward.getSupervisorId(), Team.DEFAULT_TEAM);
         IllegalArgumentException e = Assertions.assertThrows(
@@ -129,7 +129,7 @@ public class TeamMembersServiceTest {
     void deleteTeam_default_team_삭제_불가() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         UUID teamId = ward.getTeams().getFirst().getId();
         IllegalArgumentException e = Assertions.assertThrows(
@@ -144,7 +144,7 @@ public class TeamMembersServiceTest {
     void deleteTeam_배정된_멤버_있으면_삭제_불가() {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
-        when(existenceCheck.verifySupervisor(any(), any())).thenReturn(true);
+        when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
         UUID teamId = ward.addNewTeam("bTeam");
         User user1 = User.create("name1", "loginId1", "password", "01011112222");

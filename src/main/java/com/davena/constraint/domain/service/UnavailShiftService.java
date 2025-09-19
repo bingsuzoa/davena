@@ -1,6 +1,6 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.shiftRequest.*;
 import com.davena.constraint.domain.model.Member;
@@ -18,27 +18,27 @@ import java.util.stream.Collectors;
 public class UnavailShiftService {
 
     private final UnavailShiftRepository unavailShiftRepository;
-    private final ExistenceService existenceService;
+    private final WardService wardService;
     private final MemberService memberService;
 
     public static final String ALREADY_EXIST_SHIFT_REQUEST = "해당 일에 같은 리퀘스트 신청이 존재합니다.";
 
     public WardUnavailShiftResponse getWardUnavailShiftRequests(WardUnavailShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
-        existenceService.verifySupervisor(ward, request.supervisorId());
+        Ward ward = wardService.getWard(request.wardId());
+        wardService.verifySupervisorOfWard(ward, request.supervisorId());
         List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByWardIdAndYearAndMonth(ward.getId(), request.year(), request.month());
         return getWardUnavailShiftResponse(ward, unavailShiftRequests);
     }
 
     public MemberUnavailShiftsResponse getMemberUnavailShiftRequest(MemberUnavailShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
+        Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
         List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(member.getUserId(), request.year(), request.month());
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
     public MemberUnavailShiftsResponse addMemberUnavailShift(CreateShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
+        Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
         Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {
@@ -52,7 +52,7 @@ public class UnavailShiftService {
     }
 
     public MemberUnavailShiftsResponse deleteMemberUnavailShift(DeleteShiftRequest request) {
-        Ward ward = existenceService.getWard(request.wardId());
+        Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
         Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {

@@ -1,6 +1,6 @@
 package com.davena.organization.domain.service;
 
-import com.davena.common.ExistenceService;
+import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.organization.application.dto.ward.MemberDto;
@@ -16,27 +16,27 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TeamMembersService {
 
-    private final ExistenceService existenceCheck;
+    private final WardService existenceCheck;
     private final MemberService memberService;
 
     public static final String HAS_ANY_MEMBER_OF_TEAM = "팀에 멤버가 배정된 경우에는 팀을 삭제할 수 없어요. 멤버를 다른 팀으로 우선 옮겨주세요.";
 
     public TeamMembersResponse getTeamMembers(GetTeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         return getTeamMembersDto(ward);
     }
 
     public TeamMembersResponse addNewTeam(CreateTeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         ward.addNewTeam(request.name());
         return getTeamMembersDto(ward);
     }
 
     public TeamMembersResponse deleteTeam(DeleteTeamRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         UUID teamId = request.teamId();
         validateTeamHasNoMembers(ward, teamId);
         ward.deleteTeam(teamId);
@@ -52,7 +52,7 @@ public class TeamMembersService {
 
     public TeamMembersResponse updateTeamAssignments(UpdateTeamMembersRequest request) {
         Ward ward = existenceCheck.getWard(request.wardId());
-        existenceCheck.verifySupervisor(ward, request.supervisorId());
+        existenceCheck.verifySupervisorOfWard(ward, request.supervisorId());
         memberService.validateAtLeastOneMember(request.usersOfTeam());
         memberService.validateContainAllMembers(ward, request.usersOfTeam());
         updateMembersTeam(request);
