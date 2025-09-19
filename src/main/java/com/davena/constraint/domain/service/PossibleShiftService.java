@@ -2,7 +2,10 @@ package com.davena.constraint.domain.service;
 
 import com.davena.common.ExistenceService;
 import com.davena.common.MemberService;
-import com.davena.constraint.application.dto.possibleShifts.*;
+import com.davena.constraint.application.dto.possibleShifts.MemberPossibleShiftsDto;
+import com.davena.constraint.application.dto.possibleShifts.PossibleShiftDto;
+import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsDto;
+import com.davena.constraint.application.dto.possibleShifts.WardPossibleShiftsRequest;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.PossibleShift;
 import com.davena.organization.domain.model.ward.Shift;
@@ -44,12 +47,6 @@ public class PossibleShiftService {
         }
     }
 
-    public MemberPossibleShiftsDto getMemberPossibleShifts(MemberPossibleShiftsRequest request) {
-        Member member = memberService.getMember(request.memberId());
-        Ward ward = existenceService.getWard(member.getWardId());
-        return new MemberPossibleShiftsDto(member.getUserId(), member.getName(), getMemberPossibleShiftsDto(member, ward));
-    }
-
     private WardPossibleShiftsDto getWardPossibleShiftsDto(Ward ward) {
         List<Member> allMembers = memberService.getAllMembersOfWard(ward.getId());
         List<MemberPossibleShiftsDto> memberPossibleShiftsDto = new ArrayList<>();
@@ -66,7 +63,7 @@ public class PossibleShiftService {
         List<PossibleShiftDto> possibleShiftDtos = new ArrayList<>();
         for (PossibleShift possibleShift : possibleShifts) {
             Shift shift = ward.getShift(possibleShift.getShiftId());
-            possibleShiftDtos.add(new PossibleShiftDto(shift.getDayType(), shift.getId(), shift.getName(), shift.isOff()));
+            possibleShiftDtos.add(new PossibleShiftDto(shift.getDayType(), shift.getId(), shift.getName(), possibleShift.isPossible()));
         }
         return possibleShiftDtos;
     }

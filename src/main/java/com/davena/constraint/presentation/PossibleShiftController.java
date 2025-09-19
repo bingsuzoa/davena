@@ -28,9 +28,4 @@ public class PossibleShiftController {
     public WardPossibleShiftsDto updateWardPossibleShifts(@RequestBody WardPossibleShiftsDto request) {
         return possibleShiftService.updateWardPossibleShifts(request);
     }
-
-    @GetMapping("/members")
-    public MemberPossibleShiftsDto getMemberPossibleShifts(@RequestBody MemberPossibleShiftsRequest request) {
-        return possibleShiftService.getMemberPossibleShifts(request);
-    }
 }
