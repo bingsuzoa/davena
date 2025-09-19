@@ -51,9 +51,6 @@ public class Ward {
     @Getter(AccessLevel.NONE)
     private List<Shift> shifts = new ArrayList<>();
 
-    @Getter(AccessLevel.NONE)
-    private List<Member> members = new ArrayList<>();
-
     private Set<UUID> users = new HashSet<>();
 
     private Map<UUID, Map<UUID, Integer>> requirements = new HashMap<>();
