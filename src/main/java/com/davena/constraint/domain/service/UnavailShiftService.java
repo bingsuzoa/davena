@@ -3,8 +3,10 @@ package com.davena.constraint.domain.service;
 import com.davena.common.WardService;
 import com.davena.common.MemberService;
 import com.davena.constraint.application.dto.shiftRequest.*;
+import com.davena.constraint.domain.model.HolidayRequest;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.UnavailShiftRequest;
+import com.davena.constraint.domain.port.HolidayRepository;
 import com.davena.constraint.domain.port.UnavailShiftRepository;
 import com.davena.organization.domain.model.ward.Ward;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +22,10 @@ public class UnavailShiftService {
     private final UnavailShiftRepository unavailShiftRepository;
     private final WardService wardService;
     private final MemberService memberService;
+    private final HolidayRepository holidayRepository;
 
     public static final String ALREADY_EXIST_SHIFT_REQUEST = "해당 일에 같은 리퀘스트 신청이 존재합니다.";
+    public static final String ALREADY_EXIST_HOLIDAY_REQUEST = "해당 일에 휴가 신청 내역이 존재합니다.";
 
     public WardUnavailShiftResponse getWardUnavailShiftRequests(WardUnavailShiftRequest request) {
         Ward ward = wardService.getWard(request.wardId());
@@ -40,15 +44,23 @@ public class UnavailShiftService {
     public MemberUnavailShiftsResponse addMemberUnavailShift(CreateShiftRequest request) {
         Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
-        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
-        if (optionalShiftRequest.isPresent()) {
-            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_REQUEST);
-        }
+        validateRequestCondition(request, member);
         unavailShiftRepository.save(UnavailShiftRequest.create(member.getUserId(), request.requestDay(), request.shiftId(), request.reason()));
         int year = request.requestDay().getYear();
         int month = request.requestDay().getMonthValue();
         List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(member.getUserId(), year, month);
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
+    }
+
+    private void validateRequestCondition(CreateShiftRequest request, Member member) {
+        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
+        if (optionalShiftRequest.isPresent()) {
+            throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_REQUEST);
+        }
+        Optional<HolidayRequest> optionalHolidayRequest = holidayRepository.findByMemberIdAndRequestDay(member.getUserId(), request.requestDay());
+        if(optionalHolidayRequest.isPresent()) {
+            throw new IllegalArgumentException(ALREADY_EXIST_HOLIDAY_REQUEST);
+        }
     }
 
     public MemberUnavailShiftsResponse deleteMemberUnavailShift(DeleteShiftRequest request) {

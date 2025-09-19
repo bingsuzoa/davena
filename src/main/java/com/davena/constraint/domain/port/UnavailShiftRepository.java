@@ -19,4 +19,6 @@ public interface UnavailShiftRepository {
 
     Optional<UnavailShiftRequest> findByMemberIdAndShiftIdAndRequestDay(UUID memberId, UUID shiftId, LocalDate requestDay);
 
+    List<UnavailShiftRequest> findByMemberIdAndRequestDay(UUID memberId, LocalDate requestDay);
+
 }

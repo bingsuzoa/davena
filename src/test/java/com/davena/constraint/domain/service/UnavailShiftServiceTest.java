@@ -1,10 +1,12 @@
 package com.davena.constraint.domain.service;
 
-import com.davena.common.WardService;
 import com.davena.common.MemberService;
+import com.davena.common.WardService;
 import com.davena.constraint.application.dto.shiftRequest.*;
+import com.davena.constraint.domain.model.HolidayRequest;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.model.UnavailShiftRequest;
+import com.davena.constraint.domain.port.HolidayRepository;
 import com.davena.constraint.domain.port.UnavailShiftRepository;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Shift;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.davena.constraint.domain.service.UnavailShiftService.ALREADY_EXIST_HOLIDAY_REQUEST;
 import static com.davena.constraint.domain.service.UnavailShiftService.ALREADY_EXIST_SHIFT_REQUEST;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,6 +40,8 @@ public class UnavailShiftServiceTest {
     private WardService wardService;
     @Mock
     private MemberService memberService;
+    @Mock
+    private HolidayRepository holidayRepository;
     @InjectMocks
     private UnavailShiftService unavailShiftService;
 
@@ -135,5 +140,31 @@ public class UnavailShiftServiceTest {
                 () -> unavailShiftService.addMemberUnavailShift(new CreateShiftRequest(ward.getId(), member1.getUserId(), shift1.getId(), LocalDate.of(2025, 9, 20), ""))
         );
         Assertions.assertEquals(ALREADY_EXIST_SHIFT_REQUEST, e.getMessage());
+    }
+
+    @Test
+    @DisplayName("불가능 근무 신청하기 - 해당일에 휴가 신청 내역있으면 예외")
+    void addMemberUnavailShift_휴가_신청_내역_있으면_예외() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+
+        User user1 = User.create("name1", "loginId1", "password", "01011112222");
+        Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
+        member1.initPossibleShifts(ward.getShifts());
+        when(memberService.getMember(member1.getUserId())).thenReturn(member1);
+
+        List<Shift> wardShifts = ward.getShifts();
+        Shift shift1 = wardShifts.get(0);
+
+        when(wardService.getWard(any())).thenReturn(ward);
+
+        when(unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(any(), any(), any())).thenReturn(Optional.empty());
+        HolidayRequest holiday = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.of(holiday));
+
+        IllegalArgumentException e = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> unavailShiftService.addMemberUnavailShift(new CreateShiftRequest(ward.getId(), member1.getUserId(), shift1.getId(), LocalDate.of(2025, 9, 20), "")
+                ));
+        Assertions.assertEquals(ALREADY_EXIST_HOLIDAY_REQUEST, e.getMessage());
     }
 }

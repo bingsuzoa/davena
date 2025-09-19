@@ -6,6 +6,7 @@ import com.davena.constraint.application.dto.holidayRequest.*;
 import com.davena.constraint.domain.model.HolidayRequest;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.port.HolidayRepository;
+import com.davena.constraint.domain.port.UnavailShiftRepository;
 import com.davena.organization.domain.model.user.User;
 import com.davena.organization.domain.model.ward.Ward;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +37,8 @@ public class HolidayServiceTest {
     private MemberService memberService;
     @Mock
     private HolidayRepository holidayRepository;
+    @Mock
+    private UnavailShiftRepository unavailShiftRepository;
     @InjectMocks
     private HolidayService holidayService;
 
@@ -78,7 +81,7 @@ public class HolidayServiceTest {
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
         when(memberService.getMember(user1.getId())).thenReturn(member1);
 
-        when(holidayRepository.findByMemberIdAndRequestDay(any(), any(), any())).thenReturn(Optional.empty());
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.empty());
         HolidayRequest member1Req1 = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
         when(holidayRepository.save(any())).thenReturn(member1Req1);
         when(holidayRepository.findByMemberIdAndYearAndMonth(any(), anyInt(), anyInt())).thenReturn(List.of(member1Req1));
@@ -98,7 +101,7 @@ public class HolidayServiceTest {
         when(memberService.getMember(user1.getId())).thenReturn(member1);
 
         HolidayRequest member1Req1 = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
-        when(holidayRepository.findByMemberIdAndRequestDay(any(), any(), any())).thenReturn(Optional.of(member1Req1));
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.of(member1Req1));
 
         MemberHolidayResponse response = holidayService.deleteMemberHoliday(new DeleteHolidayRequest(ward.getId(), member1.getUserId(), LocalDate.of(20205, 9, 20)));
         Assertions.assertEquals(0, response.requests().size());
@@ -116,7 +119,7 @@ public class HolidayServiceTest {
         when(memberService.getMember(user1.getId())).thenReturn(member1);
 
         HolidayRequest member1Req1 = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
-        when(holidayRepository.findByMemberIdAndRequestDay(any(), any(), any())).thenReturn(Optional.of(member1Req1));
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.of(member1Req1));
 
         IllegalArgumentException e = Assertions.assertThrows(
                 IllegalArgumentException.class,
@@ -136,11 +139,30 @@ public class HolidayServiceTest {
         when(memberService.getMember(user1.getId())).thenReturn(member1);
 
         HolidayRequest member1Req1 = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
-        when(holidayRepository.findByMemberIdAndRequestDay(any(), any(), any())).thenReturn(Optional.empty());
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.empty());
 
         IllegalArgumentException e = Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> holidayService.deleteMemberHoliday(new DeleteHolidayRequest(ward.getId(), member1.getUserId(), LocalDate.of(20205, 9, 20)))
         );
+    }
+
+    @Test
+    @DisplayName("휴가 신청하는 기능 : 해당일에 불가능 근무 신청 내역이 있으면 예외")
+    void addMemberHoliday_해당_일에_근무_신청_내역이_있으면_예외() {
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+
+        when(wardService.getWard(any())).thenReturn(ward);
+        User user1 = User.create("name1", "loginId1", "password", "01011112222");
+        Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
+        when(memberService.getMember(user1.getId())).thenReturn(member1);
+
+        when(holidayRepository.findByMemberIdAndRequestDay(any(), any())).thenReturn(Optional.empty());
+        HolidayRequest member1Req1 = new HolidayRequest(UUID.randomUUID(), member1.getUserId(), 2025, 9, LocalDate.of(2025, 9, 20), "");
+        when(holidayRepository.save(any())).thenReturn(member1Req1);
+        when(holidayRepository.findByMemberIdAndYearAndMonth(any(), anyInt(), anyInt())).thenReturn(List.of(member1Req1));
+
+        MemberHolidayResponse response = holidayService.addMemberHoliday(new CreateHolidayRequest(ward.getId(), member1.getUserId(), LocalDate.of(2025, 9, 20), ""));
+        Assertions.assertEquals(1, response.requests().size());
     }
 }

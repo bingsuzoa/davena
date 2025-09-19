@@ -17,5 +17,5 @@ public interface HolidayRepository {
 
     List<HolidayRequest> findByMemberIdAndYearAndMonth(UUID memberId, int year, int month);
 
-    Optional<HolidayRequest> findByMemberIdAndRequestDay(UUID wardId, UUID memberId, LocalDate requestDay);
+    Optional<HolidayRequest> findByMemberIdAndRequestDay(UUID memberId, LocalDate requestDay);
 }
