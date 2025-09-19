@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,34 +33,34 @@ public class UnavailShiftService {
     public MemberUnavailShiftsResponse getMemberUnavailShiftRequest(MemberUnavailShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
-        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndWardIdAndYearAndMonth(ward.getId(), member.getUserId(), request.year(), request.month());
+        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(member.getUserId(), request.year(), request.month());
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
     public MemberUnavailShiftsResponse addMemberUnavailShift(CreateShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
-        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndWardIdAndShiftIdAndRequestDay(ward.getId(), member.getUserId(), request.shiftId(), request.requestDay());
+        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {
             throw new IllegalArgumentException(ALREADY_EXIST_SHIFT_REQUEST);
         }
         unavailShiftRepository.save(UnavailShiftRequest.create(member.getUserId(), request.requestDay(), request.shiftId(), request.reason()));
         int year = request.requestDay().getYear();
         int month = request.requestDay().getMonthValue();
-        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndWardIdAndYearAndMonth(ward.getId(), member.getUserId(), year, month);
+        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(member.getUserId(), year, month);
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
     public MemberUnavailShiftsResponse deleteMemberUnavailShift(DeleteShiftRequest request) {
         Ward ward = existenceService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
-        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndWardIdAndShiftIdAndRequestDay(ward.getId(), member.getUserId(), request.shiftId(), request.requestDay());
+        Optional<UnavailShiftRequest> optionalShiftRequest = unavailShiftRepository.findByMemberIdAndShiftIdAndRequestDay(member.getUserId(), request.shiftId(), request.requestDay());
         if (optionalShiftRequest.isPresent()) {
             unavailShiftRepository.delete(optionalShiftRequest.get().getId());
         }
         int year = request.requestDay().getYear();
         int month = request.requestDay().getMonthValue();
-        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndWardIdAndYearAndMonth(ward.getId(), member.getUserId(), year, month);
+        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(member.getUserId(), year, month);
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
@@ -74,20 +75,24 @@ public class UnavailShiftService {
 
 
     private WardUnavailShiftResponse getWardUnavailShiftResponse(Ward ward, List<UnavailShiftRequest> requests) {
-        Map<UUID, List<UnavailableShiftDto>> memberRequests = new HashMap<>();
-        Map<UUID, MemberUnavailShiftsResponse> allMembersRequests = new HashMap<>();
+        Map<UUID, List<UnavailableShiftDto>> memberRequests = requests.stream()
+                .collect(Collectors.groupingBy(
+                        UnavailShiftRequest::getMemberId,
+                        Collectors.mapping(req ->
+                                        new UnavailableShiftDto(req.getShiftId(), ward.getShiftName(req.getShiftId())),
+                                Collectors.toList()
+                        )
+                ));
 
-        for (UnavailShiftRequest request : requests) {
-            Member member = memberService.getMember(request.getId());
-            memberRequests.computeIfAbsent(member.getUserId(), k -> new ArrayList<>())
-                    .add(new UnavailableShiftDto(request.getShiftId(), ward.getShiftName(request.getShiftId())));
-        }
+        Map<UUID, MemberUnavailShiftsResponse> allMembersRequests = memberRequests.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            Member member = memberService.getMember(entry.getKey());
+                            return new MemberUnavailShiftsResponse(ward.getId(), entry.getKey(), member.getName(), entry.getValue());
+                        }
+                ));
 
-        for (UUID memberId : memberRequests.keySet()) {
-            Member member = memberService.getMember(memberId);
-            List<UnavailableShiftDto> memberRequestsDto = memberRequests.containsKey(memberId) ? memberRequests.get(memberId) : new ArrayList<>();
-            allMembersRequests.putIfAbsent(memberId, new MemberUnavailShiftsResponse(ward.getId(), memberId, member.getName(), memberRequestsDto));
-        }
         return new WardUnavailShiftResponse(allMembersRequests);
     }
 }

@@ -15,8 +15,8 @@ public interface UnavailShiftRepository {
 
     List<UnavailShiftRequest> findByWardIdAndYearAndMonth(UUID wardId, int year, int month);
 
-    List<UnavailShiftRequest> findByMemberIdAndWardIdAndYearAndMonth(UUID wardId, UUID memberId, int year, int month);
+    List<UnavailShiftRequest> findByMemberIdAndYearAndMonth(UUID memberId, int year, int month);
 
-    Optional<UnavailShiftRequest> findByMemberIdAndWardIdAndShiftIdAndRequestDay(UUID wardId, UUID memberId, UUID shiftId, LocalDate requestDay);
+    Optional<UnavailShiftRequest> findByMemberIdAndShiftIdAndRequestDay(UUID memberId, UUID shiftId, LocalDate requestDay);
 
 }
