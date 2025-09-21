@@ -1,6 +1,5 @@
 package com.davena.organization.domain.model.ward;
 
-import com.davena.constraint.domain.model.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -9,7 +8,6 @@ import java.util.*;
 
 import static com.davena.organization.domain.model.ward.Grade.DEFAULT_GRADE;
 import static com.davena.organization.domain.model.ward.Team.DEFAULT_TEAM;
-import static com.davena.organization.domain.model.ward.Team.validateTeamName;
 
 @Getter
 public class Ward {
@@ -69,10 +67,10 @@ public class Ward {
     }
 
     private static void validateWardName(String name) {
-        if(!name.matches("^\\S+$")) {
+        if (!name.matches("^\\S+$")) {
             throw new IllegalArgumentException(CAN_NOT_BLANK_WARD_NAME);
         }
-        if(name.length() > 10) {
+        if (name.length() > 10) {
             throw new IllegalArgumentException(CAN_NOT_EXCEED_10_WARD_NAME);
         }
     }
@@ -161,7 +159,7 @@ public class Ward {
     }
 
     private void validateShiftIsOff(Shift shift) {
-        if(shift.isOff()) {
+        if (shift.isOff()) {
             throw new IllegalArgumentException(CAN_NOT_DELETE_OFF);
         }
     }

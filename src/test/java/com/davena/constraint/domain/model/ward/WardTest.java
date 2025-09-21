@@ -74,7 +74,7 @@ public class WardTest {
         UUID bTeamId = ward.addNewTeam("bTeam");
         ward.deleteTeam(bTeamId);
 
-        for(Team team: ward.getTeams()) {
+        for (Team team : ward.getTeams()) {
             Assertions.assertNotEquals(team.getId(), bTeamId);
         }
     }
@@ -86,7 +86,7 @@ public class WardTest {
         UUID gradeId = ward.addNewGrade("bGrade");
         ward.deleteGrade(gradeId);
 
-        for(Grade grade : ward.getGrades()) {
+        for (Grade grade : ward.getGrades()) {
             Assertions.assertNotEquals(grade.getId(), gradeId);
         }
     }
@@ -98,7 +98,7 @@ public class WardTest {
         UUID shiftId = ward.addNewShift(DayType.WEEKDAY, "day", 7, 30, 14, 0);
         ward.deleteShift(shiftId);
 
-        for(Shift shift : ward.getShifts()) {
+        for (Shift shift : ward.getShifts()) {
             Assertions.assertNotEquals(shift.getId(), shiftId);
         }
     }
@@ -212,8 +212,8 @@ public class WardTest {
         Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         Shift defaultShift = null;
-        for(Shift shift : ward.getShifts()) {
-            if(shift.isOff()) {
+        for (Shift shift : ward.getShifts()) {
+            if (shift.isOff()) {
                 defaultShift = shift;
                 break;
             }
