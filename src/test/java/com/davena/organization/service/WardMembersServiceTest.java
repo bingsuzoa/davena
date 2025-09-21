@@ -46,7 +46,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("입력한 토큰과 일치하는 병동이 있으면 반환")
     void findWardByToken() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardRepository.findByToken(any())).thenReturn(Optional.of(ward));
         WardResponse response = wardMembersService.findWardByToken(ward.getToken());
         Assertions.assertEquals(ward.getId(), response.wardId());
@@ -55,7 +55,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동 가입 신청 시 USER 상태 PENDING으로 변환")
     void applyForWard() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);
@@ -67,7 +67,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동 가입 승인 시 USER 상태 APPROVED")
     void acceptUserJoinRequest() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);
@@ -84,7 +84,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동 가입 승인 시 Member객체 생성 + ward의 shifts 갖는지 확인, member는 기본 팀 배정 확인")
     void createMember() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         Member member = new Member(user.getId(), ward.getId(), user.getName());
@@ -105,7 +105,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동 가입 거절 시 USER 상태 NONE")
     void rejectUserJoinRequest() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);
@@ -123,7 +123,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("입력한 토큰과 일치하는 병동이 없으면 예외")
     void findWardByToken_exception() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardRepository.findByToken(any())).thenReturn(Optional.empty());
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             wardMembersService.findWardByToken(ward.getToken());
@@ -133,7 +133,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동의 supervisor가 아닌 사용자가 승인 시 예외")
     void acceptUserJoinRequest_exception() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);
@@ -148,7 +148,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동의 supervisor가 아닌 사용자가 거절 시 예외")
     void rejectUserJoinRequest_exception() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID notSupervisorId = UUID.randomUUID();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);
@@ -162,7 +162,7 @@ public class WardMembersServiceTest {
     @Test
     @DisplayName("병동 가입 승인 시 이미 병동에 가입된 사용자일 경우 예외 발생")
     void acceptUserJoinRequest_이미_가입된_사용자_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         User user = User.create("name", "loginId", "password", "phone");
         when(wardService.getWard(any())).thenReturn(ward);

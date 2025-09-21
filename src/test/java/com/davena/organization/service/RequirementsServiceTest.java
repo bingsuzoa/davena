@@ -37,7 +37,7 @@ public class RequirementsServiceTest {
     @Test
     @DisplayName("병동의 각 근무유형별 필요 인원 조회하기 = 처음에는 0으로 세팅 확인")
     void getRequirements() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -51,7 +51,7 @@ public class RequirementsServiceTest {
     @Test
     @DisplayName("병동 근무유형별 업데이트 하기")
     void updateWardRequirements() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 

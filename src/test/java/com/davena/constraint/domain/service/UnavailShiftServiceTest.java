@@ -50,7 +50,7 @@ public class UnavailShiftServiceTest {
     @Test
     @DisplayName("병동 멤버 전체의 불가능 근무 리퀘스트 조회하기")
     void getWardUnavailShiftRequests() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -73,7 +73,7 @@ public class UnavailShiftServiceTest {
     @Test
     @DisplayName("불가능 근무 신청하기")
     void addMemberUnavailShift() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -97,7 +97,7 @@ public class UnavailShiftServiceTest {
     @Test
     @DisplayName("불가능 근무 삭제하기")
     void deleteMemberUnavailShift() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -121,7 +121,7 @@ public class UnavailShiftServiceTest {
     @Test
     @DisplayName("불가능 근무 신청하기 - 동일 날짜 동일 근무 신청 내역 있으면 예외")
     void addMemberUnavailShift_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -145,7 +145,7 @@ public class UnavailShiftServiceTest {
     @Test
     @DisplayName("불가능 근무 신청하기 - 해당일에 휴가 신청 내역있으면 예외")
     void addMemberUnavailShift_휴가_신청_내역_있으면_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());

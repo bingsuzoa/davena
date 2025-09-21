@@ -41,7 +41,7 @@ public class ChargeAssignServiceTest {
     @Test
     @DisplayName("병동 차지 조회 : 처음에는 모두 true로 지정되어 있는 상태")
     void getWardCharges() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
@@ -67,7 +67,7 @@ public class ChargeAssignServiceTest {
     @Test
     @DisplayName("병동의 차지 정보 업데이트하기")
     void updateWardCharges() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("bTeam");
 
@@ -120,7 +120,7 @@ public class ChargeAssignServiceTest {
     @Test
     @DisplayName("병동의 차지 정보 업데이트할 때, 팀에 차지 배정이 한 명도 없으면 예외")
     void updateWardCharges_팀에_차지_배정_한_명도_없으면_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID aTeamId = ward.getTeams().getFirst().getId();
         UUID bTeamId = ward.addNewTeam("bTeam");
 

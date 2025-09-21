@@ -39,7 +39,7 @@ public class PossibleShiftServiceTest {
     @Test
     @DisplayName("병동 내 멤버들의 가능한 근무 목록 조회하기 - 처음에는 모든 근무가 (가능)으로 설정됨")
     void getWardPossibleShifts() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -68,7 +68,7 @@ public class PossibleShiftServiceTest {
     @Test
     @DisplayName("병동 내 멤버들의 가능한 근무 변경하기")
     void updateWardPossibleShifts() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());

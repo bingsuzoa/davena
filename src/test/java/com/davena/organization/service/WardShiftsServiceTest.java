@@ -42,7 +42,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("병동의 근무 유형 조회")
     void getShifts() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -53,7 +53,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("새로운 근무 유형 추가")
     void addNewShift() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -72,7 +72,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("기존 근무 유형 삭제")
     void deleteShift() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -92,7 +92,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("근무 유형 변경하기")
     void updateShift() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -124,7 +124,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("새로운 근무 유형 추가시 기존 근무 유형의 이름과 동일할 경우 예외 발생")
     void addNewShift_동일_이름_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -141,7 +141,7 @@ public class WardShiftsServiceTest {
     @Test
     @DisplayName("기존 근무 유형 삭제 - 오프 삭제 시도 시 예외")
     void deleteShift_오프_삭제_시_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardService.getWard(any())).thenReturn(ward);
         when(wardService.verifySupervisorOfWard(any(), any())).thenReturn(true);
 

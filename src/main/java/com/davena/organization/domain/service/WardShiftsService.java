@@ -33,11 +33,11 @@ public class WardShiftsService {
         Ward ward = wardService.getWard(request.wardId());
         wardService.verifySupervisorOfWard(ward, ward.getSupervisorId());
         UUID newShiftId = ward.addNewShift(request.dayType(), request.shiftName(), request.startHour(), request.startMinute(), request.endHour(), request.endMinute());
-        addMembersNewShift(newShiftId, request.shiftName(), ward);
+        addMembersNewShift(ward, newShiftId, request.shiftName());
         return getWardShiftsDto(ward);
     }
 
-    private void addMembersNewShift(UUID shiftId, String shiftName, Ward ward) {
+    private void addMembersNewShift(Ward ward, UUID shiftId, String shiftName) {
         List<Member> allMembers = memberService.getAllMembersOfWard(ward.getId());
         for (Member member : allMembers) {
             member.addWardNewShift(shiftId, shiftName);
@@ -47,17 +47,9 @@ public class WardShiftsService {
     public WardShiftsDto deleteShift(DeleteShiftRequest request) {
         Ward ward = wardService.getWard(request.wardId());
         wardService.verifySupervisorOfWard(ward, ward.getSupervisorId());
-        validateShiftIsOff(request.shiftId(), ward);
         UUID deletedShiftId = ward.deleteShift(request.shiftId());
         deleteMembersShift(deletedShiftId, ward);
         return getWardShiftsDto(ward);
-    }
-
-    private void validateShiftIsOff(UUID shiftId, Ward ward) {
-        Shift shift = ward.getShift(shiftId);
-        if(shift.isOff()) {
-            throw new IllegalArgumentException(CAN_NOT_DELETE_OFF);
-        }
     }
 
     private void deleteMembersShift(UUID shiftId, Ward ward) {

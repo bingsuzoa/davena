@@ -47,7 +47,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("병동 근무자 휴가 신청 현황 조회")
     void getWardHolidays() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
         Member member1 = new Member(user1.getId(), ward.getId(), user1.getName());
@@ -74,7 +74,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("휴가 신청하는 기능")
     void addMemberHoliday() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
@@ -93,7 +93,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("휴가 삭제하는 기능")
     void deleteMemberHoliday() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
@@ -111,7 +111,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("휴가 신청하는 기능 - 같은 날짜 휴가 신청 내역 있으면 예외")
     void addMemberHoliday_같은_날짜_휴가_신청_내역_있으면_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
@@ -131,7 +131,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("휴가 삭제하는 기능 - 휴가 삭제하려는 날짜에 신청된 내역 없으면 예외 발생")
     void deleteMemberHoliday_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");
@@ -150,7 +150,7 @@ public class HolidayServiceTest {
     @Test
     @DisplayName("휴가 신청하는 기능 : 해당일에 불가능 근무 신청 내역이 있으면 예외")
     void addMemberHoliday_해당_일에_근무_신청_내역이_있으면_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
 
         when(wardService.getWard(any())).thenReturn(ward);
         User user1 = User.create("name1", "loginId1", "password", "01011112222");

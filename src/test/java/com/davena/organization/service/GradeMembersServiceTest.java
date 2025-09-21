@@ -36,7 +36,7 @@ public class GradeMembersServiceTest {
     @Test
     @DisplayName("새로운 숙련도 추가하기")
     void addNewGrade() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         UUID defaultGradeId = ward.getGrades().getFirst().getId();
 
@@ -67,7 +67,7 @@ public class GradeMembersServiceTest {
     @Test
     @DisplayName("member들의 숙련도 업데이트하기")
     void updateWardGradeAssignments() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         UUID firstGradeId = ward.getGrades().getFirst().getId();
         UUID secondGradeId = ward.addNewGrade("2단계");
@@ -102,7 +102,7 @@ public class GradeMembersServiceTest {
     @Test
     @DisplayName("Default 숙련도 삭제할 경우 예외 발생")
     void deleteGrade_default_숙련도_삭제_불가() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         UUID supervisorId = ward.getSupervisorId();
         UUID firstGradeId = ward.getGrades().getFirst().getId();
 
@@ -128,7 +128,7 @@ public class GradeMembersServiceTest {
     @Test
     @DisplayName("삭제하려는 숙련도에 멤버가 지정되어 있을 경우 삭제 불가")
     void deleteGrade_멤버_지정되어_있을_시_삭제_불가() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         UUID supervisorId = ward.getSupervisorId();
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);

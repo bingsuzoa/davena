@@ -47,8 +47,8 @@ public class CreateServiceTest {
     @Test
     @DisplayName("병동 생성 확인")
     void Ward_생성_확인() {
-        WardRequest request = new WardRequest(UUID.randomUUID(), UUID.randomUUID(), "외상 병동");
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        WardRequest request = new WardRequest(UUID.randomUUID(), UUID.randomUUID(), "외상병동");
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(wardRepository.save(any())).thenReturn(ward);
         WardResponse response = createService.createWard(request);
         Assertions.assertNotNull(response.wardId());

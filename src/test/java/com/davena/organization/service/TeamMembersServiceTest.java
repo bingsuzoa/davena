@@ -35,7 +35,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("팀 배정 현황 조회")
     void getTeamMembers() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         Team team = ward.getTeams().getFirst();
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
@@ -58,7 +58,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("새로운 팀 생성")
     void addNewTeam() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -70,7 +70,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("기존 팀 삭제 기능")
     void deleteTeam() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         UUID bTeamId = ward.addNewTeam("bTeam");
@@ -83,7 +83,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("병동 멤버 팀 변경")
     void updateTeamAssignments() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
         UUID aTeamId = ward.getTeams().getFirst().getId();
@@ -112,7 +112,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("이미 존재하는 팀과 동일한 이름으로 생성할 경우 예외 발생")
     void addNewTeam_동일_이름_예외() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -127,7 +127,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("default Team 삭제 시도 시 예외 발생")
     void deleteTeam_default_team_삭제_불가() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 
@@ -142,7 +142,7 @@ public class TeamMembersServiceTest {
     @Test
     @DisplayName("team삭제 시도 시 배정된 멤버가 존재할 경우 예외 발생")
     void deleteTeam_배정된_멤버_있으면_삭제_불가() {
-        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상 병동", UUID.randomUUID().toString());
+        Ward ward = Ward.create(UUID.randomUUID(), UUID.randomUUID(), "외상병동", UUID.randomUUID().toString());
         when(existenceCheck.getWard(any())).thenReturn(ward);
         when(existenceCheck.verifySupervisorOfWard(any(), any())).thenReturn(true);
 

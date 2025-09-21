@@ -9,6 +9,7 @@ import java.util.*;
 
 import static com.davena.organization.domain.model.ward.Grade.DEFAULT_GRADE;
 import static com.davena.organization.domain.model.ward.Team.DEFAULT_TEAM;
+import static com.davena.organization.domain.model.ward.Team.validateTeamName;
 
 @Getter
 public class Ward {
@@ -35,7 +36,10 @@ public class Ward {
     public static final String NOT_EXIST_GRADE = "존재하지 않는 숙련도입니다.";
     public static final String NOT_EXIST_SHIFT = "존재하지 않는 근무입니다.";
     public static final String NOT_EXIST_DEFAULT_TEAM = "기본 팀이 존재하지 않습니다.";
-    public static final String NOT_EXIST_USER_OF_WARD = "병동에 승인되지 않은 사용자가 포함되어 있습니다.";
+
+    public static final String CAN_NOT_EXCEED_10_WARD_NAME = "병동 이름은 10글자를 초과할 수 없습니다.";
+    public static final String CAN_NOT_BLANK_WARD_NAME = "병동 이름에 공백이 포함될 수 없습니다.";
+    public static final String CAN_NOT_DELETE_OFF = "오프는 삭제할 수 없습니다.";
 
     private UUID hospitalId;
     private UUID id;
@@ -58,9 +62,19 @@ public class Ward {
     private String token;
 
     public static Ward create(UUID hospitalId, UUID supervisorId, String name, String token) {
+        validateWardName(name);
         Ward ward = new Ward(hospitalId, UUID.randomUUID(), supervisorId, name, token);
         ward.createDefault();
         return ward;
+    }
+
+    private static void validateWardName(String name) {
+        if(!name.matches("^\\S+$")) {
+            throw new IllegalArgumentException(CAN_NOT_BLANK_WARD_NAME);
+        }
+        if(name.length() > 10) {
+            throw new IllegalArgumentException(CAN_NOT_EXCEED_10_WARD_NAME);
+        }
     }
 
     private void createDefault() {
@@ -81,17 +95,18 @@ public class Ward {
     }
 
     private void initRequirementsOfNewTeam(UUID teamId) {
-        requirements.put(teamId, new HashMap<>());
         Map<UUID, Integer> requirementsOfTeam = new HashMap<>();
         for (Shift shift : shifts) {
             requirementsOfTeam.putIfAbsent(shift.getId(), 0);
         }
+        requirements.put(teamId, requirementsOfTeam);
     }
 
     public UUID addNewTeam(String name) {
         if (teams.stream().anyMatch(t -> t.getName().equals(name))) {
             throw new IllegalArgumentException(ALREADY_EXIST_TEAM_NAME);
         }
+        Team.validateTeamName(name);
         Team newTeam = new Team(UUID.randomUUID(), this.getId(), name, false);
         teams.add(newTeam);
         initRequirementsOfNewTeam(newTeam.getId());
@@ -140,8 +155,15 @@ public class Ward {
 
     public UUID deleteShift(UUID shiftId) {
         Shift shift = getShift(shiftId);
+        validateShiftIsOff(shift);
         shifts.remove(shift);
         return shiftId;
+    }
+
+    private void validateShiftIsOff(Shift shift) {
+        if(shift.isOff()) {
+            throw new IllegalArgumentException(CAN_NOT_DELETE_OFF);
+        }
     }
 
     public UUID updateShift(UUID shiftId, DayType dayType, boolean isOff, String name, Integer startHour, Integer startMinute, Integer endHour, Integer endMinute) {
