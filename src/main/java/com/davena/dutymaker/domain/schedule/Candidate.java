@@ -15,9 +15,8 @@ import java.util.List;
 @Getter
 public class Candidate extends BaseEntity {
 
-    public Candidate(Schedule schedule) {
-        this.schedule = schedule;
-        schedule.addCandidate(this);
+    public Candidate() {
+
     }
 
     private int rank;
@@ -25,6 +24,9 @@ public class Candidate extends BaseEntity {
     private int score;
 
     private boolean selected;
+
+    @Column(name = "signature", length = 64) // SHA-256 같은 해시 저장 가정
+    private String signature;
 
     public static final String NOT_FILL_CANDIDATE = "해당 근무표가 채워지지 않았습니다.";
 
@@ -35,8 +37,17 @@ public class Candidate extends BaseEntity {
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CandidateAssignment> assignments = new ArrayList<>();
 
-    public void addAssignments(CandidateAssignment assignment) {
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public void addAssignment(CandidateAssignment assignment) {
         assignments.add(assignment);
+        assignment.setCandidate(this);
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 
     public List<CandidateAssignment> getLastWeekAssignmentsFor(MemberState member) {

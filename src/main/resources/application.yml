@@ -7,3 +7,11 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true          # SQL 출력
+    properties:
+      hibernate:
+        format_sql: true    # 보기 좋게 정렬
+logging:
+  level:
+    org.hibernate.SQL: debug           # 실행 SQL
+    org.hibernate.type.descriptor.sql: trace  # 바인딩된 파라미터 값

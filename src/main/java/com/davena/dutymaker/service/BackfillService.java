@@ -87,7 +87,7 @@ public class BackfillService {
 
         YearMonth ym = YearMonth.parse(schedule.getYearMonth());
         int days = ym.lengthOfMonth();
-        Candidate candidate = candidateRepository.save(new Candidate(schedule));
+        Candidate candidate = candidateRepository.save(new Candidate());
 
         Map<Long, Map<Integer, DraftCell>> cells = payload.board();
         for (Long memberId : cells.keySet()) {
@@ -97,8 +97,8 @@ public class BackfillService {
                 DraftCell draftCell = cell.get(day);
                 LocalDate today = LocalDate.of(ym.getYear(), ym.getMonth(), day);
                 ShiftType shiftType = shiftTypeRepository.findById(draftCell.shiftId()).orElseThrow();
-                CandidateAssignment assignment = candidateAssignmentRepository.save(new CandidateAssignment(candidate, member, today, shiftType, member.isCharge()));
-                candidate.addAssignments(assignment);
+                CandidateAssignment assignment = candidateAssignmentRepository.save(new CandidateAssignment(member, today, shiftType, member.isCharge()));
+                candidate.addAssignment(assignment);
             }
 
         }

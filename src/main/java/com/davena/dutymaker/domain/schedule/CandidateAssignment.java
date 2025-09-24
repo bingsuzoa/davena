@@ -21,13 +21,11 @@ public class CandidateAssignment extends BaseEntity {
     }
 
     public CandidateAssignment(
-            Candidate candidate,
             Member member,
             LocalDate workDate,
             ShiftType shiftType,
             boolean isCharge
     ) {
-        this.candidate = candidate;
         this.member = member;
         this.workDate = workDate;
         this.shiftType = shiftType;
@@ -51,4 +49,8 @@ public class CandidateAssignment extends BaseEntity {
 
     @Column(name = "is_charge", nullable = false)
     private boolean isCharge;
+
+    public void setCandidate(Candidate candidate) {
+        this.candidate = candidate;
+    }
 }

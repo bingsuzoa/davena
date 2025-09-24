@@ -18,11 +18,11 @@ import java.time.YearMonth;
 @RequiredArgsConstructor
 public class SchedulerController {
 
-    private ScheduleService scheduleService;
-    private DraftService draftService;
-    private BackfillService backfillService;
-    private PreCheck preCheck;
-    private GeneratorService generatorService;
+    private final ScheduleService scheduleService;
+    private final DraftService draftService;
+    private final BackfillService backfillService;
+    private final PreCheck preCheck;
+    private final GeneratorService generatorService;
 
     @PutMapping("/requriements")
     public void updateRequirement(@PathVariable Long wardId, RequirementRequest requirementRequest) {

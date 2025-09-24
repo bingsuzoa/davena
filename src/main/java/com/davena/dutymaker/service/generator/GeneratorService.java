@@ -36,7 +36,6 @@ public class GeneratorService {
             attempts++;
         }
 
-        System.out.println("🎉🎉🎉두구두구 " + schedule.getCandidates().size());
         if (schedule.getCandidates().isEmpty()) {
             throw new IllegalStateException("Candidate 생성 실패: 가능한 경우 아예 없음");
         }

@@ -15,4 +15,6 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
 
     @Query("select c from Candidate c left join fetch c.schedule where c.id = :id")
     Optional<Candidate> findByIdWithSchedule(@Param("id") Long candidateId);
+
+    boolean existsByScheduleIdAndSignature(Long scheduleId, String signature);
 }
