@@ -17,4 +17,6 @@ public interface MemberRepository {
     List<Member> findByWardIdAndGradeId(UUID wardId, UUID gradeId);
 
     List<Member> findByWardIdAndTeamId(UUID wardId, UUID teamId);
+
+    List<Member> findChargeMembersOfWardAndTeam(UUID wardId, UUID teamId);
 }

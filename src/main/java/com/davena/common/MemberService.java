@@ -3,6 +3,7 @@ package com.davena.common;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.port.MemberRepository;
 import com.davena.organization.domain.model.user.User;
+import com.davena.organization.domain.model.ward.Team;
 import com.davena.organization.domain.model.ward.Ward;
 import com.davena.organization.domain.port.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class MemberService {
 
     public boolean isAlreadyExistMember(UUID userId) {
         Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        if(optionalMember.isEmpty()) {
+        if (optionalMember.isEmpty()) {
             return false;
         }
         return true;
@@ -70,5 +71,12 @@ public class MemberService {
         if (!dtoMembers.equals(ward.getUsers())) {
             throw new IllegalArgumentException(NOT_CONTAINS_ALL_MEMBER);
         }
+    }
+
+    public List<UUID> getChargeMemberOfWard(Ward ward, Team team) {
+        return memberRepository.findChargeMembersOfWardAndTeam(ward.getId(), team.getId())
+                .stream()
+                .map(Member::getUserId)
+                .toList();
     }
 }

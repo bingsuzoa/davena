@@ -17,7 +17,7 @@ public class UnavailShiftController {
         return unavailShiftService.getWardUnavailShiftRequests(request);
     }
 
-    @GetMapping("/ward")
+    @GetMapping("/member")
     public MemberUnavailShiftsResponse getMemberUnavailShifts(@RequestBody MemberUnavailShiftRequest request) {
         return unavailShiftService.getMemberUnavailShiftRequest(request);
     }

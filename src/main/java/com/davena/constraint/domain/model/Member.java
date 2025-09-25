@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class Member {
+public class Member implements Comparable<Member> {
 
     public Member(
             UUID userId,
@@ -98,6 +98,11 @@ public class Member {
     @Override
     public int hashCode() {
         return userId.hashCode();
+    }
+
+    @Override
+    public int compareTo(Member other) {
+        return this.rank - other.rank;
     }
 
 

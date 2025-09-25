@@ -231,4 +231,11 @@ public class Ward {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
     }
+
+    public Shift getShiftByName(DayType dayType, String name) {
+        return shifts.stream()
+                .filter(s -> s.getName().equals(name) && s.getDayType().equals(dayType))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_SHIFT));
+    }
 }

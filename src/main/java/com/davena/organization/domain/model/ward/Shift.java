@@ -37,10 +37,12 @@ public class Shift {
     public static final String Nig = "Nig";
 
     public LocalTime getStartTime() {
+        if (isOff()) return null;
         return workTime.startTime();
     }
 
     public LocalTime getEndTime() {
+        if (isOff()) return null;
         return workTime.endTime();
     }
 
