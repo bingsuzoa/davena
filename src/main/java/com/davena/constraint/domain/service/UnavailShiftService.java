@@ -41,6 +41,15 @@ public class UnavailShiftService {
         return getMemberUnavailShiftResponse(ward, member, unavailShiftRequests);
     }
 
+    public Set<UUID> getMemberUnavailRequestsByYearAndMonth(UUID memberId, int year, int month) {
+        Set<UUID> unavailSet = new HashSet<>();
+        List<UnavailShiftRequest> unavailShiftRequests = unavailShiftRepository.findByMemberIdAndYearAndMonth(memberId, year, month);
+        for(UnavailShiftRequest request : unavailShiftRequests) {
+            unavailSet.add(request.getId());
+        }
+        return unavailSet;
+    }
+
     public MemberUnavailShiftsResponse addMemberUnavailShift(CreateShiftRequest request) {
         Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());

@@ -3,9 +3,7 @@ package com.davena.constraint.domain.model;
 import com.davena.organization.domain.model.ward.Shift;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class Member {
@@ -45,7 +43,6 @@ public class Member {
         this.teamId = defaultTeamId;
     }
 
-
     public void updateCanCharge(boolean canCharge) {
         this.canCharge = canCharge;
     }
@@ -63,6 +60,13 @@ public class Member {
         shifts.remove(shift);
     }
 
+    public Set<UUID> getShiftIdSet() {
+        Set<UUID> shiftIdSet = new HashSet<>();
+        for(PossibleShift shift : shifts) {
+            shiftIdSet.add(shift.getShiftId());
+        }
+        return shiftIdSet;
+    }
 
     private PossibleShift getShift(UUID shiftId) {
         return shifts.stream()

@@ -44,9 +44,19 @@ public class Shift {
         return workTime.endTime();
     }
 
+    public boolean isNight() {
+        LocalTime startTime = workTime.startTime();
+        LocalTime endTime = workTime.endTime();
+
+        if(endTime.isBefore(startTime)) {
+            return true;
+        }
+        return startTime.isAfter(LocalTime.of(20, 0)) || endTime.isBefore(LocalTime.of(9, 0));
+    }
+
     protected static LocalTime toLocalTime(int workHour, int workMinute) {
         if(workHour == 24) {
-            return LocalTime.of(0, workMinute);
+            return LocalTime.of(23, 59);
         }
         return LocalTime.of(workHour, workMinute);
     }

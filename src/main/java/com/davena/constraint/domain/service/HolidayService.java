@@ -42,6 +42,15 @@ public class HolidayService {
         return getMemberHolidayResponse(ward, member, requests);
     }
 
+    public Set<UUID> getMemberHolidaysByYearAndMonth(UUID memberId, int year, int month) {
+        List<HolidayRequest> requests = holidayRepository.findByMemberIdAndYearAndMonth(memberId, year, month);
+        Set<UUID> holidaysSet = new HashSet<>();
+        for(HolidayRequest request : requests) {
+            holidaysSet.add(request.getId());
+        }
+        return holidaysSet;
+    }
+
     public MemberHolidayResponse addMemberHoliday(CreateHolidayRequest request) {
         Ward ward = wardService.getWard(request.wardId());
         Member member = memberService.getMember(request.memberId());
