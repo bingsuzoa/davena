@@ -1,6 +1,6 @@
 package com.davena.dutymaker.domain.service;
 
-import com.davena.dutymaker.application.dto.GenerateRequest;
+import com.davena.dutymaker.application.dto.AssignScheduleRequest;
 import com.davena.dutymaker.domain.model.schedule.Cell;
 import com.davena.dutymaker.domain.model.schedule.Schedule;
 import com.davena.dutymaker.domain.port.CellRepository;
@@ -20,7 +20,7 @@ public class ScheduleService {
 
     public static final String NOT_EXIST_SCHEDULE = "존재하지 않는 스케줄입니다.";
 
-    public Map<UUID, List<Cell>> getLastMonthCells(GenerateRequest request) {
+    public Map<UUID, List<Cell>> getLastMonthCells(AssignScheduleRequest request) {
         int year = request.year();
         int month = request.month();
 
