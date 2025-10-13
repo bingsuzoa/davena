@@ -1,11 +1,13 @@
 package com.davena.constraint.domain.port;
 
 import com.davena.constraint.domain.model.UnavailShiftRequest;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 public interface UnavailShiftRepository {
 

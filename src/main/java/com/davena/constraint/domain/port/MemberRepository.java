@@ -1,10 +1,12 @@
 package com.davena.constraint.domain.port;
 
 import com.davena.constraint.domain.model.Member;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 public interface MemberRepository {
 
