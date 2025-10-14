@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +27,19 @@ public class ScheduleReadService {
     private final MemberService memberService;
     private final WardService wardService;
 
-    public ScheduleResponse getSchedule(GetScheduleRequest request) {
-        Schedule schedule;
-        if (request.scheduleId() == null) {
-            schedule = scheduleRepository.saveSchedule(new Schedule(request.wardId(), request.year(), request.year()));
-        } else {
-            schedule = scheduleRepository.findById(request.scheduleId()).get();
-        }
+    public static final String NOT_EXIST_SCHEDULE = "존재하지 않는 스케줄입니다.";
+
+    public ScheduleResponse createSchedule(GetScheduleRequest request) {
+        Schedule schedule = scheduleRepository.saveSchedule(new Schedule(request.wardId(), request.year(), request.month()));
         return getScheduleResponse(schedule);
+    }
+
+    public ScheduleResponse getSchedule(GetScheduleRequest request) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.findById(request.scheduleId());
+        if (optionalSchedule.isEmpty()) {
+            throw new IllegalArgumentException(NOT_EXIST_SCHEDULE);
+        }
+        return getScheduleResponse(optionalSchedule.get());
     }
 
     private ScheduleResponse getScheduleResponse(Schedule schedule) {
