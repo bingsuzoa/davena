@@ -8,13 +8,12 @@ import java.util.UUID;
 public class Cell implements Comparable<Cell> {
 
     public Cell(
-            UUID id,
             UUID candidateId,
             UUID memberId,
             int workDay,
             UUID shiftId
     ) {
-        this.id = id;
+        this.id = UUID.randomUUID();
         this.candidateId = candidateId;
         this.memberId = memberId;
         this.workDay = workDay;
@@ -26,6 +25,10 @@ public class Cell implements Comparable<Cell> {
     private UUID memberId;
     private int workDay;
     private UUID shiftId;
+
+    public void updateShift(UUID updatedShiftId) {
+        shiftId = updatedShiftId;
+    }
 
     @Override
     public int compareTo(Cell other) {

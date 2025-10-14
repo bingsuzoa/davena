@@ -24,24 +24,37 @@ public class Schedule {
     private UUID wardId;
     private int year;
     private int month;
-    private UUID finalizedCandidateId;
     private ScheduleStatus status = ScheduleStatus.PENDING;
     private List<Candidate> candidates = new ArrayList<>();
 
-    public void finalizeStatus(UUID candidateId) {
-        this.finalizedCandidateId = candidateId;
+    public static final String NOT_EXIST_CANDIDATE = "존재하지 않는 candidate";
+    public static final String NOT_FINALIZED_MESSAGE = "아직 확정된 스케줄이 없습니다. 확정해주세요!";
+
+    public void updateCell(UUID candidateId, UUID cellId, UUID shiftId) {
+        for(Candidate candidate : candidates) {
+            if(candidate.getId().equals(candidateId)) {
+                candidate.updateCell(cellId, shiftId);
+                return;
+            }
+        }
+        throw new IllegalArgumentException(NOT_EXIST_CANDIDATE);
+    }
+
+    public void addCandidate(Candidate candidate) {
+        candidates.add(candidate);
+    }
+
+    public void finalizeStatus() {
         status = ScheduleStatus.CONFIRMED;
     }
 
-    public UUID getFinalizedCandidateId() {
-        if(finalizedCandidateId == null) {
-            throw new IllegalArgumentException(notFinalizedMessage(year));
+    public List<Cell> getCellsOfFinalizedCandidate() {
+        for(Candidate candidate : candidates) {
+            if(candidate.isFinalized()) {
+                return candidate.getCells();
+            }
         }
-        return finalizedCandidateId;
-    }
-
-    public static String notFinalizedMessage(int year) {
-        return year + "월의 스케줄이 아직 확정되지 않았습니다. 확정해주세요!";
+        throw new IllegalArgumentException(NOT_FINALIZED_MESSAGE);
     }
 
 }

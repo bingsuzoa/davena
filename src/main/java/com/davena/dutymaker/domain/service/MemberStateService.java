@@ -5,7 +5,7 @@ import com.davena.common.WardService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.service.HolidayService;
 import com.davena.constraint.domain.service.UnavailShiftService;
-import com.davena.dutymaker.application.dto.AssignScheduleRequest;
+import com.davena.dutymaker.application.dto.request.AssignScheduleRequest;
 import com.davena.dutymaker.domain.model.MemberState;
 import com.davena.dutymaker.domain.model.schedule.Cell;
 import com.davena.organization.domain.model.ward.Shift;
@@ -25,11 +25,11 @@ public class MemberStateService {
     private final WardService wardService;
     private final HolidayService holidayService;
     private final UnavailShiftService unavailShiftService;
-    private final ScheduleService scheduleService;
+    private final ScheduleReadService scheduleReadService;
 
     private List<MemberState> initMemberState(AssignScheduleRequest request) {
         Ward ward = wardService.getWard(request.wardId());
-        Map<UUID, List<Cell>> lastMonthCells = scheduleService.getLastMonthCells(request);
+        Map<UUID, List<Cell>> lastMonthCells = scheduleReadService.getLastMonthCells(request);
 
         List<MemberState> memberStates = new ArrayList<>();
         YearMonth thisMonth = YearMonth.of(request.year(), request.month());

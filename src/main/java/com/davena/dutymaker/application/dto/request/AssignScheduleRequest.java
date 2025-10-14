@@ -1,4 +1,4 @@
-package com.davena.dutymaker.application.dto;
+package com.davena.dutymaker.application.dto.request;
 
 import java.util.UUID;
 

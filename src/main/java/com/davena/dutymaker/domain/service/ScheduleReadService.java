@@ -2,22 +2,22 @@ package com.davena.dutymaker.domain.service;
 
 import com.davena.common.MemberService;
 import com.davena.common.WardService;
-import com.davena.constraint.domain.model.Member;
 import com.davena.dutymaker.application.dto.AssignmentDto;
 import com.davena.dutymaker.application.dto.CandidateDto;
-import com.davena.dutymaker.application.dto.GetScheduleRequest;
-import com.davena.dutymaker.application.dto.ScheduleResponse;
+import com.davena.dutymaker.application.dto.ScheduleDto;
+import com.davena.dutymaker.application.dto.request.AssignScheduleRequest;
+import com.davena.dutymaker.application.dto.request.GetScheduleRequest;
 import com.davena.dutymaker.domain.model.schedule.Candidate;
 import com.davena.dutymaker.domain.model.schedule.Cell;
 import com.davena.dutymaker.domain.model.schedule.Schedule;
 import com.davena.dutymaker.domain.port.ScheduleRepository;
-import com.davena.organization.domain.model.ward.Shift;
 import com.davena.organization.domain.model.ward.Ward;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,63 +29,73 @@ public class ScheduleReadService {
 
     public static final String NOT_EXIST_SCHEDULE = "존재하지 않는 스케줄입니다.";
 
-    public ScheduleResponse createSchedule(GetScheduleRequest request) {
-        Schedule schedule = scheduleRepository.saveSchedule(new Schedule(request.wardId(), request.year(), request.month()));
-        return getScheduleResponse(schedule);
-    }
-
-    public ScheduleResponse getSchedule(GetScheduleRequest request) {
+    public ScheduleDto getScheduleDto(GetScheduleRequest request) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(request.scheduleId());
         if (optionalSchedule.isEmpty()) {
             throw new IllegalArgumentException(NOT_EXIST_SCHEDULE);
         }
-        return getScheduleResponse(optionalSchedule.get());
+        return getScheduleDto(optionalSchedule.get());
     }
 
-    private ScheduleResponse getScheduleResponse(Schedule schedule) {
+    public Schedule getScheduleById(UUID scheduleId) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
+        if (optionalSchedule.isEmpty()) {
+            throw new IllegalArgumentException(NOT_EXIST_SCHEDULE);
+        }
+        return optionalSchedule.get();
+    }
+
+    public Map<UUID, List<Cell>> getLastMonthCells(AssignScheduleRequest request) {
+        int year = request.year();
+        int month = request.month();
+
+        if (month == 1) {
+            year -= 1;
+            month = 12;
+        }
+        Schedule lastMonthSchedule = getScheduleByYearAndMonth(request.wardId(), year, month);
+        List<Cell> cells = lastMonthSchedule.getCellsOfFinalizedCandidate();
+        Collections.sort(cells);
+        return cells.stream()
+                .collect(Collectors.groupingBy(Cell::getMemberId,
+                        Collectors.toList()));
+    }
+
+    public Schedule getScheduleByYearAndMonth(UUID wardId, int year, int month) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.getScheduleByWardIdAndYearAndMonth(wardId, year, month);
+        if (optionalSchedule.isEmpty()) {
+            throw new IllegalArgumentException(NOT_EXIST_SCHEDULE);
+        }
+        return optionalSchedule.get();
+    }
+
+    public ScheduleDto getScheduleDto(Schedule schedule) {
         int year = schedule.getYear();
         int month = schedule.getMonth();
         int lastDate = YearMonth.of(year, month).lengthOfMonth();
-
-        Map<Integer, List<AssignmentDto>> dailyAssignments = new HashMap<>();
-        for (int day = 1; day <= lastDate; day++) {
-            dailyAssignments.put(day, new ArrayList<>());
-        }
+        Ward ward = wardService.getWard(schedule.getWardId());
 
         List<CandidateDto> candidateDtos = new ArrayList<>();
-
-        List<Candidate> candidates = schedule.getCandidates();
-        if (candidates.isEmpty()) {
-            candidateDtos.add(new CandidateDto(null, dailyAssignments));
-            return new ScheduleResponse(schedule.getId(), year, month, lastDate, candidateDtos);
+        for (Candidate candidate : schedule.getCandidates()) {
+            candidateDtos.add(getCandidateDto(candidate, schedule, ward));
         }
-
-        for (Candidate candidate : candidates) {
-            candidateDtos.add(getCandidateDto(candidate, schedule));
-        }
-        return new ScheduleResponse(schedule.getId(), year, month, lastDate, candidateDtos);
+        return new ScheduleDto(ward.getId(), schedule.getId(), year, month, lastDate, candidateDtos);
     }
 
-    private CandidateDto getCandidateDto(Candidate candidate, Schedule schedule) {
+    private CandidateDto getCandidateDto(Candidate candidate, Schedule schedule, Ward ward) {
         int year = schedule.getYear();
         int month = schedule.getMonth();
         int lastDate = YearMonth.of(year, month).lengthOfMonth();
-
-        Ward ward = wardService.getWard(schedule.getWardId());
 
         Map<Integer, List<AssignmentDto>> dailyAssignments = new HashMap<>();
         for (int day = 1; day <= lastDate; day++) {
             dailyAssignments.put(day, new ArrayList<>());
         }
         List<Cell> cells = candidate.getCells();
-        if (cells.isEmpty()) {
-            return new CandidateDto(candidate.getId(), dailyAssignments);
-        }
-
         for (Cell cell : cells) {
-            Member member = memberService.getMember(cell.getMemberId());
-            Shift shift = ward.getShift(cell.getShiftId());
-            dailyAssignments.get(cell.getWorkDay()).add(new AssignmentDto(cell.getId(), member.getName(), shift.getName()));
+            String memberName = cell.getMemberId() == null ? null : memberService.getMember(cell.getMemberId()).getName();
+            String shiftName = cell.getShiftId() == null ? null : ward.getShift(cell.getShiftId()).getName();
+            dailyAssignments.get(cell.getWorkDay()).add(new AssignmentDto(cell.getId(), cell.getMemberId(), cell.getShiftId(), memberName, shiftName));
         }
         return new CandidateDto(candidate.getId(), dailyAssignments);
     }
