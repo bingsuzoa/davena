@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public record FinalizedScheduleRequest(
+public record UpdateCellRequest(
         UUID wardId,
         UUID scheduleId,
         UUID candidateId,

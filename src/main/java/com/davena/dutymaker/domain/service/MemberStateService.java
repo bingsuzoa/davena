@@ -5,9 +5,9 @@ import com.davena.common.WardService;
 import com.davena.constraint.domain.model.Member;
 import com.davena.constraint.domain.service.HolidayService;
 import com.davena.constraint.domain.service.UnavailShiftService;
-import com.davena.dutymaker.application.dto.request.AssignScheduleRequest;
 import com.davena.dutymaker.domain.model.MemberState;
 import com.davena.dutymaker.domain.model.schedule.Cell;
+import com.davena.dutymaker.domain.model.schedule.Schedule;
 import com.davena.organization.domain.model.ward.Shift;
 import com.davena.organization.domain.model.ward.Ward;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +27,12 @@ public class MemberStateService {
     private final UnavailShiftService unavailShiftService;
     private final ScheduleReadService scheduleReadService;
 
-    private List<MemberState> initMemberState(AssignScheduleRequest request) {
-        Ward ward = wardService.getWard(request.wardId());
-        Map<UUID, List<Cell>> lastMonthCells = scheduleReadService.getLastMonthCells(request);
+    public List<MemberState> initMemberState(Schedule schedule) {
+        Ward ward = wardService.getWard(schedule.getWardId());
+        Map<UUID, List<Cell>> lastMonthCells = scheduleReadService.getLastMonthCells(ward.getId(), schedule.getYear(), schedule.getMonth());
 
         List<MemberState> memberStates = new ArrayList<>();
-        YearMonth thisMonth = YearMonth.of(request.year(), request.month());
+        YearMonth thisMonth = YearMonth.of(schedule.getYear(), schedule.getMonth());
 
         for (Map.Entry<UUID, List<Cell>> entry : lastMonthCells.entrySet()) {
             memberStates.add(sortLastMonthCells(ward, thisMonth, entry.getKey(), entry.getValue()));

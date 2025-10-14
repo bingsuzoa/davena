@@ -5,7 +5,7 @@ import com.davena.constraint.domain.model.Member;
 import com.davena.dutymaker.application.dto.AssignmentDto;
 import com.davena.dutymaker.application.dto.ScheduleDto;
 import com.davena.dutymaker.application.dto.request.CreateScheduleRequest;
-import com.davena.dutymaker.application.dto.request.FinalizedScheduleRequest;
+import com.davena.dutymaker.application.dto.request.UpdateCellRequest;
 import com.davena.dutymaker.domain.model.schedule.Candidate;
 import com.davena.dutymaker.domain.model.schedule.Cell;
 import com.davena.dutymaker.domain.model.schedule.Schedule;
@@ -45,7 +45,7 @@ public class ScheduleCreateService {
         return scheduleReadService.getScheduleDto(schedule);
     }
 
-    public ScheduleDto saveCustomSchedule(FinalizedScheduleRequest request) {
+    public ScheduleDto saveCustomSchedule(UpdateCellRequest request) {
         Schedule schedule = scheduleReadService.getScheduleById(request.scheduleId());
 
         for (Map.Entry<Integer, List<AssignmentDto>> entry: request.assignments().entrySet()) {

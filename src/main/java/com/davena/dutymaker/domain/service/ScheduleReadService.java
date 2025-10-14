@@ -45,15 +45,12 @@ public class ScheduleReadService {
         return optionalSchedule.get();
     }
 
-    public Map<UUID, List<Cell>> getLastMonthCells(AssignScheduleRequest request) {
-        int year = request.year();
-        int month = request.month();
-
+    public Map<UUID, List<Cell>> getLastMonthCells(UUID wardId, int year, int month) {
         if (month == 1) {
             year -= 1;
             month = 12;
         }
-        Schedule lastMonthSchedule = getScheduleByYearAndMonth(request.wardId(), year, month);
+        Schedule lastMonthSchedule = getScheduleByYearAndMonth(wardId, year, month);
         List<Cell> cells = lastMonthSchedule.getCellsOfFinalizedCandidate();
         Collections.sort(cells);
         return cells.stream()
